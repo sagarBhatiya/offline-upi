@@ -500,15 +500,34 @@ def gateway_deeplink():
     link = gateway_service.generate_upi_deeplink(vpa, 'Receiver', amount, int(time.time()), note)
     return jsonify({"success": True, "deeplink": link})
 
-@app.route('/api/config/gateway', methods=['POST'])
+@app.route('/api/config/gateway', methods=['GET', 'POST'])
 def config_gateway():
-    """Allows configuring optional Cashfree Live/Sandbox Payout API credentials."""
+    """Allows inspecting or updating Cashfree Live/Sandbox credentials."""
+    if request.method == 'GET':
+        return jsonify({"success": True, "status": gateway_service.get_status()})
+
     data = request.json or {}
-    app_id = data.get('cashfreeAppId', '')
-    secret_key = data.get('cashfreeSecretKey', '')
+    app_id = data.get('cashfreeAppId', '').strip()
+    secret_key = data.get('cashfreeSecretKey', '').strip()
     is_sandbox = bool(data.get('isSandbox', True))
     gateway_service.update_credentials(app_id, secret_key, is_sandbox)
-    return jsonify({"success": True, "message": "Gateway credentials updated", "isSandbox": is_sandbox})
+    return jsonify({
+        "success": True,
+        "message": "Gateway credentials updated",
+        "status": gateway_service.get_status()
+    })
+
+@app.route('/api/config/gateway/test', methods=['POST'])
+def test_gateway():
+    """Tests connection to Cashfree Sandbox API."""
+    data = request.json or {}
+    app_id = data.get('cashfreeAppId')
+    secret_key = data.get('cashfreeSecretKey')
+    is_sandbox = bool(data.get('isSandbox', True))
+    if app_id and secret_key:
+        gateway_service.update_credentials(app_id.strip(), secret_key.strip(), is_sandbox)
+    res = gateway_service.test_cashfree_connection()
+    return jsonify(res)
 
 @app.route('/api/user/profile', methods=['POST'])
 def update_user_profile():

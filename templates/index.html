@@ -861,6 +861,36 @@
       <button onclick="saveUserProfile()" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition touch-btn">
         <span>✔ Save Profile</span>
       </button>
+
+      <!-- 3. Cashfree Sandbox Integration Card -->
+      <div class="pt-3 border-t border-slate-800 space-y-2.5 text-left">
+        <div class="flex justify-between items-center">
+          <div class="text-[10px] font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>💳</span>
+            <span>Cashfree Sandbox (Free API)</span>
+          </div>
+          <span id="cf-status-badge" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-slate-700">
+            Checking...
+          </span>
+        </div>
+        <p class="text-[9px] text-slate-400 leading-tight">
+          Enter your free Cashfree Sandbox credentials (from <a href="https://merchant.cashfree.com" target="_blank" class="text-teal-400 underline">merchant.cashfree.com</a>) to test real gateway orders and bank payouts:
+        </p>
+        <div class="space-y-1.5">
+          <input type="text" id="cfg-cf-app-id" placeholder="CASHFREE_APP_ID (e.g. TEST10323...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-teal-400 placeholder:text-slate-600" />
+          <input type="password" id="cfg-cf-secret-key" placeholder="CASHFREE_SECRET_KEY (e.g. cfsk_ma_test_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-teal-400 placeholder:text-slate-600" />
+        </div>
+        <div class="flex gap-2">
+          <button onclick="testCashfreeSandboxConnection()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-[10px] font-bold transition touch-btn flex items-center justify-center gap-1 border border-slate-700">
+            <span id="cf-test-spinner" class="hidden animate-spin">⏳</span>
+            <span>⚡ Test Sandbox</span>
+          </button>
+          <button onclick="saveCashfreeSandboxKeys()" class="flex-1 py-2 px-3 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/40 text-teal-300 text-[10px] font-bold transition touch-btn flex items-center justify-center gap-1">
+            <span>✔ Save Keys</span>
+          </button>
+        </div>
+        <div id="cf-test-result-banner" class="hidden p-2.5 rounded-xl text-[10px] font-mono leading-tight"></div>
+      </div>
     </div>
   </div>
 
@@ -1086,11 +1116,114 @@
       const vpaInput = document.getElementById('profile-vpa-input');
       if (nameInput) nameInput.value = userName;
       if (vpaInput) vpaInput.value = payerVpa;
+      loadCashfreeStatus();
       document.getElementById('profile-modal').classList.remove('hidden');
     }
 
     function closeProfileModal() {
       document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    async function loadCashfreeStatus() {
+      try {
+        const resp = await fetch('/api/config/gateway');
+        const data = await resp.json();
+        const badge = document.getElementById('cf-status-badge');
+        const appIdInput = document.getElementById('cfg-cf-app-id');
+        const secretInput = document.getElementById('cfg-cf-secret-key');
+
+        const localAppId = localStorage.getItem('cfg_cashfree_app_id');
+        const localSecret = localStorage.getItem('cfg_cashfree_secret');
+        if (appIdInput && localAppId && !appIdInput.value) appIdInput.value = localAppId;
+        if (secretInput && localSecret && !secretInput.value) secretInput.value = localSecret;
+
+        if (data.status && data.status.hasKeys) {
+          if (badge) {
+            badge.className = "text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40";
+            badge.textContent = data.status.isSandbox ? "🟢 Sandbox Active" : "🟢 Live Active";
+          }
+        } else {
+          if (badge) {
+            badge.className = "text-[9px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-slate-700";
+            badge.textContent = "NPCI Simulator";
+          }
+        }
+      } catch (e) {
+        console.warn("Cashfree status load error:", e);
+      }
+    }
+
+    async function testCashfreeSandboxConnection() {
+      const appId = document.getElementById('cfg-cf-app-id')?.value.trim();
+      const secret = document.getElementById('cfg-cf-secret-key')?.value.trim();
+      const spinner = document.getElementById('cf-test-spinner');
+      const banner = document.getElementById('cf-test-result-banner');
+
+      if (!appId || !secret) {
+        alert("Please enter both Cashfree App ID and Secret Key to test.");
+        return;
+      }
+
+      if (spinner) spinner.classList.remove('hidden');
+      if (banner) banner.classList.add('hidden');
+
+      try {
+        const resp = await fetch('/api/config/gateway/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cashfreeAppId: appId, cashfreeSecretKey: secret, isSandbox: true })
+        });
+        const res = await resp.json();
+        if (spinner) spinner.classList.add('hidden');
+        if (banner) {
+          banner.classList.remove('hidden');
+          if (res.connected) {
+            banner.className = "p-2.5 rounded-xl text-[10px] font-mono bg-teal-500/20 text-teal-300 border border-teal-500/40";
+            banner.textContent = `✔ Connected to Cashfree Sandbox! ${res.message || ''}`;
+            const badge = document.getElementById('cf-status-badge');
+            if (badge) {
+              badge.className = "text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40";
+              badge.textContent = "🟢 Sandbox Active";
+            }
+          } else {
+            banner.className = "p-2.5 rounded-xl text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40";
+            banner.textContent = `⚠️ Connection: ${res.message || 'Check credentials'}`;
+          }
+        }
+      } catch (err) {
+        if (spinner) spinner.classList.add('hidden');
+        alert("Error testing Cashfree connection: " + err.message);
+      }
+    }
+
+    async function saveCashfreeSandboxKeys() {
+      const appId = document.getElementById('cfg-cf-app-id')?.value.trim();
+      const secret = document.getElementById('cfg-cf-secret-key')?.value.trim();
+      if (!appId || !secret) {
+        alert("Please enter both Cashfree App ID and Secret Key.");
+        return;
+      }
+      localStorage.setItem('cfg_cashfree_app_id', appId);
+      localStorage.setItem('cfg_cashfree_secret', secret);
+
+      try {
+        const resp = await fetch('/api/config/gateway', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cashfreeAppId: appId, cashfreeSecretKey: secret, isSandbox: true })
+        });
+        const data = await resp.json();
+        const badge = document.getElementById('cf-status-badge');
+        if (badge) {
+          badge.className = "text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40";
+          badge.textContent = "🟢 Sandbox Saved";
+        }
+        triggerHaptic(30);
+        playSyntheticTone('success');
+        alert("✔ Cashfree Sandbox credentials saved successfully!\nAll wallet disbursements & deposits will now utilize Cashfree Sandbox.");
+      } catch (e) {
+        alert("Failed to save credentials: " + e.message);
+      }
     }
 
     async function saveUserProfile() {
