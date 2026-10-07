@@ -310,45 +310,6 @@
           </div>
         </div>
 
-        <!-- RECEIVER / MERCHANT WALLET CARD -->
-        <div class="glass-card rounded-[1.75rem] p-4 border border-teal-500/30 bg-slate-900/90 shadow-xl space-y-2.5">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-teal-500/15 border border-teal-500/40 flex items-center justify-center text-xl shadow-inner">
-                🏪
-              </div>
-              <div>
-                <div class="text-[9px] text-teal-400 font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-                  Receiver Wallet (Merchant)
-                </div>
-                <div class="text-sm font-extrabold text-white" id="merchant-name-display">Sharma Kirana Store</div>
-                <div class="text-[11px] text-slate-400 font-mono" id="merchant-vpa-display">sharma_kirana@paytm</div>
-              </div>
-            </div>
-
-            <div class="text-right">
-              <div class="text-[9px] text-slate-400 font-mono uppercase font-bold">Receiver Balance</div>
-              <div class="text-2xl font-extrabold text-teal-300 font-mono flex items-baseline justify-end gap-0.5 tracking-tight">
-                <span class="text-sm">₹</span>
-                <span id="merchant-balance-display">500.00</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dual Actions for Receiver: Pay Offline & Withdraw to Bank UPI -->
-          <div class="pt-2.5 border-t border-slate-800/80 grid grid-cols-2 gap-2">
-            <!-- ⚡ Pay Offline Button -->
-            <button onclick="simulateScanStandee('sharma_kirana@paytm', 'Sharma Kirana Store', 120)" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 text-xs font-bold transition touch-btn flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-              <span>⚡ Pay Offline ₹120</span>
-            </button>
-            
-            <!-- 🏦 Withdraw to UPI Button for Receiver -->
-            <button onclick="openWithdrawModal('merchant')" class="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 border border-slate-700/80 text-xs font-bold transition touch-btn flex items-center justify-center gap-1.5 shadow-sm active:scale-95" title="Receiver can withdraw wallet balance directly to bank UPI">
-              <span>🏦 Withdraw to UPI</span>
-            </button>
-          </div>
-        </div>
 
         <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON -->
         <div>
@@ -489,10 +450,10 @@
         </div>
         <div class="flex-1 truncate">
           <div class="font-extrabold text-white text-sm flex items-center gap-1 truncate" id="sheet-receiver-name">
-            Sharma Kirana Store
+            Receiver
           </div>
           <div class="text-[11px] text-emerald-400 font-mono font-bold truncate" id="sheet-receiver-vpa">
-            sharma_kirana@paytm
+            receiver@upi
           </div>
           <span class="text-[8px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-bold">
             ✔ Auto-Filled From QR Scan
@@ -551,8 +512,8 @@
       <div>
         <h3 class="text-xl font-extrabold text-white">Payment Successful</h3>
         <div class="text-3xl font-extrabold text-emerald-400 mt-1" id="success-amount-text">₹120.00</div>
-        <div class="text-xs text-slate-400 mt-1">Paid to <b class="text-white" id="success-receiver-name">Sharma Kirana Store</b></div>
-        <div class="text-[11px] text-emerald-400 font-mono mt-0.5" id="success-receiver-vpa">sharma_kirana@paytm</div>
+        <div class="text-xs text-slate-400 mt-1">Paid to <b class="text-white" id="success-receiver-name">Receiver</b></div>
+        <div class="text-[11px] text-emerald-400 font-mono mt-0.5" id="success-receiver-vpa">receiver@upi</div>
       </div>
 
       <!-- Direct Wallet Balance Movement Breakdown -->
@@ -928,14 +889,14 @@
     let payerVpa = localStorage.getItem('cfg_payer_vpa') || 'user@okhdfcbank';
     let userName = localStorage.getItem('cfg_user_name') || 'User';
 
-    // --- Merchant Handle ---
-    let merchantVpa = localStorage.getItem('cfg_merchant_vpa') || 'sharma_kirana@paytm';
+    // --- Merchant / Receiver Handle ---
+    let merchantVpa = localStorage.getItem('cfg_merchant_vpa') || 'receiver@upi';
 
     // --- Scanned Receiver State ---
     let scannedReceiver = {
-      vpa: 'sharma_kirana@paytm',
-      name: 'Sharma Kirana Store',
-      amount: 120
+      vpa: 'receiver@upi',
+      name: 'Receiver',
+      amount: 100
     };
 
     // Ensure default demo reserve balances on-device
@@ -1736,9 +1697,9 @@
       }
 
       const parsed = parseQrPayloadLocally(qrString) || {
-        payeeVpa: 'sharma_kirana@paytm',
-        payeeName: 'Sharma Kirana Store',
-        amount: 120
+        payeeVpa: 'receiver@upi',
+        payeeName: 'Receiver',
+        amount: 100
       };
 
       scannedReceiver.vpa = parsed.payeeVpa;
@@ -2265,8 +2226,8 @@
       triggerHaptic(20);
       playSyntheticTone('click');
       if (payerVpa === 'user@okhdfcbank') {
-        payerVpa = 'sharma_kirana@paytm';
-        userName = 'Sharma Kirana Store';
+        payerVpa = 'receiver@upi';
+        userName = 'Receiver';
       } else {
         payerVpa = 'user@okhdfcbank';
         userName = 'User';
@@ -2319,8 +2280,8 @@
     function openPinClaimModal() {
       triggerHaptic(20);
       playSyntheticTone('click');
-      const targetVpa = (payerVpa === 'user@okhdfcbank') ? 'sharma_kirana@paytm' : payerVpa;
-      const targetName = (targetVpa === 'sharma_kirana@paytm') ? 'Sharma Kirana Store' : userName;
+      const targetVpa = (payerVpa === 'user@okhdfcbank') ? 'receiver@upi' : payerVpa;
+      const targetName = (targetVpa === 'receiver@upi') ? 'Receiver' : userName;
       
       const vpaEl = document.getElementById('claim-target-receiver-vpa');
       if (vpaEl) vpaEl.textContent = targetVpa;
@@ -2352,7 +2313,7 @@
       btn.disabled = true;
       if (spinner) spinner.classList.remove('hidden');
 
-      const targetReceiver = document.getElementById('claim-target-receiver-vpa').textContent || 'sharma_kirana@paytm';
+      const targetReceiver = document.getElementById('claim-target-receiver-vpa')?.textContent || 'receiver@upi';
 
       try {
         let claimSuccess = false;
@@ -2444,7 +2405,7 @@
         triggerHaptic(60);
         playSyntheticTone('success');
         triggerCelebrationConfetti();
-        playSoundboxSpeech(amount, 'Sharma Kirana Store');
+        playSoundboxSpeech(amount, 'Receiver');
         showIncomingPaymentToast(sender, amount, newBal, utr);
 
       } catch(err) {
@@ -2556,7 +2517,7 @@
 
       triggerHaptic(50);
       playSyntheticTone('success');
-      playSoundboxSpeech(amt, 'Sharma Kirana Store');
+      playSoundboxSpeech(amt, 'Receiver');
       triggerCelebrationConfetti();
 
       // Broadcast over channel & cloud
@@ -2564,7 +2525,7 @@
       broadcastMeshTransfer({
         sender: payerVpa,
         senderName: userName,
-        receiver: 'sharma_kirana@paytm',
+        receiver: 'receiver@upi',
         amount: amt,
         utr: finalUtr
       });
@@ -2572,7 +2533,7 @@
 
     function triggerSimSoundboxTest() {
       triggerHaptic(30);
-      playSoundboxSpeech(50, 'Sharma Kirana Store');
+      playSoundboxSpeech(50, 'Receiver');
     }
 
     function resetSimBalances() {
@@ -2598,7 +2559,7 @@
       } else {
         alert("🎙️ Listening for Sound Wave frequency tone...\n(Make sure sender phone plays sound near your microphone)");
         setTimeout(() => {
-          simulateScanStandee('sharma_kirana@paytm', 'Sharma Kirana Store', 50);
+          simulateScanStandee('receiver@upi', 'Receiver', 50);
         }, 1200);
       }
     }
@@ -2652,7 +2613,7 @@
       container.innerHTML = '';
 
       if (window.QRCode) {
-        const merchantUri = `upi://pay?pa=${encodeURIComponent(merchantVpa)}&pn=Sharma+Kirana+Store&cu=INR`;
+        const merchantUri = `upi://pay?pa=${encodeURIComponent(merchantVpa)}&pn=Receiver&cu=INR`;
         new QRCode(container, {
           text: merchantUri,
           width: 180,
@@ -2985,7 +2946,7 @@
         // Sync User Balances with Animation
         const accounts = data.accounts || [];
         const userAcc = accounts.find(a => a.vpa === payerVpa) || accounts.find(a => a.vpa === 'user@okhdfcbank') || accounts.find(a => a.vpa === 'user@upi') || accounts.find(a => a.vpa === 'customer@upi') || accounts.find(a => a.vpa === 'sagar@okhdfcbank');
-        const merchantAcc = accounts.find(a => a.vpa === merchantVpa) || accounts.find(a => a.vpa === 'sharma_kirana@paytm') || accounts.find(a => a.vpa === 'merchant@upi');
+        const merchantAcc = accounts.find(a => a.vpa === merchantVpa) || accounts.find(a => a.vpa === 'receiver@upi') || accounts.find(a => a.vpa === 'merchant@upi');
         const mule = accounts.find(a => a.vpa === autoMuleVpa) || accounts.find(a => a.vpa === 'mule@upi');
 
         let userBal = userAcc ? userAcc.balance : 0.00;

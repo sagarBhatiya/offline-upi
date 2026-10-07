@@ -213,7 +213,7 @@ def voucher_create():
     """Generates an offline transfer voucher with a 6-digit claim PIN."""
     data = request.json or {}
     sender = (data.get('senderVpa') or 'user@okhdfcbank').strip()
-    receiver = (data.get('receiverVpa') or 'sharma_kirana@paytm').strip()
+    receiver = (data.get('receiverVpa') or 'receiver@upi').strip()
     amount = float(data.get('amount', 50.0))
     pin = data.get('pin')
     if not pin:
@@ -236,7 +236,7 @@ def voucher_claim():
     """Redeems a 6-digit offline voucher code into receiver's wallet."""
     data = request.json or {}
     pin = (data.get('pin') or '').strip().replace(' ', '').replace('-', '')
-    receiver = (data.get('receiverVpa') or 'sharma_kirana@paytm').strip()
+    receiver = (data.get('receiverVpa') or 'receiver@upi').strip()
     
     if not pin:
         return jsonify({"success": False, "error": "Please enter a valid 6-digit voucher PIN."}), 400
@@ -497,7 +497,7 @@ def gateway_deeplink():
     vpa = data.get('vpa', 'merchant@upi')
     amount = float(data.get('amount', 120.0))
     note = data.get('note', 'Offline UPI Settlement')
-    link = gateway_service.generate_upi_deeplink(vpa, 'Sharma Kirana', amount, int(time.time()), note)
+    link = gateway_service.generate_upi_deeplink(vpa, 'Receiver', amount, int(time.time()), note)
     return jsonify({"success": True, "deeplink": link})
 
 @app.route('/api/config/gateway', methods=['POST'])

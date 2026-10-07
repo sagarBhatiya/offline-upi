@@ -288,7 +288,7 @@ class OfflineUPITestCase(unittest.TestCase):
         # Create voucher
         create_resp = self.client.post('/api/voucher/create', json={
             "senderVpa": "user@okhdfcbank",
-            "receiverVpa": "sharma_kirana@paytm",
+            "receiverVpa": "receiver@upi",
             "amount": 150.0,
             "pin": "784219"
         })
@@ -300,7 +300,7 @@ class OfflineUPITestCase(unittest.TestCase):
         # Claim voucher as merchant
         claim_resp = self.client.post('/api/voucher/claim', json={
             "pin": "784219",
-            "receiverVpa": "sharma_kirana@paytm"
+            "receiverVpa": "receiver@upi"
         })
         claim_data = claim_resp.get_json()
         self.assertTrue(claim_data["success"])
@@ -310,7 +310,7 @@ class OfflineUPITestCase(unittest.TestCase):
         # Attempt duplicate claim - must be rejected
         dup_resp = self.client.post('/api/voucher/claim', json={
             "pin": "784219",
-            "receiverVpa": "sharma_kirana@paytm"
+            "receiverVpa": "receiver@upi"
         })
         dup_data = dup_resp.get_json()
         self.assertFalse(dup_data["success"])
@@ -352,7 +352,7 @@ class OfflineUPITestCase(unittest.TestCase):
         reconciler = OfflineReconciliationEngine(db_module=database)
 
         payer = "user@okhdfcbank"
-        merchant_1 = "sharma_kirana@paytm"
+        merchant_1 = "receiver@upi"
         merchant_2 = "metro_cafe@upi"
 
         prev_hash = "GENESIS_HASH"
@@ -430,9 +430,9 @@ class OfflineUPITestCase(unittest.TestCase):
         from database import record_double_entry_transaction, audit_ledger_integrity
 
         # Record multiple transactions
-        record_double_entry_transaction("OFFLINE_P2P", "TX_1001", "user@okhdfcbank", "sharma_kirana@paytm", 150.0)
-        record_double_entry_transaction("OFFLINE_P2P", "TX_1002", "user@okhdfcbank", "sharma_kirana@paytm", 220.0)
-        record_double_entry_transaction("OFFLINE_P2P", "TX_1003", "user@okhdfcbank", "sharma_kirana@paytm", 75.50)
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1001", "user@okhdfcbank", "receiver@upi", 150.0)
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1002", "user@okhdfcbank", "receiver@upi", 220.0)
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1003", "user@okhdfcbank", "receiver@upi", 75.50)
 
         # Audit ledger balance
         audit = audit_ledger_integrity()

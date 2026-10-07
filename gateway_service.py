@@ -16,7 +16,7 @@ class RealUpiGatewayService:
         self.cashfree_app_id = os.getenv("CASHFREE_APP_ID", "")
         self.cashfree_secret = os.getenv("CASHFREE_SECRET_KEY", "")
         self.is_sandbox = True
-        self.default_merchant_name = "Sharma Kirana PoS"
+        self.default_merchant_name = "Receiver"
 
     def update_credentials(self, app_id: str, secret_key: str, is_sandbox: bool = True):
         self.cashfree_app_id = app_id.strip()

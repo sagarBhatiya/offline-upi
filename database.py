@@ -181,8 +181,8 @@ def init_db():
         ''', [
             ('user@okhdfcbank', 'User Phone', 0.0),
             ('user@upi', 'User Phone', 0.0),
-            ('merchant@upi', 'Sharma Kirana / Metro Cafe', 0.0),
-            ('sharma_kirana@paytm', 'Sharma Kirana Store', 500.0),
+            ('merchant@upi', 'Merchant / Metro Cafe', 0.0),
+            ('receiver@upi', 'Receiver Wallet', 500.0),
             ('mule@upi', 'Stranger / Bridge Mule (Relay)', 0.0)
         ])
     
@@ -575,7 +575,7 @@ def claim_voucher_record(pin, claimer_vpa=None):
 
         amount = float(voucher["amount"])
         sender_vpa = voucher["sender_vpa"]
-        target_receiver = claimer_vpa or voucher["receiver_vpa"] or "sharma_kirana@paytm"
+        target_receiver = claimer_vpa or voucher["receiver_vpa"] or "receiver@upi"
 
         # 1. Credit receiver wallet
         cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (target_receiver,))
