@@ -219,7 +219,12 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5">
+        <!-- Quick Switch Profile / Phone Role (Customer <-> Receiver) -->
+        <button onclick="quickToggleUserMerchantProfile()" class="px-2.5 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Switch between Customer & Receiver Phone">
+          <span>🔄</span>
+          <span class="text-[10px] hidden xs:inline sm:inline">Role</span>
+        </button>
         <!-- Sound Effect / Voice Toggle -->
         <button onclick="toggleAudio()" class="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition touch-btn" title="Toggle Sound">
           <span id="sound-icon">🔊</span>
@@ -2016,6 +2021,15 @@
           });
         }
 
+        // Broadcast over Real-Time Cloud Mesh Relay so receiver's phone gets credited automatically!
+        broadcastMeshTransfer({
+          sender: payerVpa,
+          senderName: userName,
+          receiver: scannedReceiver.vpa,
+          amount: amount,
+          utr: finalUtr
+        });
+
         document.getElementById('payment-success-modal').classList.remove('hidden');
 
       } catch (err) {
@@ -2025,6 +2039,189 @@
         btn.disabled = false;
         spinner.classList.add('hidden');
       }
+    }
+
+    // ========================================================
+    // REAL-TIME CROSS-DEVICE CLOUD GOSSIP MESH RELAY
+    // Allows Phone A to send money to Phone B over the air
+    // with ZERO lag and automatic instant wallet crediting!
+    // ========================================================
+    const RELAY_TOPIC = 'offline_upi_p2p_relay_v1';
+    let relayEventSource = null;
+
+    function initCloudMeshRelay() {
+      try {
+        if (window.EventSource) {
+          relayEventSource = new EventSource(`https://ntfy.sh/${RELAY_TOPIC}/sse`);
+          relayEventSource.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data && data.event === 'message' && data.message) {
+                const inner = JSON.parse(data.message);
+                handleIncomingMeshPacket(inner);
+              } else if (data && data.type === 'P2P_TRANSFER') {
+                handleIncomingMeshPacket(data);
+              }
+            } catch(e) {}
+          };
+          relayEventSource.onerror = () => {};
+        }
+      } catch(e) {}
+
+      // Poll recent history on launch & every 3s to catch offline payments
+      pollRecentMeshPackets();
+      setInterval(pollRecentMeshPackets, 3000);
+    }
+
+    async function pollRecentMeshPackets() {
+      if (!navigator.onLine) return;
+      try {
+        const resp = await fetch(`https://ntfy.sh/${RELAY_TOPIC}/json?poll=1&since=30m`);
+        if (!resp.ok) return;
+        const text = await resp.text();
+        const lines = text.trim().split('\n');
+        for (let line of lines) {
+          if (!line) continue;
+          try {
+            const item = JSON.parse(line);
+            if (item.event === 'message' && item.message) {
+              const data = JSON.parse(item.message);
+              handleIncomingMeshPacket(data);
+            }
+          } catch(e) {}
+        }
+      } catch(e) {}
+    }
+
+    function handleIncomingMeshPacket(packet) {
+      if (!packet || packet.type !== 'P2P_TRANSFER') return;
+      const targetReceiver = (packet.receiver || '').trim().toLowerCase();
+      const currentPayer = (payerVpa || '').trim().toLowerCase();
+
+      // Check if this transfer is addressed to THIS phone
+      const isDirectMatch = targetReceiver === currentPayer;
+      const isPrefixMatch = targetReceiver.split('@')[0] === currentPayer.split('@')[0];
+      const isPhoneMatch = targetReceiver.replace(/[^0-9]/g, '') && targetReceiver.replace(/[^0-9]/g, '') === currentPayer.replace(/[^0-9]/g, '');
+
+      if (!isDirectMatch && !isPrefixMatch && !isPhoneMatch) {
+        return;
+      }
+
+      // Idempotency check: Don't process the same UTR twice
+      let processedUtrs = JSON.parse(localStorage.getItem('processed_mesh_utrs') || '[]');
+      const utr = packet.utr || `${packet.timestamp}_${packet.amount}`;
+      if (processedUtrs.includes(utr)) {
+        return;
+      }
+
+      processedUtrs.push(utr);
+      if (processedUtrs.length > 200) processedUtrs.shift();
+      localStorage.setItem('processed_mesh_utrs', JSON.stringify(processedUtrs));
+
+      // 1. CREDIT WALLET BALANCE
+      const amount = parseFloat(packet.amount) || 0;
+      let curBal = parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00');
+      let newBal = curBal + amount;
+      localStorage.setItem('cached_payer_bal_' + payerVpa, newBal.toString());
+      animatePayerBalance(newBal);
+
+      // 2. LOG IN PASSBOOK
+      let txns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+      txns.unshift({
+        id: Date.now() % 100000,
+        sender_vpa: packet.sender,
+        receiver_vpa: payerVpa,
+        amount: amount,
+        auth_mode: "REALTIME_MESH_P2P",
+        status: "RECEIVED_SUCCESS",
+        bank_utr: utr,
+        settled_at: new Date().toISOString()
+      });
+      localStorage.setItem('cached_txns', JSON.stringify(txns));
+      cachedTransactions = txns;
+      renderPassbookList();
+
+      // 3. SENSORY CELEBRATIONS
+      triggerHaptic(60);
+      playSyntheticTone('success');
+      triggerCelebrationConfetti();
+      playSoundboxSpeech(amount, userName);
+
+      // 4. SHOW INCOMING PAYMENT POPUP BANNER
+      showIncomingPaymentToast(packet.sender, amount, newBal, utr);
+    }
+
+    async function broadcastMeshTransfer(transferData) {
+      try {
+        await fetch(`https://ntfy.sh/${RELAY_TOPIC}`, {
+          method: 'POST',
+          headers: {
+            'Title': 'UPI Lite Transfer',
+            'Priority': 'urgent',
+            'Tags': 'money_with_wings'
+          },
+          body: JSON.stringify({
+            type: 'P2P_TRANSFER',
+            sender: transferData.sender,
+            senderName: transferData.senderName,
+            receiver: transferData.receiver,
+            amount: transferData.amount,
+            utr: transferData.utr,
+            timestamp: Date.now()
+          })
+        });
+      } catch(e) {
+        console.warn("Mesh relay broadcast failed (offline):", e);
+      }
+    }
+
+    function showIncomingPaymentToast(fromSender, amount, newBal, utr) {
+      let toast = document.getElementById('incoming-payment-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'incoming-payment-toast';
+        toast.className = 'fixed top-4 left-4 right-4 max-w-sm mx-auto z-50 p-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 text-slate-950 font-bold shadow-2xl border-2 border-emerald-300 transform transition-all duration-300 flex items-center gap-3 animate-bounce';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `
+        <div class="w-10 h-10 rounded-xl bg-slate-950/20 flex items-center justify-center text-2xl shadow-inner">
+          💰
+        </div>
+        <div class="flex-1">
+          <div class="text-[10px] uppercase tracking-wider font-extrabold text-emerald-950">Payment Received!</div>
+          <div class="text-base font-extrabold text-slate-950">₹${amount.toFixed(2)} credited</div>
+          <div class="text-[10px] text-slate-900 font-mono">From: ${fromSender} &bull; New Bal: ₹${newBal.toFixed(2)}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-slate-900 hover:text-white font-extrabold text-xl">&times;</button>
+      `;
+      setTimeout(() => {
+        if (toast && toast.parentNode) toast.remove();
+      }, 7000);
+    }
+
+    function quickToggleUserMerchantProfile() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      if (payerVpa === 'user@okhdfcbank') {
+        payerVpa = 'sharma_kirana@paytm';
+        userName = 'Sharma Kirana Store';
+      } else {
+        payerVpa = 'user@okhdfcbank';
+        userName = 'User';
+      }
+      localStorage.setItem('cfg_payer_vpa', payerVpa);
+      localStorage.setItem('cfg_user_name', userName);
+
+      // Update UI headers
+      const headerVpa = document.getElementById('app-header-vpa');
+      const headerName = document.getElementById('app-header-name');
+      const headerAvatar = document.getElementById('app-header-avatar');
+      if (headerVpa) headerVpa.textContent = payerVpa;
+      if (headerName) headerName.textContent = userName;
+      if (headerAvatar) headerAvatar.textContent = userName.charAt(0).toUpperCase();
+
+      loadStateFromLocalStorage();
+      alert(`Switched Active Role to:\n${userName} (${payerVpa})\n\nWallet Balance: ₹${(parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00')).toFixed(2)}`);
     }
 
     // My Receive QR Generator
@@ -2450,6 +2647,7 @@
       if (headerAvatar) headerAvatar.textContent = (userName || 'U').charAt(0).toUpperCase();
 
       updateNetworkStatus(navigator.onLine);
+      initCloudMeshRelay();
 
       // Register PWA Service Worker for Offline Airplane Mode Support
       if ('serviceWorker' in navigator) {
