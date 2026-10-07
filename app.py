@@ -7,11 +7,18 @@ from database import (
     init_db, get_accounts, get_transactions, claim_packet_hash, 
     execute_settlement, reset_db, record_deposit, record_withdrawal, 
     execute_offline_wallet_transfer, upsert_user_account,
-    create_voucher_record, claim_voucher_record
+    create_voucher_record, claim_voucher_record,
+    record_double_entry_transaction, audit_ledger_integrity
 )
+import database
 from crypto_helper import crypto_engine, qr_voucher_engine, compute_sha256
 from mesh_engine import mesh_simulator
 from gateway_service import gateway_service
+from reconciliation_engine import OfflineReconciliationEngine, RegulatoryRiskEngine
+from attestation_engine import hardware_attestation_engine
+from ble_protocol import BleSecureSessionChannel
+
+reconciliation_engine = OfflineReconciliationEngine(db_module=database)
 
 app = Flask(__name__)
 
@@ -770,6 +777,98 @@ def demo_reset():
     reset_db()
     mesh_simulator.reset()
     return jsonify({"success": True, "message": "System reset to default state"})
+
+# ========================================================
+# MODULE A: HARDWARE-BOUND KEY ATTESTATION ENDPOINTS
+# ========================================================
+@app.route('/api/wallet/hardware/challenge', methods=['POST'])
+def hardware_challenge():
+    """Issues a single-use 32-byte cryptographic challenge nonce for hardware key attestation."""
+    data = request.json or {}
+    vpa = (data.get('vpa') or 'user@okhdfcbank').strip()
+    nonce_b64 = hardware_attestation_engine.issue_challenge(vpa)
+    return jsonify({"success": True, "vpa": vpa, "challengeNonce": nonce_b64})
+
+@app.route('/api/wallet/hardware/register', methods=['POST'])
+def hardware_register():
+    """Verifies hardware certificate chain (StrongBox / TEE) and binds public key to VPA."""
+    data = request.json or {}
+    vpa = (data.get('vpa') or '').strip()
+    cert_chain = data.get('certChain') or []
+    platform = data.get('platform', 'ANDROID')
+    if not vpa or not cert_chain:
+        return jsonify({"success": False, "error": "VPA and certificate chain are required."}), 400
+    try:
+        res = hardware_attestation_engine.verify_and_register_attestation(vpa, cert_chain, platform)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+# ========================================================
+# MODULE B: HARDENED RECONCILIATION & DOUBLE-SPEND RECONCILER
+# ========================================================
+@app.route('/api/reconciliation/process-voucher', methods=['POST'])
+def reconcile_hardened_voucher():
+    """Processes hardened offline voucher with monotonic counter, hash chain, and fork detection."""
+    data = request.json or {}
+    voucher = data.get('voucher') or data
+    res = reconciliation_engine.process_hardened_voucher(voucher)
+    status_code = 200 if res.get('success') else 400
+    return jsonify(res), status_code
+
+# ========================================================
+# MODULE C: BLE GATT PROTOCOL TESTING ENDPOINTS
+# ========================================================
+@app.route('/api/ble/handshake', methods=['POST'])
+def ble_handshake():
+    """Simulates BLE GATT X25519 ECDH mutual key exchange between devices."""
+    data = request.json or {}
+    client_pub_b64 = data.get('clientPublicKey')
+    if not client_pub_b64:
+        return jsonify({"success": False, "error": "Client public key required"}), 400
+    try:
+        import base64
+        channel = BleSecureSessionChannel()
+        client_pub = base64.b64decode(client_pub_b64)
+        channel.establish_session(client_pub)
+        server_pub_b64 = base64.b64encode(channel.public_key_bytes).decode('utf-8')
+        return jsonify({
+            "success": True,
+            "serverPublicKey": server_pub_b64,
+            "sessionEstablished": True
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+# ========================================================
+# MODULE D: REAL PAYMENT GATEWAY WEBHOOK RECEIVER
+# ========================================================
+@app.route('/api/gateway/webhook/deposit', methods=['POST'])
+def gateway_deposit_webhook():
+    """Cryptographically verifies HMAC-SHA256 signature and atomically deposits funds into escrow."""
+    raw_body = request.get_data()
+    signature = request.headers.get('X-Webhook-Signature', '')
+    if not gateway_service.verify_webhook_signature(raw_body, signature):
+        return jsonify({"success": False, "error": "Invalid HMAC webhook signature."}), 401
+
+    payload = request.json or {}
+    data = payload.get('data', payload)
+    vpa = data.get('customer_vpa') or data.get('vpa') or 'user@okhdfcbank'
+    amount = float(data.get('amount', 0.0))
+    utr = data.get('bank_utr') or f"409{random.randint(100000000, 999999999)}"
+    ref = data.get('order_id') or f"DEP_{int(time.time()*1000)}"
+
+    dep_res = record_deposit(vpa=vpa, amount=amount, bank_utr=utr, deposit_ref=ref)
+    return jsonify({"success": True, "deposit": dep_res})
+
+# ========================================================
+# MODULE E: DOUBLE-ENTRY ESCROW LEDGER AUDIT ENDPOINT
+# ========================================================
+@app.route('/api/ledger/audit', methods=['GET'])
+def ledger_audit():
+    """Audits double-entry escrow ledger to verify Sum(DR) - Sum(CR) == 0."""
+    audit_res = audit_ledger_integrity()
+    return jsonify(audit_res)
 
 if __name__ == '__main__':
     print("Starting Offline UPI Hybrid Server on http://127.0.0.1:5000")

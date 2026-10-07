@@ -199,4 +199,14 @@ class RealUpiGatewayService:
             "timestamp": int(time.time() * 1000)
         }
 
+    def verify_webhook_signature(self, raw_body: bytes, received_signature: str, secret_key: str = None) -> bool:
+        """
+        Cryptographically verifies HMAC-SHA256 signature on incoming payment gateway webhooks.
+        """
+        import hmac
+        import hashlib
+        secret = (secret_key or self.cashfree_secret or os.getenv("PG_WEBHOOK_SECRET", "pg_webhook_secret_key_v1")).encode('utf-8')
+        expected = hmac.new(secret, raw_body, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, (received_signature or '').strip().lower())
+
 gateway_service = RealUpiGatewayService()

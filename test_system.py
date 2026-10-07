@@ -316,5 +316,173 @@ class OfflineUPITestCase(unittest.TestCase):
         self.assertFalse(dup_data["success"])
         self.assertIn("already been redeemed", dup_data["error"])
 
+    def test_11_ble_ecdh_chunking_and_crc_corruption(self):
+        """Verifies BLE X25519 ECDH forward secrecy, frame chunking, and CRC-32 integrity."""
+        from ble_protocol import BleSecureSessionChannel
+        # Device A and Device B
+        device_a = BleSecureSessionChannel()
+        device_b = BleSecureSessionChannel()
+
+        # Mutual Handshake
+        device_a.establish_session(device_b.public_key_bytes)
+        device_b.establish_session(device_a.public_key_bytes)
+
+        # Original Financial Payload
+        payload = b"PAYMENT:from=user@okhdfcbank:to=merchant@paytm:amt=250.00:nonce=9941" * 15  # ~1 KB
+        frames = device_a.packetize(payload, session_id=101)
+        self.assertGreater(len(frames), 1)  # Fragmented into multiple frames
+
+        # Successful reassembly
+        decrypted = device_b.reassemble(frames)
+        self.assertEqual(decrypted, payload)
+
+        # Inject single bit-flip corruption into frame 0
+        corrupted_frames = list(frames)
+        bad_byte = bytes([(corrupted_frames[0][15] ^ 0xFF)])
+        corrupted_frames[0] = corrupted_frames[0][:15] + bad_byte + corrupted_frames[0][16:]
+
+        # Must reject corrupted frame
+        with self.assertRaises(ValueError):
+            device_b.reassemble(corrupted_frames)
+
+    def test_12_reconciliation_hash_chain_and_fork_detection(self):
+        """Verifies monotonic hash-chain progression and critical fork / double-spend quarantine."""
+        from reconciliation_engine import OfflineReconciliationEngine
+        import database
+        reconciler = OfflineReconciliationEngine(db_module=database)
+
+        payer = "user@okhdfcbank"
+        merchant_1 = "sharma_kirana@paytm"
+        merchant_2 = "metro_cafe@upi"
+
+        prev_hash = "GENESIS_HASH"
+        seq = 1
+        amount = 100.0
+
+        step_hash_1 = reconciler.compute_step_hash(prev_hash, seq, amount, merchant_1)
+
+        voucher_1 = {
+            "payer_vpa": payer,
+            "payee_vpa": merchant_1,
+            "amount": amount,
+            "seq_counter": seq,
+            "prev_hash": prev_hash,
+            "current_hash": step_hash_1,
+            "signed_at": int(time.time() * 1000),
+            "signature": "ECDSA_SIG_1"
+        }
+
+        # 1. First spend settles cleanly
+        res1 = reconciler.process_hardened_voucher(voucher_1)
+        self.assertTrue(res1["success"])
+        self.assertEqual(res1["status"], "SETTLED_SUCCESS")
+
+        # 2. Conflicting spend attempting to reuse seq = 1 for merchant_2 (Double-Spend Fork!)
+        step_hash_fork = reconciler.compute_step_hash(prev_hash, seq, 100.0, merchant_2)
+        voucher_fork = {
+            "payer_vpa": payer,
+            "payee_vpa": merchant_2,
+            "amount": 100.0,
+            "seq_counter": seq,
+            "prev_hash": prev_hash,
+            "current_hash": step_hash_fork,
+            "signed_at": int(time.time() * 1000),
+            "signature": "ECDSA_SIG_FORK"
+        }
+
+        res_fork = reconciler.process_hardened_voucher(voucher_fork)
+        self.assertFalse(res_fork["success"])
+        self.assertEqual(res_fork["status"], "REJECTED_DOUBLE_SPEND")
+        self.assertTrue(res_fork.get("slashing_applied"))
+
+        # 3. Verify wallet is quarantined
+        res_after = reconciler.process_hardened_voucher({
+            "payer_vpa": payer,
+            "payee_vpa": merchant_1,
+            "amount": 50.0,
+            "seq_counter": 2,
+            "prev_hash": step_hash_1,
+            "current_hash": "dummy",
+            "signed_at": int(time.time() * 1000)
+        })
+        self.assertFalse(res_after["success"])
+        self.assertEqual(res_after["status"], "REJECTED_WALLET_QUARANTINED")
+
+    def test_13_regulatory_limits_enforcement(self):
+        """Verifies enforcement of RBI ₹500 offline transaction limit."""
+        from reconciliation_engine import RegulatoryRiskEngine
+        # Within limit
+        RegulatoryRiskEngine.validate_offline_instruction(
+            amount=500.0,
+            current_balance=1000.0,
+            signed_timestamp=int(time.time() * 1000)
+        )
+        # Exceeds per-txn limit (> ₹500)
+        with self.assertRaises(ValueError):
+            RegulatoryRiskEngine.validate_offline_instruction(
+                amount=500.01,
+                current_balance=1000.0,
+                signed_timestamp=int(time.time() * 1000)
+            )
+
+    def test_14_double_entry_ledger_invariant(self):
+        """Verifies immutable double-entry escrow accounting invariant: Sum(DR) == Sum(CR)."""
+        from database import record_double_entry_transaction, audit_ledger_integrity
+
+        # Record multiple transactions
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1001", "user@okhdfcbank", "sharma_kirana@paytm", 150.0)
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1002", "user@okhdfcbank", "sharma_kirana@paytm", 220.0)
+        record_double_entry_transaction("OFFLINE_P2P", "TX_1003", "user@okhdfcbank", "sharma_kirana@paytm", 75.50)
+
+        # Audit ledger balance
+        audit = audit_ledger_integrity()
+        self.assertTrue(audit["balanced"])
+        self.assertEqual(audit["discrepancy"], 0.0)
+        self.assertEqual(audit["total_dr"], audit["total_cr"])
+        self.assertEqual(audit["total_dr"], 445.50)
+
+    def test_15_gateway_webhook_hmac_verification(self):
+        """Verifies payment gateway webhook HMAC-SHA256 signature verification."""
+        import hmac
+        import hashlib
+        import json
+        from gateway_service import gateway_service
+
+        raw_payload = json.dumps({
+            "type": "PAYMENT_SUCCESS",
+            "data": {
+                "customer_vpa": "user@okhdfcbank",
+                "amount": 500.0,
+                "bank_utr": "409112233445",
+                "order_id": "ORDER_WEBHOOK_99"
+            }
+        }).encode('utf-8')
+
+        secret = "pg_webhook_secret_key_v1"
+        valid_sig = hmac.new(secret.encode('utf-8'), raw_payload, hashlib.sha256).hexdigest()
+
+        # Valid signature should pass
+        resp_valid = self.client.post(
+            '/api/gateway/webhook/deposit',
+            data=raw_payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Webhook-Signature": valid_sig
+            }
+        )
+        self.assertEqual(resp_valid.status_code, 200)
+        self.assertTrue(resp_valid.get_json()["success"])
+
+        # Invalid signature should be rejected with 401
+        resp_invalid = self.client.post(
+            '/api/gateway/webhook/deposit',
+            data=raw_payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Webhook-Signature": "tampered_signature"
+            }
+        )
+        self.assertEqual(resp_invalid.status_code, 401)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,8 @@
 import sqlite3
 import os
 import shutil
+import time
+import random
 from datetime import datetime
 
 def get_db_path():
@@ -85,6 +87,91 @@ def init_db():
             created_at TEXT NOT NULL
         )
     ''')
+
+    # 5. Production Wallets State Table (With Monotonic Chain & Fraud Status)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS wallets (
+            vpa TEXT PRIMARY KEY,
+            state TEXT NOT NULL DEFAULT 'ACTIVE',
+            current_seq INTEGER NOT NULL DEFAULT 0,
+            last_hash TEXT NOT NULL,
+            escrow_balance REAL NOT NULL DEFAULT 2000.0,
+            updated_at TEXT NOT NULL
+        )
+    ''')
+
+    # 6. Cryptographically Reconciled Vouchers Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS vouchers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            payer_vpa TEXT NOT NULL,
+            payee_vpa TEXT NOT NULL,
+            seq_counter INTEGER NOT NULL,
+            prev_hash TEXT NOT NULL,
+            current_hash TEXT NOT NULL,
+            amount REAL NOT NULL,
+            status TEXT NOT NULL,
+            raw_sig TEXT NOT NULL,
+            submitted_at TEXT NOT NULL,
+            bank_utr TEXT NOT NULL
+        )
+    ''')
+
+    # 7. Fraud Audit Trail Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS fraud_audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vpa TEXT NOT NULL,
+            sequence_counter INTEGER NOT NULL,
+            evidence_payload TEXT NOT NULL,
+            quarantined_at TEXT NOT NULL
+        )
+    ''')
+
+    # 8. Immutable Double-Entry Escrow Ledger Tables
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ledger_accounts (
+            account_id TEXT PRIMARY KEY,
+            account_type TEXT NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'INR',
+            description TEXT NOT NULL
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS journal_entries (
+            entry_id TEXT PRIMARY KEY,
+            transaction_ref TEXT NOT NULL UNIQUE,
+            entry_type TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ledger_postings (
+            posting_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entry_id TEXT NOT NULL,
+            account_id TEXT NOT NULL,
+            amount REAL NOT NULL,
+            direction TEXT NOT NULL CHECK (direction IN ('DR', 'CR')),
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(entry_id) REFERENCES journal_entries(entry_id),
+            FOREIGN KEY(account_id) REFERENCES ledger_accounts(account_id)
+        )
+    ''')
+
+    # Seed Chart of Accounts
+    cursor.execute('SELECT COUNT(*) FROM ledger_accounts')
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany('''
+            INSERT INTO ledger_accounts (account_id, account_type, description)
+            VALUES (?, ?, ?)
+        ''', [
+            ('ESCROW_NODE_CASH', 'ASSET', 'Real INR Held in Node Escrow Reserve Pool'),
+            ('CUSTOMER_OFFLINE_LIABILITY', 'LIABILITY', 'Obligation owed to device offline balance holders'),
+            ('MERCHANT_PAYABLE_SETTLEMENT', 'LIABILITY', 'Pending bank IMPS transfers due to offline merchants'),
+            ('MULE_RELAY_BOUNTY_EXPENSE', 'EXPENSE', 'Incentives disbursed to mesh relay mules')
+        ])
 
     cursor.execute('SELECT COUNT(*) FROM accounts')
     if cursor.fetchone()[0] == 0:
@@ -538,12 +625,92 @@ def claim_voucher_record(pin, claimer_vpa=None):
         conn.close()
 
 
+def record_double_entry_transaction(entry_type, transaction_ref, payer_vpa, payee_vpa, amount, mule_reward=0.0, conn=None):
+    """
+    Enforces double-entry accounting invariant (Sum of DR == Sum of CR).
+    For offline voucher settlement:
+    - DR: CUSTOMER_OFFLINE_LIABILITY (reduces customer liability obligation)
+    - CR: MERCHANT_PAYABLE_SETTLEMENT (increases payable owed to merchant)
+    """
+    entry_id = f"JE_{int(time.time()*1000)}_{random.randint(1000, 9999)}"
+    now_str = datetime.now().isoformat()
+    close_when_done = False
+    if conn is None:
+        conn = get_connection()
+        close_when_done = True
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO journal_entries (entry_id, transaction_ref, entry_type, created_at)
+            VALUES (?, ?, ?, ?)
+        """, (entry_id, transaction_ref, entry_type, now_str))
+
+        # Leg 1: DR Customer Liability
+        cursor.execute("""
+            INSERT INTO ledger_postings (entry_id, account_id, amount, direction, created_at)
+            VALUES (?, 'CUSTOMER_OFFLINE_LIABILITY', ?, 'DR', ?)
+        """, (entry_id, float(amount), now_str))
+
+        # Leg 2: CR Merchant Settlement
+        cursor.execute("""
+            INSERT INTO ledger_postings (entry_id, account_id, amount, direction, created_at)
+            VALUES (?, 'MERCHANT_PAYABLE_SETTLEMENT', ?, 'CR', ?)
+        """, (entry_id, float(amount), now_str))
+
+        if close_when_done:
+            conn.commit()
+        return {"success": True, "entry_id": entry_id, "amount": amount}
+    except Exception as e:
+        if close_when_done:
+            conn.rollback()
+        raise e
+    finally:
+        if close_when_done:
+            conn.close()
+
+def audit_ledger_integrity():
+    """
+    Audits the entire ledger to guarantee Sum(DR) - Sum(CR) == 0 across all postings.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT 
+            SUM(CASE WHEN direction = 'DR' THEN amount ELSE 0.0 END) as total_dr,
+            SUM(CASE WHEN direction = 'CR' THEN amount ELSE 0.0 END) as total_cr,
+            COUNT(DISTINCT entry_id) as total_entries,
+            COUNT(*) as total_postings
+        FROM ledger_postings
+    """)
+    row = cursor.fetchone()
+    conn.close()
+    
+    total_dr = round(float(row['total_dr'] or 0.0), 2)
+    total_cr = round(float(row['total_cr'] or 0.0), 2)
+    discrepancy = round(abs(total_dr - total_cr), 2)
+    
+    return {
+        "balanced": (discrepancy == 0.0),
+        "total_dr": total_dr,
+        "total_cr": total_cr,
+        "discrepancy": discrepancy,
+        "total_journal_entries": row['total_entries'],
+        "total_postings": row['total_postings']
+    }
+
 def reset_db():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('DROP TABLE IF EXISTS accounts')
     cursor.execute('DROP TABLE IF EXISTS idempotency_claims')
     cursor.execute('DROP TABLE IF EXISTS transactions')
+    cursor.execute('DROP TABLE IF EXISTS offline_vouchers')
+    cursor.execute('DROP TABLE IF EXISTS wallets')
+    cursor.execute('DROP TABLE IF EXISTS vouchers')
+    cursor.execute('DROP TABLE IF EXISTS fraud_audit_log')
+    cursor.execute('DROP TABLE IF EXISTS ledger_postings')
+    cursor.execute('DROP TABLE IF EXISTS journal_entries')
+    cursor.execute('DROP TABLE IF EXISTS ledger_accounts')
     conn.commit()
     conn.close()
     init_db()
