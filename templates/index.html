@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>UPI Lite — Offline Digital Payments</title>
+  <title>HundiPay — Offline Digital Payments</title>
 
   <!-- PWA Manifest & Mobile Standalone Tags -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#040916">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="UPI Lite">
+  <meta name="apple-mobile-web-app-title" content="HundiPay">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="shortcut icon" href="/static/favicon.ico">
@@ -183,52 +183,6 @@
 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
 
-  <!-- ======================================================== -->
-  <!-- ⚡ INTERACTIVE APP LOADING & VAULT INITIALIZATION SPLASH -->
-  <!-- ======================================================== -->
-  <div id="app-splash-screen" class="fixed inset-0 z-50 bg-[#040916] flex flex-col items-center justify-center p-6 transition-all duration-700">
-    <div class="relative flex flex-col items-center max-w-xs w-full text-center space-y-6">
-      
-      <!-- Glowing Animated App Logo -->
-      <div class="relative">
-        <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-blue-600 p-[2.5px] shadow-[0_0_50px_rgba(0,245,196,0.35)] animate-pulse">
-          <div class="w-full h-full bg-[#061129] rounded-[22px] flex items-center justify-center text-4xl shadow-inner relative overflow-hidden">
-            <span class="text-4xl filter drop-shadow-[0_0_12px_#00f5c4]">⚡</span>
-            <div class="absolute inset-0 bg-gradient-to-t from-emerald-500/15 to-transparent pointer-events-none"></div>
-          </div>
-        </div>
-        <!-- Pulse Orbit Ring -->
-        <div class="absolute -inset-3 rounded-[32px] border border-emerald-400/30 animate-ping pointer-events-none"></div>
-      </div>
-
-      <!-- App Name & Subtitle -->
-      <div class="space-y-1">
-        <h1 class="text-xl font-extrabold text-white tracking-wider flex items-center justify-center gap-1.5">
-          <span>UPI LITE</span>
-          <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono">P2P</span>
-        </h1>
-        <p class="text-[11px] text-slate-400 font-medium">100% Offline Digital Payments</p>
-      </div>
-
-      <!-- Interactive Progress Bar & Status Text -->
-      <div class="w-full space-y-2">
-        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-          <div id="splash-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-300 w-0 transition-all duration-300 rounded-full shadow-[0_0_10px_#00f5c4]"></div>
-        </div>
-        <div class="flex justify-between items-center text-[10px] font-mono">
-          <span id="splash-status-text" class="text-emerald-400 font-semibold animate-pulse">Initializing Security Vault...</span>
-          <span id="splash-percent-text" class="text-slate-400 font-bold">0%</span>
-        </div>
-      </div>
-
-      <div class="text-[9px] font-mono text-slate-400 flex items-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-        <span>ECDSA P-256 Hardware Attestation Active</span>
-      </div>
-
-    </div>
-  </div>
-
   <!-- NATIVE EDGE-TO-EDGE MOBILE APP CONTAINER -->
   <div class="w-full max-w-md mx-auto min-h-screen bg-slate-950 flex flex-col justify-between relative shadow-2xl border-x border-slate-900/60 pb-24 overflow-x-hidden">
 
@@ -265,6 +219,10 @@
       </div>
 
       <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs shadow-sm" title="HundiPay">
+          <img src="/static/icons/icon-192.png" class="w-4 h-4 rounded-md object-contain" alt="HundiPay">
+          <span class="tracking-wide font-sans">HundiPay</span>
+        </div>
         <!-- Sound Effect / Voice Toggle -->
         <button onclick="toggleAudio()" class="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition touch-btn" title="Toggle Sound">
           <span id="sound-icon">🔊</span>
@@ -305,7 +263,7 @@
           <div class="flex justify-between items-start">
             <div>
               <div class="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
-                <span>On-Device UPI Lite Pool</span>
+                <span>On-Device HundiPay Pool</span>
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               </div>
               <div class="text-3xl sm:text-4xl font-extrabold text-white mt-1.5 flex items-baseline gap-1 tracking-tight">
@@ -315,8 +273,8 @@
             </div>
 
             <!-- Vault Icon Badge -->
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg shadow-inner">
-              ⚡
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center p-1.5 shadow-inner" title="HundiPay Vault">
+              <img src="/static/icons/icon-192.png" class="w-full h-full rounded-xl object-contain" alt="HundiPay">
             </div>
           </div>
 
@@ -629,7 +587,7 @@
           <span class="text-xl">⚡</span>
           <div>
             <h3 class="font-extrabold text-white text-xs">Add Money to Wallet</h3>
-            <p class="text-[9px] text-slate-400">Load funds into your offline UPI Lite pool</p>
+            <p class="text-[9px] text-slate-400">Load funds into your offline HundiPay pool</p>
           </div>
         </div>
         <button onclick="closeDepositModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
@@ -844,7 +802,7 @@
   <div id="customer-qr-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-xs w-full text-center space-y-3 shadow-2xl">
       <div class="flex justify-between items-center">
-        <h3 class="font-bold text-white text-xs">📲 My UPI Lite QR</h3>
+        <h3 class="font-bold text-white text-xs">📲 My HundiPay QR</h3>
         <button onclick="closeCustomerQrModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
       </div>
       <p class="text-[11px] text-slate-400">
@@ -1014,7 +972,7 @@
       try {
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
-          const text = `Paid ${amount} rupees offline to ${receiverName || 'merchant'} via UPI Lite!`;
+          const text = `Paid ${amount} rupees offline to ${receiverName || 'merchant'} via HundiPay!`;
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.rate = 1.0;
           utterance.pitch = 1.05;
@@ -2258,7 +2216,7 @@
         await fetch(`https://ntfy.sh/${RELAY_TOPIC}`, {
           method: 'POST',
           headers: {
-            'Title': 'UPI Lite Transfer',
+            'Title': 'HundiPay Transfer',
             'Priority': 'urgent',
             'Tags': 'money_with_wings'
           },
@@ -2346,9 +2304,9 @@
     function shareSuccessPinViaApp() {
       const pin = window.lastGeneratedVoucherPin || document.getElementById('success-voucher-pin').textContent.replace(/\s+/g, '');
       const amt = document.getElementById('success-amount-text').textContent || '₹50.00';
-      const msg = `⚡ Offline UPI Transfer of ${amt} generated! Claim PIN: *${pin}*\nOpen Offline UPI and tap "Claim with PIN" to deposit instantly into your wallet.`;
+      const msg = `⚡ Offline HundiPay Transfer of ${amt} generated! Claim PIN: *${pin}*\nOpen HundiPay and tap "Claim with PIN" to deposit instantly into your wallet.`;
       if (navigator.share) {
-        navigator.share({ title: 'Offline UPI Claim PIN', text: msg }).catch(() => {});
+        navigator.share({ title: 'Offline HundiPay Claim PIN', text: msg }).catch(() => {});
       } else {
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
       }
@@ -2836,38 +2794,6 @@
       localStorage.removeItem('pending_sync_vouchers');
     }
 
-    // Interactive Splash Screen
-    function runInteractiveSplashScreen() {
-      const splash = document.getElementById('app-splash-screen');
-      const bar = document.getElementById('splash-progress-bar');
-      const status = document.getElementById('splash-status-text');
-      const percent = document.getElementById('splash-percent-text');
-      if (!splash) return;
-
-      const steps = [
-        { p: 25, text: "🔐 Booting Secure Enclave & Vault..." },
-        { p: 60, text: "⚡ Initializing Offline UPI Lite Pool..." },
-        { p: 90, text: "✔ Verifying Local ECDSA Signatures..." },
-        { p: 100, text: "🟢 Vault Unlocked & Ready!" }
-      ];
-
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i < steps.length) {
-          if (bar) bar.style.width = steps[i].p + '%';
-          if (percent) percent.textContent = steps[i].p + '%';
-          if (status) status.textContent = steps[i].text;
-          i++;
-        } else {
-          clearInterval(interval);
-          setTimeout(() => {
-            splash.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => splash.remove(), 700);
-          }, 350);
-        }
-      }, 350);
-    }
-
     // PWA Standalone and Install Visibility Checker
     function checkPwaInstallState() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
@@ -3017,7 +2943,6 @@
 
       updateNetworkStatus(navigator.onLine);
       checkPwaInstallState();
-      runInteractiveSplashScreen();
       initCloudMeshRelay();
 
       // Register PWA Service Worker for Offline Airplane Mode Support

@@ -496,7 +496,7 @@ def gateway_deeplink():
     data = request.json or {}
     vpa = data.get('vpa', 'merchant@upi')
     amount = float(data.get('amount', 120.0))
-    note = data.get('note', 'Offline UPI Settlement')
+    note = data.get('note', 'HundiPay Settlement')
     link = gateway_service.generate_upi_deeplink(vpa, 'Receiver', amount, int(time.time()), note)
     return jsonify({"success": True, "deeplink": link})
 
@@ -596,7 +596,7 @@ def wallet_deposit_instant():
     deposit_ref = f"DEP_{int(time.time()*1000)}_{random.randint(100, 999)}"
     deeplink_url = gateway_service.generate_upi_deeplink(
         payee_vpa=user_vpa,
-        payee_name="UPI Lite Wallet",
+        payee_name="HundiPay Wallet",
         amount=amount,
         tx_id=deposit_ref,
         note="Instant Wallet Topup"
@@ -890,5 +890,5 @@ def ledger_audit():
     return jsonify(audit_res)
 
 if __name__ == '__main__':
-    print("Starting Offline UPI Hybrid Server on http://127.0.0.1:5000")
+    print("Starting HundiPay Server on http://127.0.0.1:5000")
     app.run(host='0.0.0.0', port=5000, debug=True)

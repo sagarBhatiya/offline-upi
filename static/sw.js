@@ -1,5 +1,5 @@
-// UPI Lite Service Worker — 100% Offline PWA Engine
-const CACHE_NAME = 'upi-lite-offline-v11';
+// HundiPay Service Worker — 100% Offline PWA Engine
+const CACHE_NAME = 'hundipay-offline-v1';
 
 const STATIC_PRECACHE = [
   '/',
