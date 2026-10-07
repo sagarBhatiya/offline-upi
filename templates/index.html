@@ -183,8 +183,524 @@
 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
 
-  <!-- NATIVE EDGE-TO-EDGE MOBILE APP CONTAINER -->
-  <div class="w-full max-w-md mx-auto min-h-screen bg-slate-950 flex flex-col justify-between relative shadow-2xl border-x border-slate-900/60 pb-24 overflow-x-hidden">
+  <!-- ======================================================== -->
+  <!-- 🌐 HUNDIPAY WEB MODE: MARKETING & INFORMATIONAL SHOWCASE -->
+  <!-- ======================================================== -->
+  <div id="web-landing-page" class="w-full min-h-screen bg-[#040916] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
+
+    <!-- Ambient Lighting Glows -->
+    <div class="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-emerald-500/15 via-teal-500/5 to-transparent rounded-full blur-3xl z-0"></div>
+    <div class="pointer-events-none fixed bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-t from-cyan-500/10 to-transparent rounded-full blur-3xl z-0"></div>
+
+    <!-- 1. STICKY TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 bg-[#040916]/90 backdrop-blur-xl border-b border-slate-900/90 px-4 sm:px-8 py-3.5 transition-all">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        
+        <!-- Brand Logo & Name -->
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-[2px] shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition">
+            <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-full h-full rounded-[14px] object-cover bg-slate-950">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg font-extrabold text-white tracking-wide font-sans">HundiPay</span>
+              <span class="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">OFFLINE</span>
+            </div>
+            <p class="text-[10px] text-slate-400 hidden sm:block">100% Offline Digital Payments</p>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
+          <a href="#about" class="hover:text-emerald-400 transition">About</a>
+          <a href="#features" class="hover:text-emerald-400 transition">Features</a>
+          <a href="#how-it-works" class="hover:text-emerald-400 transition">How It Works</a>
+          <a href="#security" class="hover:text-emerald-400 transition">Security</a>
+          <a href="#faq" class="hover:text-emerald-400 transition">FAQ</a>
+        </nav>
+
+        <!-- CTA Buttons -->
+        <div class="flex items-center gap-2.5">
+          <!-- Launch Web Simulator Button -->
+          <button onclick="showAppMode(false)" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 text-xs font-bold transition flex items-center gap-1.5 touch-btn shadow-sm">
+            <span>🚀</span>
+            <span class="hidden sm:inline">Try App Simulator</span>
+            <span class="sm:hidden">Try App</span>
+          </button>
+
+          <!-- Install App Button (High-Visibility Primary CTA in Web Mode) -->
+          <button onclick="triggerPwaInstall()" class="relative group px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs transition touch-btn shadow-lg shadow-emerald-500/25 flex items-center gap-2 active:scale-95">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-950 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-950"></span>
+            </span>
+            <span>📲 Install App</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <main class="flex-1 z-10">
+      <section class="max-w-6xl mx-auto px-4 sm:px-8 pt-12 sm:pt-20 pb-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        
+        <!-- Hero Text & CTAs (Left Column) -->
+        <div class="flex-1 text-center lg:text-left space-y-6">
+          
+          <!-- Announcement Pill -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+            <span class="text-xs">⚡</span>
+            <span>Next-Gen Zero-Internet Digital Payments</span>
+          </div>
+
+          <!-- Main Headline -->
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+            Pay Anyone, Anywhere.<br/>
+            <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">Even in Airplane Mode.</span>
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <strong class="text-emerald-400 font-semibold">HundiPay</strong> revitalizes India's historic <span class="text-white font-semibold">Hundi</span> promissory trust system with military-grade ECDSA cryptography. Load your offline wallet once and transfer funds peer-to-peer in basements, rural valleys, flights, or network blackouts without needing internet connectivity.
+          </p>
+
+          <!-- Hero Action CTAs -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+            <!-- Install Button in Hero -->
+            <button onclick="triggerPwaInstall()" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm transition touch-btn shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2.5 active:scale-95">
+              <span class="text-xl">📲</span>
+              <span>Install HundiPay App (PWA)</span>
+            </button>
+
+            <!-- Try Simulator Button in Hero -->
+            <button onclick="showAppMode(false)" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-750 font-bold text-sm transition touch-btn flex items-center justify-center gap-2">
+              <span>🚀</span>
+              <span>Launch Web Simulator</span>
+            </button>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-slate-400 font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-400">✔</span>
+              <span>ECDSA SECP256R1 Signatures</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-400">✔</span>
+              <span>0.1s Local Settlement</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-400">✔</span>
+              <span>NPCI Real UPI Linked</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Hero Phone Mockup / Live Preview (Right Column) -->
+        <div class="w-full max-w-sm sm:max-w-md flex-shrink-0">
+          <div class="relative mx-auto rounded-[2.5rem] p-3 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 border border-slate-750 shadow-2xl shadow-emerald-500/10">
+            <!-- Simulated Screen -->
+            <div class="rounded-[2rem] bg-slate-950 p-4 space-y-4 border border-slate-800/80 overflow-hidden relative">
+              
+              <!-- Mock Header -->
+              <div class="flex items-center justify-between pb-2 border-b border-slate-900">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-[1px]">
+                    <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-full h-full rounded-[11px] object-cover bg-slate-950">
+                  </div>
+                  <div>
+                    <div class="text-[11px] font-extrabold text-white">HundiPay Wallet</div>
+                    <div class="text-[9px] text-emerald-400 font-mono">● 100% Offline Vault</div>
+                  </div>
+                </div>
+                <span class="text-[9px] bg-slate-900 text-slate-300 border border-slate-800 px-2 py-0.5 rounded-full font-mono">Airplane Mode ✈</span>
+              </div>
+
+              <!-- Mock Balance Card -->
+              <div class="glass-card rounded-2xl p-4 border border-emerald-500/30 relative overflow-hidden">
+                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">On-Device HundiPay Pool</div>
+                <div class="text-3xl font-extrabold text-white mt-1 flex items-baseline gap-1">
+                  <span class="text-xl text-emerald-400">₹</span>
+                  <span>2,000.00</span>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <div class="flex-1 py-1.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-lg text-center border border-emerald-500/30">
+                    ➕ Add Money
+                  </div>
+                  <div class="flex-1 py-1.5 bg-teal-500/20 text-teal-300 text-[10px] font-bold rounded-lg text-center border border-teal-500/30">
+                    🏦 Withdraw
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mock QR Voucher Preview -->
+              <div class="bg-slate-900/90 rounded-2xl p-3 border border-slate-800 text-center space-y-2">
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="text-slate-400">Cryptographic Voucher</span>
+                  <span class="text-emerald-400 font-mono font-bold">SECP256R1 Active</span>
+                </div>
+                <div class="p-2 bg-white rounded-xl inline-block mx-auto shadow-md">
+                  <div class="w-24 h-24 bg-slate-900 rounded-lg flex items-center justify-center text-emerald-400 font-mono text-[9px] p-2 leading-tight">
+                    [Dynamic ECDSA QR Signed]
+                  </div>
+                </div>
+                <p class="text-[9px] text-slate-400">Scan via any phone camera • Zero internet required</p>
+              </div>
+
+              <!-- Simulator CTA Trigger -->
+              <button onclick="showAppMode(false)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition touch-btn">
+                <span>👉 Tap to Open Interactive Simulator</span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 3. ABOUT HUNDIPAY & HISTORICAL CONTEXT -->
+      <section id="about" class="border-y border-slate-900 bg-slate-950/50 py-16 px-4 sm:px-8">
+        <div class="max-w-4xl mx-auto text-center space-y-4">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+            <span>📜</span>
+            <span>Ancient Trust Reborn for Modern Fintech</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white">What is HundiPay?</h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl mx-auto">
+            For over eight centuries, Indian merchants used <strong class="text-white">Hundis (हुंडी)</strong> — unconditional credit instruments written on paper and backed by mutual trust — to move thousands of rupees across continents without transporting physical cash or gold.
+          </p>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl mx-auto">
+            <strong class="text-emerald-400">HundiPay</strong> upgrades this historic innovation into an open cryptographic protocol for modern smartphones. By combining Elliptic Curve Digital Signatures (ECDSA SECP256R1) with an on-device monotonic ledger, two phones can complete verified, counterfeit-proof payments even when cellular towers and Wi-Fi networks are completely dead.
+          </p>
+        </div>
+      </section>
+
+      <!-- 4. KEY CAPABILITIES & FEATURES -->
+      <section id="features" class="max-w-6xl mx-auto px-4 sm:px-8 py-20 space-y-12">
+        <div class="text-center space-y-3">
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Built for Unbreakable Reliability</h2>
+          <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+            Traditional UPI breaks the moment cell signal drops. HundiPay is engineered from the ground up for zero-connectivity environments.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- Card 1 -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-emerald-500/40 transition group">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              ✈
+            </div>
+            <h3 class="font-extrabold text-white text-base">100% Offline Execution</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Generate Dynamic QR codes or 6-digit claim PINs in Airplane Mode. Payments finalize on-device in under 100ms with zero data packets sent over the air.
+            </p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-emerald-500/40 transition group">
+            <div class="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              🔐
+            </div>
+            <h3 class="font-extrabold text-white text-base">ECDSA SECP256R1 Keys</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Every payment voucher is mathematically signed using hardware-attested cryptographic keys, making counterfeit or tampered vouchers mathematically impossible.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-emerald-500/40 transition group">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              🛡️
+            </div>
+            <h3 class="font-extrabold text-white text-base">Anti-Double-Spend</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Monotonic nonces and local sequence validation ensure that no offline token can be spent twice, even if the user stays offline across multiple transactions.
+            </p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-emerald-500/40 transition group">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              🏦
+            </div>
+            <h3 class="font-extrabold text-white text-base">Instant Bank Withdrawal</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Receivers can hold offline tokens locally or withdraw them 1:1 into real Indian Rupees to their GPay, PhonePe, or bank UPI ID whenever back online.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 5. HOW IT WORKS (3 SIMPLE STEPS) -->
+      <section id="how-it-works" class="border-t border-slate-900 bg-slate-950/60 py-20 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto space-y-12">
+          
+          <div class="text-center space-y-3">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold">
+              <span>⚡</span>
+              <span>Simple 3-Step Lifecycle</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white">How HundiPay Works</h2>
+            <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+              From loading your wallet to paying a merchant offline and depositing back into the banking system.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Step 1 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 relative space-y-4">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-base flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                1
+              </div>
+              <h3 class="text-lg font-extrabold text-white">Load Funds into Vault</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                When you have internet (at home or office), load funds (e.g. ₹500, ₹2,000) from your bank account into your on-device HundiPay vault using any UPI app.
+              </p>
+              <div class="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 p-2 rounded-xl border border-emerald-800/40">
+                ✔ Backed 1:1 by real NPCI banking UTR
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 relative space-y-4">
+              <div class="w-10 h-10 rounded-xl bg-teal-400 text-slate-950 font-extrabold text-base flex items-center justify-center shadow-lg shadow-teal-500/20">
+                2
+              </div>
+              <h3 class="text-lg font-extrabold text-white">Pay Anywhere Offline</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Walk into a basement market or airplane cabin. Scan the receiver's QR code or share a 6-digit PIN. Your phone signs the voucher on-device in 0.1 seconds.
+              </p>
+              <div class="text-[10px] font-mono text-teal-300 bg-teal-950/50 p-2 rounded-xl border border-teal-800/40">
+                ✔ 0.1s instant offline confirmation audio
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 relative space-y-4">
+              <div class="w-10 h-10 rounded-xl bg-cyan-400 text-slate-950 font-extrabold text-base flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                3
+              </div>
+              <h3 class="text-lg font-extrabold text-white">Withdraw to Bank UPI</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                The receiver holds the cryptographically guaranteed voucher. Whenever they or any nearby mesh node connect to the web, they withdraw real INR straight to their bank UPI!
+              </p>
+              <div class="text-[10px] font-mono text-cyan-300 bg-cyan-950/50 p-2 rounded-xl border border-cyan-800/40">
+                ✔ Instant automated UPI settlement
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 6. SECURITY & ENCRYPTION SPOTLIGHT -->
+      <section id="security" class="max-w-6xl mx-auto px-4 sm:px-8 py-20 space-y-12">
+        <div class="bg-gradient-to-br from-slate-900 via-[#061129] to-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-2xl">
+          <div class="max-w-3xl space-y-6">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+              <span>🔒</span>
+              <span>Cryptographic Architecture</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Bank-Grade Cryptography. Zero Compromises.</h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Every offline voucher packet generated by HundiPay contains an immutable combination of:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+              <div class="p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <div class="text-emerald-400 font-bold mb-1">🔑 SECP256R1 Digital Signatures</div>
+                <div class="text-slate-400 text-[11px]">Non-repudiable asymmetric signature generated locally inside device security enclave.</div>
+              </div>
+              <div class="p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <div class="text-teal-300 font-bold mb-1">🔢 Monotonic Sequence Counters</div>
+                <div class="text-slate-400 text-[11px]">Strict linear incrementing nonces prevent replay attacks or copying of offline QR codes.</div>
+              </div>
+              <div class="p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <div class="text-cyan-300 font-bold mb-1">🗄️ SHA-256 Deduplication Registry</div>
+                <div class="text-slate-400 text-[11px]">Global atomic hash registry detects and rejects any duplicate voucher submission attempt.</div>
+              </div>
+              <div class="p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <div class="text-amber-300 font-bold mb-1">🏦 NPCI IMPS Switch Backed</div>
+                <div class="text-slate-400 text-[11px]">Funds deposited are backed 1:1 by real Indian Banking UTRs verified by automated gateways.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. FREQUENTLY ASKED QUESTIONS (FAQ) -->
+      <section id="faq" class="border-t border-slate-900 bg-slate-950/40 py-20 px-4 sm:px-8">
+        <div class="max-w-4xl mx-auto space-y-10">
+          <div class="text-center space-y-2">
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Frequently Asked Questions</h2>
+            <p class="text-xs sm:text-sm text-slate-400">Everything you need to know about using HundiPay offline.</p>
+          </div>
+
+          <div class="space-y-4">
+            
+            <div class="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2">
+              <h3 class="text-sm font-extrabold text-white">Do I need cellular data or Wi-Fi to pay?</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                No! Once you have loaded funds into your HundiPay vault while online, all offline payments occur completely independent of the internet. The recipient’s phone verifies your cryptographic voucher using its on-device cryptographic key verification engine.
+              </p>
+            </div>
+
+            <div class="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2">
+              <h3 class="text-sm font-extrabold text-white">Can someone screenshot or duplicate an offline QR code?</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                No. Every dynamic QR code contains a one-time monotonic nonce and timestamp signed with ECDSA SECP256R1. Once a voucher is accepted or verified by a receiver, the nonce advances and any re-use attempt is rejected instantly.
+              </p>
+            </div>
+
+            <div class="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2">
+              <h3 class="text-sm font-extrabold text-white">How do I install HundiPay on my phone?</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                HundiPay is a Progressive Web App (PWA). Just tap the <strong class="text-emerald-400">"Install App"</strong> button at the top of this website. It installs directly to your home screen with zero App Store downloads required and works in full screen offline mode!
+              </p>
+            </div>
+
+            <div class="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2">
+              <h3 class="text-sm font-extrabold text-white">Can receivers withdraw money to their real bank account?</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Yes. Offline tokens are backed 1:1 by real INR in the settlement pool. Receivers can tap "Withdraw" inside their wallet anytime to receive funds straight into their bank account via standard UPI.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. BOTTOM CALL TO ACTION BANNER (With Install Button) -->
+      <section class="max-w-6xl mx-auto px-4 sm:px-8 py-20">
+        <div class="bg-gradient-to-r from-emerald-950/80 via-slate-900 to-teal-950/80 border border-emerald-500/30 rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-2xl relative overflow-hidden">
+          
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-[2px] mx-auto shadow-xl shadow-emerald-500/25">
+            <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-full h-full rounded-[14px] object-cover bg-slate-950">
+          </div>
+
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Experience Payments That Never Fail.</h2>
+          <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            Install HundiPay today and never worry about network timeouts, rural dead zones, or crowded events ever again.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+            <!-- Install CTA -->
+            <button onclick="triggerPwaInstall()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm transition touch-btn shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2.5 active:scale-95">
+              <span class="text-xl">📲</span>
+              <span>Install HundiPay on Phone</span>
+            </button>
+
+            <!-- Launch Simulator CTA -->
+            <button onclick="showAppMode(false)" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-750 font-bold text-sm transition touch-btn flex items-center justify-center gap-2">
+              <span>🚀</span>
+              <span>Open Web Simulator</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 9. FOOTER -->
+    <footer class="border-t border-slate-900 py-10 px-4 sm:px-8 text-center text-xs text-slate-400 space-y-3">
+      <div class="flex items-center justify-center gap-2">
+        <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-5 h-5 rounded-md object-cover">
+        <span class="font-extrabold text-white">HundiPay</span>
+        <span>•</span>
+        <span>Offline-First Peer-to-Peer Digital Payments</span>
+      </div>
+      <p class="text-[11px] text-slate-400">
+        Engineered with ECDSA SECP256R1, SHA-256 Atomic Ledger, & NPCI UPI Switch Integration.
+      </p>
+      <div class="flex justify-center gap-6 pt-2 text-[11px] text-slate-400">
+        <button onclick="showAppMode(false)" class="hover:text-emerald-400 transition">Launch Simulator</button>
+        <button onclick="triggerPwaInstall()" class="hover:text-emerald-400 transition">Install App</button>
+        <a href="#security" class="hover:text-emerald-400 transition">Security Model</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 📲 MODAL: PWA INSTALLATION GUIDE FOR ALL BROWSERS / IOS  -->
+  <!-- ======================================================== -->
+  <div id="install-guide-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-6 h-6 rounded-lg object-cover">
+          <h3 class="font-extrabold text-white text-xs">Install HundiPay App</h3>
+        </div>
+        <button onclick="closeInstallGuideModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-left text-xs">
+        <!-- Android Chrome -->
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+          <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+            <span>🤖 Android (Google Chrome)</span>
+          </div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            1. Tap the <strong>3 dots (⋮)</strong> menu in top-right.<br/>
+            2. Tap <strong>"Install App"</strong> or <strong>"Add to Home screen"</strong>.<br/>
+            3. HundiPay will install to your app drawer!
+          </p>
+        </div>
+
+        <!-- iPhone Safari -->
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+          <div class="font-bold text-teal-300 flex items-center gap-1.5">
+            <span>🍏 iPhone (Apple Safari)</span>
+          </div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            1. Tap the <strong>Share button (↑)</strong> at bottom of Safari.<br/>
+            2. Scroll down and tap <strong>"Add to Home Screen"</strong>.<br/>
+            3. Tap <strong>"Add"</strong> in top-right!
+          </p>
+        </div>
+
+        <!-- Desktop Chrome / Edge -->
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+          <div class="font-bold text-cyan-300 flex items-center gap-1.5">
+            <span>💻 Desktop (Chrome / Edge)</span>
+          </div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            Click the <strong>Install icon (⊕)</strong> on the right side of the URL address bar.
+          </p>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <button onclick="closeInstallGuideModal(); showAppMode(false);" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition touch-btn">
+          🚀 Try Web Simulator Now Instead
+        </button>
+        <button onclick="closeInstallGuideModal()" class="w-full py-2 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition touch-btn">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- NATIVE EDGE-TO-EDGE MOBILE APP CONTAINER (APP MODE)     -->
+  <!-- ======================================================== -->
+  <div id="app-container" class="w-full max-w-md mx-auto min-h-screen bg-slate-950 flex flex-col justify-between relative shadow-2xl border-x border-slate-900/60 pb-24 overflow-x-hidden hidden">
+
+    <!-- Top banner when in Web Simulator mode to easily return to website or install -->
+    <div id="web-mode-back-banner" class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-2 flex items-center justify-between text-xs transition-all">
+      <button onclick="showWebLandingMode()" class="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold transition touch-btn">
+        <span>← Back to Website</span>
+      </button>
+      <button onclick="triggerPwaInstall()" class="py-1 px-2.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 transition touch-btn shadow-sm">
+        <span>📲 Install App</span>
+      </button>
+    </div>
 
     <!-- AMBIENT TOP LIGHTING GLOWS -->
     <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-gradient-to-b from-emerald-500/15 via-teal-500/5 to-transparent rounded-full blur-3xl z-0"></div>
@@ -2794,6 +3310,65 @@
       localStorage.removeItem('pending_sync_vouchers');
     }
 
+    // Web Mode vs. Installed App Mode Router
+    function checkAppOrWebMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const modeParam = urlParams.get('mode');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone === true || 
+                           document.referrer.includes('android-app://');
+
+      if (isStandalone || modeParam === 'app') {
+        showAppMode(true);
+      } else {
+        if (sessionStorage.getItem('active_mode') === 'app') {
+          showAppMode(false);
+        } else {
+          showWebLandingMode();
+        }
+      }
+    }
+
+    function showAppMode(isStandalone = false) {
+      sessionStorage.setItem('active_mode', 'app');
+      const landing = document.getElementById('web-landing-page');
+      const appContainer = document.getElementById('app-container');
+      const backBanner = document.getElementById('web-mode-back-banner');
+
+      if (landing) landing.classList.add('hidden');
+      if (appContainer) appContainer.classList.remove('hidden');
+
+      const reallyStandalone = isStandalone || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (backBanner) {
+        if (reallyStandalone) {
+          backBanner.classList.add('hidden');
+        } else {
+          backBanner.classList.remove('hidden');
+        }
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showWebLandingMode() {
+      sessionStorage.setItem('active_mode', 'web');
+      const landing = document.getElementById('web-landing-page');
+      const appContainer = document.getElementById('app-container');
+
+      if (landing) landing.classList.remove('hidden');
+      if (appContainer) appContainer.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openInstallGuideModal() {
+      const modal = document.getElementById('install-guide-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeInstallGuideModal() {
+      const modal = document.getElementById('install-guide-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     // PWA Standalone and Install Visibility Checker
     function checkPwaInstallState() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
@@ -2824,13 +3399,12 @@
         deferredInstallPrompt.userChoice.then((choice) => {
           if (choice.outcome === 'accepted') {
             localStorage.setItem('pwa_installed', 'true');
-            const installBtn = document.getElementById('btn-pwa-install');
-            if (installBtn) installBtn.classList.add('hidden');
+            showAppMode(true);
           }
           deferredInstallPrompt = null;
         });
       } else {
-        alert("📲 To install this offline app on your phone:\n\n1. In Chrome (Android): Tap the 3 dots menu (⋮) -> 'Install App' or 'Add to Home screen'.\n2. In Safari (iPhone): Tap the Share icon (↑) -> 'Add to Home Screen'.\n\nOnce installed, you can launch and pay offline anytime even in Airplane Mode!");
+        openInstallGuideModal();
       }
     }
 
@@ -2942,6 +3516,7 @@
       if (headerAvatar) headerAvatar.textContent = (userName || 'U').charAt(0).toUpperCase();
 
       updateNetworkStatus(navigator.onLine);
+      checkAppOrWebMode();
       checkPwaInstallState();
       initCloudMeshRelay();
 

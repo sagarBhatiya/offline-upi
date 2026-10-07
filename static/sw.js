@@ -1,5 +1,5 @@
 // HundiPay Service Worker — 100% Offline PWA Engine
-const CACHE_NAME = 'hundipay-offline-v1';
+const CACHE_NAME = 'hundipay-offline-v2';
 
 const STATIC_PRECACHE = [
   '/',

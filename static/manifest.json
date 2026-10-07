@@ -2,7 +2,7 @@
   "name": "HundiPay — Offline Digital Payments",
   "short_name": "HundiPay",
   "description": "100% Offline Peer-to-Peer Wallet-to-Wallet Digital Payments with Zero Internet",
-  "start_url": "/",
+  "start_url": "/?mode=app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
