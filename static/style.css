@@ -1,12 +1,13 @@
 :root {
-  --bg-dark: #090d16;
-  --card-bg: #111827;
-  --card-border: #1f2937;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent-blue: #38bdf8;
-  --accent-blue-hover: #0284c7;
-  --accent-green: #10b981;
+  --bg-dark: #040916;
+  --card-bg: #0d224d;
+  --card-border: #112b5e;
+  --text-primary: #f0fdfa;
+  --text-secondary: #8cbeee;
+  --accent-blue: #3481dc;
+  --accent-blue-hover: #2365c4;
+  --accent-green: #00f5c4;
+  --accent-mint: #2ef2b8;
   --accent-amber: #f59e0b;
   --accent-red: #ef4444;
 }

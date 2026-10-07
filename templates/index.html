@@ -7,7 +7,7 @@
 
   <!-- PWA Manifest & Mobile Standalone Tags -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#030712">
+  <meta name="theme-color" content="#040916">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="UPI Lite">
@@ -35,10 +35,63 @@
             mono: ['"JetBrains Mono"', 'monospace'],
           },
           colors: {
+            // Sailor Blue palette mapped to slate for high-fidelity dark naval aesthetic
             slate: {
-              850: '#111827',
-              925: '#070b16',
-              950: '#030712',
+              50: '#edf4fd',
+              100: '#d7e6fb',
+              200: '#b5d4f9',
+              300: '#8cbeee',
+              400: '#5c9ee6',
+              500: '#3481dc',
+              600: '#2365c4',
+              700: '#1b4ea3',
+              750: '#153e85',
+              800: '#112b5e', // Sailor Navy border & elevated surfaces
+              850: '#0d224d', // Sailor Navy card container
+              900: '#081738', // Deep Sailor Navy
+              925: '#061129', // Nautical Midnight
+              950: '#040916', // Deepest Sailor Void
+            },
+            // Mint Green palette mapped to emerald for luminous crisp contrast
+            emerald: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2ef2b8', // Glowing Electric Mint
+              500: '#00f5c4', // Hero Mint Green
+              600: '#00d6aa',
+              700: '#00ab87',
+              800: '#018368',
+              900: '#044d3e',
+              950: '#012921',
+            },
+            sailor: {
+              50: '#edf4fd',
+              100: '#d7e6fb',
+              200: '#b5d4f9',
+              300: '#8cbeee',
+              400: '#5c9ee6',
+              500: '#3481dc',
+              600: '#2365c4',
+              700: '#1b4ea3',
+              800: '#112b5e',
+              850: '#0d224d',
+              900: '#081738',
+              950: '#040916',
+            },
+            mint: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2ef2b8',
+              500: '#00f5c4',
+              600: '#00d6aa',
+              700: '#00ab87',
+              800: '#018368',
+              900: '#044d3e',
+              950: '#012921',
             }
           }
         }
@@ -51,49 +104,77 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background-color: #030712;
+      background-color: #040916;
+      background-image: 
+        radial-gradient(circle at 10% 8%, rgba(0, 245, 196, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 12%, rgba(35, 101, 196, 0.22) 0%, transparent 50%),
+        radial-gradient(circle at 50% 95%, rgba(17, 43, 94, 0.45) 0%, transparent 60%);
+      background-attachment: fixed;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
     .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(8, 23, 56, 0.5); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 245, 196, 0.3); border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 245, 196, 0.6); }
     
     @keyframes scan-laser {
-      0% { top: 6%; opacity: 0.9; }
-      100% { top: 94%; opacity: 0.9; }
+      0% { top: 6%; opacity: 0.95; }
+      100% { top: 94%; opacity: 0.95; }
     }
     .laser-line {
-      animation: scan-laser 2s ease-in-out infinite alternate;
+      animation: scan-laser 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+      background: linear-gradient(90deg, transparent, #00f5c4 25%, #2ef2b8 50%, #00f5c4 75%, transparent);
+      box-shadow: 0 0 14px #00f5c4, 0 0 28px rgba(0, 245, 196, 0.6);
     }
 
     @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.25); }
-      50% { box-shadow: 0 0 35px rgba(16, 185, 129, 0.5); }
+      0%, 100% { 
+        box-shadow: 0 0 24px rgba(0, 245, 196, 0.25), 0 0 60px rgba(17, 43, 94, 0.45); 
+      }
+      50% { 
+        box-shadow: 0 0 42px rgba(0, 245, 196, 0.45), 0 0 85px rgba(17, 43, 94, 0.7); 
+      }
     }
     .hero-glow {
-      animation: pulse-glow 3s infinite;
+      animation: pulse-glow 3.5s ease-in-out infinite;
     }
 
     @keyframes live-ping {
-      75%, 100% { transform: scale(2); opacity: 0; }
+      75%, 100% { transform: scale(2.2); opacity: 0; }
     }
     .animate-live-dot {
-      animation: live-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+      animation: live-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
     .glass-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, rgba(13, 34, 77, 0.78) 0%, rgba(6, 17, 41, 0.92) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 245, 196, 0.16);
+      box-shadow: 0 20px 40px -15px rgba(2, 6, 18, 0.75), 0 0 24px -10px rgba(0, 245, 196, 0.12);
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 245, 196, 0.28);
     }
 
     .touch-btn {
-      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease;
     }
     .touch-btn:active {
       transform: scale(0.96);
+    }
+
+    .sailor-badge {
+      background: rgba(17, 43, 94, 0.6);
+      border: 1px solid rgba(35, 101, 196, 0.4);
+      color: #b5d4f9;
+    }
+
+    .mint-badge {
+      background: rgba(0, 245, 196, 0.12);
+      border: 1px solid rgba(0, 245, 196, 0.35);
+      color: #00f5c4;
     }
   </style>
 </head>
@@ -257,148 +338,7 @@
       </section>
 
       <!-- ======================================================== -->
-      <!-- TAB 2: 🏪 MERCHANT PoS WALLET & OFFLINE STANDEE SCREEN -->
-      <!-- ======================================================== -->
-      <section id="screen-merchant" class="space-y-4 hidden">
-
-        <!-- Merchant Wallet Hero Card -->
-        <div class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border border-indigo-700/50 rounded-[2rem] p-5 shadow-2xl relative overflow-hidden group">
-          <div class="absolute -right-8 -top-8 w-36 h-36 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-500/30 transition"></div>
-
-          <div class="flex justify-between items-start">
-            <div>
-              <div class="text-[10px] text-indigo-300 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
-                <span>Merchant PoS Wallet</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-              </div>
-              <div class="text-3xl sm:text-4xl font-extrabold text-white mt-1.5 flex items-baseline gap-1 tracking-tight">
-                <span class="text-2xl text-indigo-400 font-bold">₹</span>
-                <span id="merchant-balance-display">0.00</span>
-              </div>
-            </div>
-
-            <div class="text-right">
-              <span id="merchant-vpa-badge" class="text-[10px] px-2.5 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono font-bold block">
-                merchant@upi
-              </span>
-              <div class="text-[8px] text-indigo-400 mt-1">PoS Cash Register</div>
-            </div>
-          </div>
-
-          <p class="text-[11px] text-slate-300 mt-3 leading-relaxed">
-            Customers pay offline from their wallet to your Merchant Wallet with zero internet! Accumulated money can be withdrawn directly to your real bank account via IMPS.
-          </p>
-
-          <!-- Withdraw Merchant Balance Button -->
-          <div class="mt-3.5 pt-3 border-t border-indigo-800/40 flex justify-between items-center">
-            <span class="text-[10px] text-indigo-300 font-mono">Real Bank Payout</span>
-            <button onclick="openWithdrawModal('merchant')" class="py-2 px-3.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/35 text-indigo-200 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition touch-btn shadow-sm">
-              <span>🏦 Withdraw to Bank UPI</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Live Merchant Offline Standee QR -->
-        <div class="p-4 bg-slate-900/90 border border-slate-800 rounded-3xl text-center space-y-3 shadow-xl">
-          <div class="flex items-center justify-between">
-            <div class="text-left">
-              <div class="text-xs font-bold text-white flex items-center gap-1">
-                <span>🏪</span>
-                <span>Store Standee QR</span>
-              </div>
-              <div class="text-[10px] text-slate-400">Customers scan this to pay your wallet offline</div>
-            </div>
-            <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">100% Offline</span>
-          </div>
-
-          <!-- Standee QR Canvas -->
-          <div class="p-4 bg-white rounded-2xl inline-block shadow-2xl mx-auto border-2 border-indigo-500/30">
-            <div id="merchant-standee-qrcode" class="w-[180px] h-[180px] flex items-center justify-center"></div>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[10px] text-slate-300 flex items-center justify-between font-mono">
-            <span>Payee Handle:</span>
-            <span class="text-indigo-400 font-bold">merchant@upi</span>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ======================================================== -->
-      <!-- TAB 3: 🚶 COMMUTER MULE CASHBACK RELAY SCREEN -->
-      <!-- ======================================================== -->
-      <section id="screen-mule" class="space-y-4 hidden">
-
-        <!-- Mule Cashback Hero Card (Nebula Violet Finish) -->
-        <div class="bg-gradient-to-br from-purple-950/80 via-slate-900 to-slate-900 border border-purple-800/50 rounded-[2rem] p-5 shadow-2xl relative overflow-hidden">
-          <div class="absolute -right-8 -top-8 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl"></div>
-
-          <div class="flex justify-between items-start">
-            <div>
-              <div class="text-[10px] text-purple-300 uppercase tracking-widest font-extrabold">Proof-of-Relay Cashback</div>
-              <div class="text-3xl sm:text-4xl font-extrabold text-white mt-1.5 flex items-baseline gap-1">
-                <span class="text-2xl text-purple-400">₹</span>
-                <span id="mule-balance-display">0.00</span>
-              </div>
-            </div>
-
-            <!-- Auto-Entered Mule Handle -->
-            <div class="text-right">
-              <span id="mule-vpa-badge" class="text-[10px] px-2.5 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono font-bold block">
-                mule_auto@upi
-              </span>
-              <div class="text-[8px] text-purple-400 mt-1">Device-Assigned Handle</div>
-            </div>
-          </div>
-
-          <p class="text-[11px] text-slate-300 mt-3 leading-relaxed">
-            Passerby commuters passively carry encrypted offline vouchers on their phones to 4G internet zones and automatically earn <b>₹0.25 cashback</b> per packet upon cloud settlement!
-          </p>
-
-          <!-- Withdraw Mule Cashback Button -->
-          <div class="mt-3.5 pt-3 border-t border-purple-800/40 flex justify-between items-center">
-            <span class="text-[10px] text-purple-300 font-mono">Instant IMPS Disbursal</span>
-            <button onclick="openWithdrawModal('mule')" class="py-1.5 px-3 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/30 text-[11px] font-bold flex items-center gap-1 transition touch-btn">
-              <span>🏦 Withdraw Cashback</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mule Connectivity Card -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-xs font-bold text-white">Mule Connectivity</div>
-              <div class="text-[11px] text-slate-400" id="mule-conn-status">Currently Offline (In Basement)</div>
-            </div>
-            <button id="mule-toggle-4g-btn" onclick="toggleBridgeInternet()" class="text-xs px-3.5 py-2 rounded-xl bg-slate-800 text-blue-400 border border-blue-500/30 font-bold transition touch-btn">
-              <span id="mule-4g-text">📶 Connect to 4G</span>
-            </button>
-          </div>
-
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400 font-medium">Vouchers in Device Transit:</span>
-            <span class="font-mono font-bold text-purple-400" id="mule-cache-count">0 vouchers</span>
-          </div>
-        </div>
-
-        <!-- Settle Action -->
-        <div class="pt-1">
-          <div id="mule-feedback" class="text-center text-xs mb-2 text-slate-400 font-medium h-4 truncate">
-            Connect to 4G to claim relay cashback
-          </div>
-          <button id="btn-settle-cloud" onclick="flushBridgeToBank()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition touch-btn">
-            <span>☁️ Settle & Disburse ₹0.25 Cashback</span>
-          </button>
-          <p class="text-[9px] text-center text-slate-500 mt-1">
-            Settles atomic multi-party ledger & deposits bounty into your auto-assigned handle.
-          </p>
-        </div>
-
-      </section>
-
-      <!-- ======================================================== -->
-      <!-- TAB 3: 📜 BANKING PASSBOOK / LEDGER SCREEN -->
+      <!-- TAB 2: 📜 BANKING PASSBOOK / LEDGER SCREEN -->
       <!-- ======================================================== -->
       <section id="screen-ledger" class="space-y-3 hidden">
         <div class="flex justify-between items-center px-1">
@@ -426,24 +366,16 @@
 
     </main>
 
-    <!-- NATIVE FLOATING BOTTOM NAVIGATION DOCK -->
+    <!-- NATIVE FLOATING BOTTOM NAVIGATION DOCK (2-TAB STREAMLINED) -->
     <nav class="fixed bottom-3 left-0 right-0 max-w-md mx-auto px-4 z-40 pointer-events-none">
-      <div class="pointer-events-auto bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 rounded-2xl p-1.5 flex items-center justify-around shadow-2xl shadow-black/80">
-        <button id="nav-payer" onclick="switchPhoneTab('payer')" class="flex-1 py-1.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 transition touch-btn text-center">
-          <span class="block text-base leading-none mb-0.5">📱</span>
-          <span class="text-[10px]">Customer</span>
+      <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-2xl border border-slate-750/90 rounded-2xl p-1.5 flex items-center justify-around shadow-2xl shadow-black/90 gap-2">
+        <button id="nav-payer" onclick="switchPhoneTab('payer')" class="flex-1 py-2.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-500/40 shadow-lg shadow-emerald-500/15 transition touch-btn text-center flex items-center justify-center gap-2">
+          <span class="text-base leading-none">📱</span>
+          <span class="text-xs">Pay & Wallet</span>
         </button>
-        <button id="nav-merchant" onclick="switchPhoneTab('merchant')" class="flex-1 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center">
-          <span class="block text-base leading-none mb-0.5">🏪</span>
-          <span class="text-[10px]">Merchant</span>
-        </button>
-        <button id="nav-mule" onclick="switchPhoneTab('mule')" class="flex-1 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center">
-          <span class="block text-base leading-none mb-0.5">🚶</span>
-          <span class="text-[10px]">Relay</span>
-        </button>
-        <button id="nav-ledger" onclick="switchPhoneTab('ledger')" class="flex-1 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center">
-          <span class="block text-base leading-none mb-0.5">📜</span>
-          <span class="text-[10px]">Passbook</span>
+        <button id="nav-ledger" onclick="switchPhoneTab('ledger')" class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-2">
+          <span class="text-base leading-none">📜</span>
+          <span class="text-xs">Passbook & History</span>
         </button>
       </div>
     </nav>
@@ -507,7 +439,7 @@
 
       <!-- Auto-Entered Receiver Info -->
       <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-2xl shadow">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-700 border border-emerald-500/30 flex items-center justify-center text-2xl shadow">
           🏪
         </div>
         <div class="flex-1 truncate">
@@ -558,7 +490,7 @@
   <!-- ======================================================== -->
   <div id="payment-success-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto text-3xl text-emerald-400 shadow-[0_0_25px_#10b981]">
+      <div class="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto text-3xl text-emerald-400 shadow-[0_0_28px_#00f5c4]">
         ✔
       </div>
 
@@ -929,7 +861,7 @@
           particleCount: 60,
           spread: 60,
           origin: { y: 0.65 },
-          colors: ['#10b981', '#3b82f6', '#8b5cf6', '#fbbf24', '#ffffff']
+          colors: ['#00f5c4', '#2ef2b8', '#3481dc', '#1b4ea3', '#ffffff']
         });
       }
     }
@@ -986,27 +918,24 @@
       requestAnimationFrame(step);
     }
 
-    // --- Tab Switcher (Customer, Merchant, Mule, Ledger) ---
+    // --- Tab Switcher (Customer & Passbook) ---
     function switchPhoneTab(tabName) {
       activeTab = tabName;
       triggerHaptic(15);
       playSyntheticTone('click');
-      ['payer', 'merchant', 'mule', 'ledger'].forEach(t => {
+      ['payer', 'ledger'].forEach(t => {
         const screen = document.getElementById(`screen-${t}`);
         const nav = document.getElementById(`nav-${t}`);
         if (screen && nav) {
           if (t === tabName) {
             screen.classList.remove('hidden');
-            nav.className = "flex-1 py-1.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 transition touch-btn text-center";
+            nav.className = "flex-1 py-2.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-500/40 shadow-lg shadow-emerald-500/15 transition touch-btn text-center flex items-center justify-center gap-2";
           } else {
             screen.classList.add('hidden');
-            nav.className = "flex-1 py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center";
+            nav.className = "flex-1 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-2";
           }
         }
       });
-      if (tabName === 'merchant') {
-        generateMerchantStandeeQr();
-      }
       refreshState();
     }
 
@@ -1805,9 +1734,13 @@
       try {
         await fetch('/api/demo/reset', { method: 'POST' });
         bridgeHasInternet = false;
-        document.getElementById('mule-4g-text').textContent = "📶 Connect to 4G";
-        document.getElementById('mule-conn-status').textContent = "Currently Offline (In Basement)";
-        document.getElementById('mule-conn-status').className = "text-[11px] text-slate-400";
+        const g4Text = document.getElementById('mule-4g-text');
+        if (g4Text) g4Text.textContent = "📶 Connect to 4G";
+        const connStatus = document.getElementById('mule-conn-status');
+        if (connStatus) {
+          connStatus.textContent = "Currently Offline (In Basement)";
+          connStatus.className = "text-[11px] text-slate-400";
+        }
         await refreshState();
       } catch (e) {
         console.error("Reset error:", e);
@@ -2087,8 +2020,8 @@
 
         const mesh = data.mesh || {};
         const devs = mesh.devices || {};
-        const pBridge = devs['phone-bridge']?.held_packets?.length || 0;
-        document.getElementById('mule-cache-count').textContent = `${pBridge} vouchers`;
+        const muleCacheEl = document.getElementById('mule-cache-count');
+        if (muleCacheEl) muleCacheEl.textContent = `${pBridge} vouchers`;
 
         // Cache transactions & render
         cachedTransactions = data.transactions || [];
