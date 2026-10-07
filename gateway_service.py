@@ -36,7 +36,7 @@ class RealUpiGatewayService:
             "cu": "INR",
             "tn": note.strip()
         }
-        return "upi://pay?" + urllib.parse.urlencode(params)
+        return "upi://pay?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote, safe='@')
 
     def generate_bank_utr(self) -> str:
         """Generates a realistic 12-digit Indian Banking UTR number (NPCI IMPS/UPI format)."""

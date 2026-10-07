@@ -1,5 +1,5 @@
 // UPI Lite Service Worker — 100% Offline PWA Engine
-const CACHE_NAME = 'upi-lite-offline-v1';
+const CACHE_NAME = 'upi-lite-offline-v2';
 
 const STATIC_PRECACHE = [
   '/',

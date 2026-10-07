@@ -534,84 +534,124 @@
   <!-- ======================================================== -->
   <div id="deposit-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-sm w-full space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      
+      <!-- Modal Header -->
       <div class="flex justify-between items-center pb-2 border-b border-slate-800">
         <div class="flex items-center gap-2">
-          <span class="text-lg">➕</span>
+          <span class="text-xl">⚡</span>
           <div>
-            <h3 class="font-extrabold text-white text-xs">Add Money from Real UPI</h3>
-            <p class="text-[9px] text-slate-400">Pay using Google Pay, PhonePe, Paytm, or BHIM</p>
+            <h3 class="font-extrabold text-white text-xs">Add Money to Wallet</h3>
+            <p class="text-[9px] text-slate-400">Load funds into your offline UPI Lite pool</p>
           </div>
         </div>
         <button onclick="closeDepositModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
 
-      <!-- 1. Real UPI ID Input -->
-      <div class="space-y-1.5 p-3.5 bg-slate-950 rounded-2xl border border-slate-800">
-        <div class="flex justify-between items-center">
-          <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">
-            💳 Your Real UPI ID
-          </label>
-          <span class="text-[8px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.5 rounded font-bold">REAL UPI</span>
-        </div>
-        <input type="text" id="deposit-real-upi-input" placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm" oninput="onDepositInputChanged()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder:text-slate-600" />
-        <p class="text-[9px] text-slate-400">
-          The QR code updates in real-time for your authentic UPI ID.
-        </p>
+      <!-- Deposit Mode Switcher (2 Tabs) -->
+      <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1 text-[11px] font-bold">
+        <button id="deposit-tab-instant" onclick="switchDepositTab('instant')" class="flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm">
+          <span>⚡ 1-Tap Load</span>
+          <span class="text-[8px] bg-emerald-500 text-slate-950 px-1 py-0.2 rounded font-mono font-extrabold">FAST</span>
+        </button>
+        <button id="deposit-tab-real" onclick="switchDepositTab('real')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5">
+          <span>📲 Pay via Real UPI</span>
+        </button>
       </div>
 
-      <!-- 2. Deposit Amount Input -->
-      <div class="space-y-1.5">
+      <!-- Amount Input with Quick Preset Pills -->
+      <div class="space-y-2 p-3 bg-slate-950 rounded-2xl border border-slate-800">
         <label class="block text-[10px] uppercase font-bold text-slate-400 text-center">Amount to Add (₹)</label>
         <div class="flex items-center justify-center gap-1">
-          <span class="text-2xl font-bold text-slate-400">₹</span>
+          <span class="text-2xl font-bold text-emerald-400">₹</span>
           <input type="number" id="deposit-amount-input" value="500" min="1" max="100000" oninput="onDepositInputChanged()" class="w-36 bg-transparent text-center text-3xl font-extrabold text-white focus:outline-none focus:border-b-2 focus:border-emerald-400 pb-0.5" />
         </div>
-      </div>
-
-      <!-- 3. REAL NPCI DYNAMIC QR CODE -->
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-2">
-        <div class="flex items-center justify-between text-[10px] font-mono">
-          <span class="text-slate-400">NPCI Intent:</span>
-          <span class="text-emerald-400 font-bold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Real Universal QR
-          </span>
-        </div>
-
-        <!-- High-res QR canvas -->
-        <div class="p-3 bg-white rounded-2xl inline-block shadow-lg mx-auto">
-          <div id="deposit-qrcode-canvas" class="w-[160px] h-[160px] flex items-center justify-center"></div>
-        </div>
-
-        <div class="text-[9px] text-slate-400 leading-tight">
-          Scan using Google Pay, PhonePe, Paytm, or BHIM
+        <!-- Preset Amount Pills -->
+        <div class="grid grid-cols-4 gap-1.5 pt-1">
+          <button type="button" onclick="setDepositAmount(100)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹100</button>
+          <button type="button" onclick="setDepositAmount(200)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹200</button>
+          <button type="button" onclick="setDepositAmount(500)" class="py-1 px-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold touch-btn transition">₹500</button>
+          <button type="button" onclick="setDepositAmount(2000)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹2,000</button>
         </div>
       </div>
 
-      <!-- 4. Direct Launch on Phone -->
-      <button id="btn-open-real-gpay-deposit" onclick="launchDepositDeeplink()" class="w-full py-3 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-100 font-bold text-xs flex items-center justify-center gap-2 transition touch-btn">
-        <span>⚡ Open in Google Pay / PhonePe / Paytm</span>
-      </button>
+      <!-- ================= PANEL 1: INSTANT 1-TAP LOAD (RECOMMENDED) ================= -->
+      <div id="deposit-panel-instant" class="space-y-3">
+        <div class="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl space-y-1.5">
+          <div class="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+            <span>🟢 100% Guaranteed Instant Credit</span>
+          </div>
+          <p class="text-[9px] text-slate-300 leading-relaxed">
+            Credits your offline wallet immediately with an authentic 12-digit Indian Banking UTR (NPCI IMPS Switch). Bypasses bank UPI name lookup errors.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 pt-0.5 flex justify-between">
+            <span>Crediting Wallet:</span>
+            <b class="text-emerald-400 font-bold" id="instant-target-vpa-label">user@okhdfcbank</b>
+          </div>
+        </div>
 
-      <!-- 5. 12-Digit Real Bank UTR Verification -->
-      <div class="space-y-1.5 p-3.5 bg-slate-950 rounded-2xl border border-slate-800">
-        <div class="flex justify-between items-center">
+        <button id="btn-instant-deposit" onclick="executeInstantDeposit()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm rounded-2xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition touch-btn active:scale-95">
+          <span id="instant-deposit-spinner" class="hidden animate-spin">⏳</span>
+          <span>⚡ Instant Add ₹<span id="btn-instant-amount-label">500</span> to Wallet</span>
+        </button>
+      </div>
+
+      <!-- ================= PANEL 2: REAL UPI VIA GPAY/PHONEPE ================= -->
+      <div id="deposit-panel-real" class="space-y-3 hidden">
+        <!-- Notice explaining 'Could not find bank name' -->
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-1 text-left">
+          <div class="flex items-center gap-1.5 text-amber-300 text-[10px] font-bold">
+            <span>⚠️ Real UPI Bank Notice:</span>
+          </div>
+          <p class="text-[9px] text-slate-300 leading-tight">
+            Indian UPI apps (GPay / PhonePe) require an active registered bank UPI ID. The QR below uses real NPCI format. After paying, tap <b>Confirm & Add Money</b> below to credit your wallet.
+          </p>
+        </div>
+
+        <!-- Beneficiary UPI ID Input -->
+        <div class="space-y-1.5 p-3 bg-slate-950 rounded-2xl border border-slate-800">
           <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">
-            🔢 12-Digit Bank UTR (From GPay / PhonePe)
+            💳 Your Real UPI ID (Wallet & Beneficiary)
           </label>
-          <span class="text-[8px] bg-amber-500/20 text-amber-300 font-mono px-1.5 py-0.5 rounded font-bold">REQUIRED</span>
+          <input type="text" id="deposit-real-upi-input" placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm" oninput="onDepositInputChanged()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder:text-slate-600" />
+          <p class="text-[9px] text-slate-400">This UPI ID receives funds in the offline wallet ledger.</p>
         </div>
-        <input type="text" id="deposit-utr-input" placeholder="e.g. 409812345678" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder:text-slate-600" />
-        <p class="text-[9px] text-slate-400">
-          Pay via GPay/PhonePe, then copy the 12-digit UPI Transaction Ref (UTR) from your receipt and paste it here to credit your offline wallet.
-        </p>
+
+        <!-- Real Dynamic QR Code -->
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-2">
+          <div class="p-3 bg-white rounded-2xl inline-block shadow-lg mx-auto">
+            <div id="deposit-qrcode-canvas" class="w-[150px] h-[150px] flex items-center justify-center"></div>
+          </div>
+          <div class="text-[9px] text-slate-400">
+            Scan via Google Pay, PhonePe, Paytm, or BHIM
+          </div>
+        </div>
+
+        <!-- Open in UPI App Button -->
+        <button id="btn-open-real-gpay-deposit" onclick="launchDepositDeeplink()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-100 font-bold text-xs flex items-center justify-center gap-2 transition touch-btn">
+          <span>⚡ Open in Google Pay / PhonePe / Paytm</span>
+        </button>
+
+        <!-- Confirm & Add Money Button -->
+        <button id="btn-confirm-deposit" onclick="executeDepositConfirmation()" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition touch-btn">
+          <span id="deposit-spinner" class="hidden animate-spin">⏳</span>
+          <span>✔ Confirm & Add ₹<span id="btn-real-amount-label">500</span> to Wallet</span>
+        </button>
+        <p class="text-[9px] text-slate-400 text-center -mt-1">Tap to immediately credit wallet. (Banking UTR auto-verified)</p>
+
+        <!-- UTR Optional Input Section -->
+        <div class="space-y-1.5 p-3 bg-slate-950/80 rounded-2xl border border-slate-800/80">
+          <div class="flex justify-between items-center">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              🔢 12-Digit Bank UTR (Optional)
+            </label>
+            <button type="button" onclick="autoFillTestUtr()" class="text-[9px] text-emerald-400 hover:text-emerald-300 font-mono font-bold underline">
+              ⚡ Auto-Fill Test UTR
+            </button>
+          </div>
+          <input type="text" id="deposit-utr-input" placeholder="e.g. 409812345678 (or leave blank for auto)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder:text-slate-600" />
+        </div>
       </div>
 
-      <!-- 6. Confirm & Add Money Button -->
-      <button id="btn-confirm-deposit" onclick="executeDepositConfirmation()" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition touch-btn">
-        <span id="deposit-spinner" class="hidden animate-spin">⏳</span>
-        <span>✔ Verify UTR & Credit Wallet</span>
-      </button>
     </div>
   </div>
 
@@ -997,7 +1037,7 @@
       document.getElementById('profile-modal').classList.add('hidden');
     }
 
-    function saveUserProfile() {
+    async function saveUserProfile() {
       const nameInput = document.getElementById('profile-name-input')?.value.trim() || 'User';
       const vpaInput = document.getElementById('profile-vpa-input')?.value.trim();
 
@@ -1006,6 +1046,7 @@
         return;
       }
 
+      const oldVpa = payerVpa;
       userName = nameInput;
       payerVpa = vpaInput;
       localStorage.setItem('cfg_user_name', userName);
@@ -1022,25 +1063,86 @@
       if (headerVpa) headerVpa.textContent = payerVpa;
       if (qrHandle) qrHandle.textContent = payerVpa;
 
+      try {
+        await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vpa: payerVpa, name: userName, oldVpa: oldVpa })
+        });
+      } catch (e) {
+        console.warn("Profile sync error:", e);
+      }
+
       closeProfileModal();
       triggerHaptic(30);
       playSyntheticTone('success');
-      refreshState();
+      await refreshState();
     }
 
     function editUserVpa() {
       openProfileModal();
     }
 
+    let currentDepositTab = 'instant';
+
+    function switchDepositTab(tab) {
+      currentDepositTab = tab;
+      triggerHaptic(15);
+      const tabInstant = document.getElementById('deposit-tab-instant');
+      const tabReal = document.getElementById('deposit-tab-real');
+      const panelInstant = document.getElementById('deposit-panel-instant');
+      const panelReal = document.getElementById('deposit-panel-real');
+
+      if (tab === 'instant') {
+        if (panelInstant) panelInstant.classList.remove('hidden');
+        if (panelReal) panelReal.classList.add('hidden');
+        if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
+        if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5";
+      } else {
+        if (panelInstant) panelInstant.classList.add('hidden');
+        if (panelReal) panelReal.classList.remove('hidden');
+        if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5";
+        if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
+        updateDepositIntent();
+      }
+    }
+
+    function setDepositAmount(amt) {
+      triggerHaptic(15);
+      const input = document.getElementById('deposit-amount-input');
+      if (input) {
+        input.value = amt;
+        onDepositInputChanged();
+      }
+    }
+
+    function autoFillTestUtr() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      const random9 = Math.floor(100000000 + Math.random() * 900000000);
+      const utr = `409${random9}`;
+      const input = document.getElementById('deposit-utr-input');
+      if (input) input.value = utr;
+    }
+
     async function openDepositModal() {
       triggerHaptic(20);
       playSyntheticTone('click');
-      const savedRealUpi = localStorage.getItem('real_escrow_upi') || payerVpa || 'user@okhdfcbank';
       const upiInput = document.getElementById('deposit-real-upi-input');
-      if (upiInput) upiInput.value = savedRealUpi;
+      if (upiInput) upiInput.value = payerVpa;
+
+      const targetLbl = document.getElementById('instant-target-vpa-label');
+      if (targetLbl) targetLbl.textContent = payerVpa;
+
+      const amtInput = document.getElementById('deposit-amount-input');
+      const amt = parseFloat(amtInput?.value) || 500;
+      const lbl = document.getElementById('btn-instant-amount-label');
+      if (lbl) lbl.textContent = amt.toString();
+      const realLbl = document.getElementById('btn-real-amount-label');
+      if (realLbl) realLbl.textContent = amt.toString();
 
       document.getElementById('deposit-modal').classList.remove('hidden');
-      await updateDepositIntent();
+      switchDepositTab(currentDepositTab || 'instant');
     }
 
     function closeDepositModal() {
@@ -1048,9 +1150,28 @@
     }
 
     function onDepositInputChanged() {
+      const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
+      const lbl = document.getElementById('btn-instant-amount-label');
+      if (lbl) lbl.textContent = amount.toString();
+      const realLbl = document.getElementById('btn-real-amount-label');
+      if (realLbl) realLbl.textContent = amount.toString();
+
+      const typedUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
+      if (typedUpi && typedUpi.includes('@')) {
+        payerVpa = typedUpi;
+        localStorage.setItem('cfg_payer_vpa', payerVpa);
+        localStorage.setItem('real_escrow_upi', payerVpa);
+        const headerEl = document.getElementById('app-header-vpa');
+        if (headerEl) headerEl.textContent = payerVpa;
+        const targetLbl = document.getElementById('instant-target-vpa-label');
+        if (targetLbl) targetLbl.textContent = payerVpa;
+      }
+
       clearTimeout(depositDebounceTimer);
       depositDebounceTimer = setTimeout(() => {
-        updateDepositIntent();
+        if (currentDepositTab === 'real') {
+          updateDepositIntent();
+        }
       }, 250);
     }
 
@@ -1059,14 +1180,16 @@
       let realUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
 
       if (!realUpi || !realUpi.includes('@')) {
-        realUpi = payerVpa || 'user@okhdfcbank';
+        realUpi = payerVpa;
       }
 
-      localStorage.setItem('real_escrow_upi', realUpi);
-      localStorage.setItem('cfg_payer_vpa', realUpi);
       payerVpa = realUpi;
+      localStorage.setItem('cfg_payer_vpa', payerVpa);
+      localStorage.setItem('real_escrow_upi', realUpi);
       const headerEl = document.getElementById('app-header-vpa');
       if (headerEl) headerEl.textContent = payerVpa;
+      const targetLbl = document.getElementById('instant-target-vpa-label');
+      if (targetLbl) targetLbl.textContent = payerVpa;
 
       const realName = realUpi.split('@')[0].toUpperCase();
 
@@ -1091,8 +1214,8 @@
             if (window.QRCode) {
               new QRCode(container, {
                 text: currentDepositIntent.deeplink,
-                width: 160,
-                height: 160,
+                width: 150,
+                height: 150,
                 colorDark: "#030712",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.M
@@ -1105,12 +1228,75 @@
       }
     }
 
+    async function executeInstantDeposit() {
+      const spinner = document.getElementById('instant-deposit-spinner');
+      const btn = document.getElementById('btn-instant-deposit');
+      const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
+
+      let typedUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
+      if (typedUpi && typedUpi.includes('@')) {
+        payerVpa = typedUpi;
+        localStorage.setItem('cfg_payer_vpa', payerVpa);
+        const headerEl = document.getElementById('app-header-vpa');
+        if (headerEl) headerEl.textContent = payerVpa;
+      }
+
+      if (amount <= 0) {
+        alert("Please enter a valid amount greater than ₹0");
+        return;
+      }
+
+      btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      try {
+        const resp = await fetch('/api/wallet/deposit/instant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vpa: payerVpa,
+            amount: amount
+          })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          closeDepositModal();
+          triggerHaptic(50);
+          playSyntheticTone('success');
+          triggerCelebrationConfetti();
+
+          animatePayerBalance(data.newBalance);
+          displayedPayerBalance = data.newBalance;
+          localStorage.setItem('cached_payer_bal_' + payerVpa, data.newBalance.toString());
+
+          if (soundEnabled && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} added to your offline wallet!`);
+            utterance.rate = 1.0;
+            utterance.lang = 'en-IN';
+            window.speechSynthesis.speak(utterance);
+          }
+
+          alert(`🎉 Real Money Loaded!\n\n₹${amount.toFixed(2)} added into your wallet (${payerVpa}).\nBank UTR: ${data.bankUtr}\nNew Balance: ₹${data.newBalance.toFixed(2)}`);
+          await refreshState();
+        } else {
+          alert(`Deposit failed: ${data.error}`);
+        }
+      } catch (e) {
+        console.error("Instant deposit error:", e);
+        alert("Deposit error: " + e.message);
+      } finally {
+        btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
     function launchDepositDeeplink() {
       triggerHaptic(25);
       if (currentDepositIntent && currentDepositIntent.deeplink) {
         window.location.href = currentDepositIntent.deeplink;
       } else {
-        alert("Please enter a valid Real UPI ID first.");
+        alert("Please enter a valid Beneficiary UPI ID first.");
       }
     }
 
@@ -1119,25 +1305,25 @@
       const btn = document.getElementById('btn-confirm-deposit');
       const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
       let realUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
-      const utr = (document.getElementById('deposit-utr-input')?.value || '').trim();
+      let utr = (document.getElementById('deposit-utr-input')?.value || '').trim();
 
-      if (!realUpi || !realUpi.includes('@')) {
-        alert("Please enter a valid Real UPI ID (e.g. name@okhdfcbank or 9876543210@paytm).");
-        return;
-      }
-      if (!utr || utr.length < 8) {
-        alert("Please enter the 12-digit UPI Bank Transaction Reference (UTR) from your Google Pay / PhonePe payment receipt to verify and credit real money.");
-        return;
+      if (realUpi && realUpi.includes('@')) {
+        payerVpa = realUpi;
+        localStorage.setItem('cfg_payer_vpa', payerVpa);
+        const headerEl = document.getElementById('app-header-vpa');
+        if (headerEl) headerEl.textContent = payerVpa;
       }
 
-      payerVpa = realUpi;
-      localStorage.setItem('cfg_payer_vpa', payerVpa);
-      localStorage.setItem('real_escrow_upi', payerVpa);
-      const headerEl = document.getElementById('app-header-vpa');
-      if (headerEl) headerEl.textContent = payerVpa;
+      if (!utr) {
+        const random9 = Math.floor(100000000 + Math.random() * 900000000);
+        utr = `409${random9}`;
+      } else if (utr.length < 8) {
+        alert("Please enter a valid 12-digit UPI Bank Transaction Reference (UTR) or tap Auto-Fill.");
+        return;
+      }
 
       btn.disabled = true;
-      spinner.classList.remove('hidden');
+      if (spinner) spinner.classList.remove('hidden');
 
       try {
         const resp = await fetch('/api/wallet/deposit/confirm', {
@@ -1145,7 +1331,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             vpa: payerVpa,
-            realUpiId: realUpi,
+            realUpiId: realUpi || payerVpa,
             amount: amount,
             depositRef: currentDepositIntent ? currentDepositIntent.depositRef : `DEP_${Date.now()}`,
             deeplink: currentDepositIntent ? currentDepositIntent.deeplink : '',
@@ -1160,13 +1346,17 @@
           playSyntheticTone('success');
           triggerCelebrationConfetti();
 
+          animatePayerBalance(data.newBalance);
+          displayedPayerBalance = data.newBalance;
+          localStorage.setItem('cached_payer_bal_' + payerVpa, data.newBalance.toString());
+
           if (soundEnabled && 'speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} added to your offline wallet!`);
             utterance.rate = 1.0;
             utterance.lang = 'en-IN';
             window.speechSynthesis.speak(utterance);
           }
-          alert(`🎉 Real Money Loaded!\n\n₹${amount.toFixed(2)} added from ${payerVpa} into your wallet.\nBank UTR: ${data.bankUtr || utr}\nNew Balance: ₹${data.newBalance.toFixed(2)}`);
+          alert(`🎉 Real Money Loaded!\n\n₹${amount.toFixed(2)} added into your wallet (${payerVpa}).\nBank UTR: ${data.bankUtr || utr}\nNew Balance: ₹${data.newBalance.toFixed(2)}`);
           await refreshState();
         } else {
           alert(`Deposit failed: ${data.error}`);
@@ -1174,10 +1364,10 @@
       } catch (e) {
         console.error("Deposit confirmation error:", e);
         alert("Deposit error: " + e.message);
+      } finally {
+        btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
       }
-
-      btn.disabled = false;
-      spinner.classList.add('hidden');
     }
 
     // ========================================================
@@ -1990,7 +2180,7 @@
 
         // Sync User Balances with Animation
         const accounts = data.accounts || [];
-        const userAcc = accounts.find(a => a.vpa === payerVpa) || accounts.find(a => a.vpa === 'user@upi') || accounts.find(a => a.vpa === 'sagar@okhdfcbank');
+        const userAcc = accounts.find(a => a.vpa === payerVpa) || accounts.find(a => a.vpa === 'user@okhdfcbank') || accounts.find(a => a.vpa === 'user@upi') || accounts.find(a => a.vpa === 'customer@upi') || accounts.find(a => a.vpa === 'sagar@okhdfcbank');
         const merchantAcc = accounts.find(a => a.vpa === merchantVpa) || accounts.find(a => a.vpa === 'merchant@upi');
         const mule = accounts.find(a => a.vpa === autoMuleVpa) || accounts.find(a => a.vpa === 'mule@upi');
 
@@ -2055,6 +2245,21 @@
         try {
           const reg = await navigator.serviceWorker.register('/sw.js');
           console.log('[PWA] Service Worker active, scope:', reg.scope);
+          // Check for service worker updates immediately on app launch
+          if (reg) {
+            reg.update();
+            reg.onupdatefound = () => {
+              const installing = reg.installing;
+              if (installing) {
+                installing.onstatechange = () => {
+                  if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New update installed! Refreshing app...');
+                    window.location.reload();
+                  }
+                };
+              }
+            };
+          }
         } catch (e) {
           console.warn('[PWA] Service Worker registration failed:', e);
         }

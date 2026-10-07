@@ -240,6 +240,41 @@ def record_deposit(vpa, amount, bank_utr, deposit_ref, deeplink_url=""):
     finally:
         conn.close()
 
+def upsert_user_account(new_vpa, holder_name="User", old_vpa=None):
+    """
+    Registers or updates a user's real UPI ID account in SQLite.
+    If transitioning from an old VPA with balance, carries over the balance to the new VPA.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (new_vpa,))
+        existing = cursor.fetchone()
+        if existing:
+            cursor.execute('UPDATE accounts SET holder_name = ? WHERE vpa = ?', (holder_name, new_vpa))
+            conn.commit()
+            return {"success": True, "vpa": new_vpa, "balance": existing["balance"]}
+
+        migrated_balance = 0.0
+        if old_vpa and old_vpa != new_vpa:
+            cursor.execute('SELECT balance FROM accounts WHERE vpa = ?', (old_vpa,))
+            old_acc = cursor.fetchone()
+            if old_acc and old_acc["balance"] > 0:
+                migrated_balance = old_acc["balance"]
+                cursor.execute('UPDATE accounts SET balance = 0.0 WHERE vpa = ?', (old_vpa,))
+
+        cursor.execute('''
+            INSERT INTO accounts (vpa, holder_name, balance, version)
+            VALUES (?, ?, ?, 1)
+        ''', (new_vpa, holder_name, migrated_balance))
+        conn.commit()
+        return {"success": True, "vpa": new_vpa, "balance": migrated_balance}
+    except Exception as e:
+        conn.rollback()
+        return {"success": False, "error": str(e)}
+    finally:
+        conn.close()
+
 def record_withdrawal(vpa, target_bank_vpa, amount, bank_utr, withdrawal_ref):
     """
     Escrow Model - Step 3: Cash Out to Real Bank

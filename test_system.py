@@ -231,5 +231,57 @@ class OfflineUPITestCase(unittest.TestCase):
         self.assertEqual(w_data["newBalance"], 0.0)
         self.assertTrue(len(w_data["bankUtr"]) >= 12)
 
+    def test_8_instant_wallet_deposit_and_auto_utr(self):
+        """Tests instant 1-tap wallet deposit and auto-UTR generation without external bank failure."""
+        # 1. Test 1-click instant deposit
+        resp1 = self.client.post('/api/wallet/deposit/instant', json={
+            "vpa": "instant_user@upi",
+            "amount": 750.0
+        })
+        data1 = resp1.get_json()
+        self.assertTrue(data1["success"])
+        self.assertEqual(data1["newBalance"], 750.0)
+        self.assertTrue(data1["bankUtr"].startswith("409"))
+        self.assertEqual(len(data1["bankUtr"]), 12)
+
+        # 2. Test auto-UTR deposit confirmation
+        resp2 = self.client.post('/api/wallet/deposit/confirm', json={
+            "vpa": "instant_user@upi",
+            "amount": 250.0,
+            "utr": "AUTO"
+        })
+        data2 = resp2.get_json()
+        self.assertTrue(data2["success"])
+        self.assertEqual(data2["newBalance"], 1000.0)
+        self.assertEqual(len(data2["bankUtr"]), 12)
+
+    def test_9_real_upi_id_profile_and_deposit(self):
+        """Tests that entering a real UPI ID registers in SQLite and correctly receives deposit."""
+        # Deposit to user@okhdfcbank
+        self.client.post('/api/wallet/deposit/instant', json={
+            "vpa": "user@okhdfcbank",
+            "amount": 500.0
+        })
+
+        # User changes their handle to a real UPI ID (e.g. sagar@okhdfcbank)
+        p_resp = self.client.post('/api/user/profile', json={
+            "vpa": "sagar@okhdfcbank",
+            "name": "Sagar Bhatiya",
+            "oldVpa": "user@okhdfcbank"
+        })
+        p_data = p_resp.get_json()
+        self.assertTrue(p_data["success"])
+        # Balance migrated from old to new
+        self.assertEqual(p_data["balance"], 500.0)
+
+        # Deposit additional money directly into sagar@okhdfcbank
+        d_resp = self.client.post('/api/wallet/deposit/instant', json={
+            "vpa": "sagar@okhdfcbank",
+            "amount": 300.0
+        })
+        d_data = d_resp.get_json()
+        self.assertTrue(d_data["success"])
+        self.assertEqual(d_data["newBalance"], 800.0)
+
 if __name__ == '__main__':
     unittest.main()
