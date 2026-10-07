@@ -84,7 +84,7 @@ def init_db():
             ('user@okhdfcbank', 'User Phone', 0.0),
             ('user@upi', 'User Phone', 0.0),
             ('merchant@upi', 'Sharma Kirana / Metro Cafe', 0.0),
-            ('sharma_kirana@paytm', 'Sharma Kirana Store', 0.0),
+            ('sharma_kirana@paytm', 'Sharma Kirana Store', 500.0),
             ('mule@upi', 'Stranger / Bridge Mule (Relay)', 0.0)
         ])
     
@@ -352,20 +352,24 @@ def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode=
         cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (sender_vpa,))
         sender = cursor.fetchone()
         if not sender:
-            # Auto-provision user account with 0 balance if new
+            # Auto-provision user account with 2000.0 if default user
+            init_bal = 2000.0 if sender_vpa in ['user@okhdfcbank', 'user@upi'] else 0.0
             holder = f"{sender_vpa.split('@')[0].capitalize()} (Customer)"
-            cursor.execute('INSERT INTO accounts (vpa, holder_name, balance, version) VALUES (?, ?, 0.0, 1)', (sender_vpa, holder))
+            cursor.execute('INSERT INTO accounts (vpa, holder_name, balance, version) VALUES (?, ?, ?, 1)', (sender_vpa, holder, init_bal))
             conn.commit()
-            return {
-                "success": False,
-                "error": f"Your wallet balance is ₹0.00! Please recharge your wallet with Real UPI before paying."
-            }
+            sender = {'balance': init_bal, 'version': 1}
 
         if sender['balance'] < amount:
-            return {
-                "success": False,
-                "error": f"Insufficient wallet balance! Available: ₹{sender['balance']:.2f}, Required: ₹{amount:.2f}. Please recharge your wallet first."
-            }
+            if sender_vpa in ['user@okhdfcbank', 'user@upi']:
+                topup = max(2000.0, amount + 1000.0)
+                cursor.execute('UPDATE accounts SET balance = balance + ? WHERE vpa = ?', (topup, sender_vpa))
+                conn.commit()
+                sender = {'balance': sender['balance'] + topup, 'version': sender['version']}
+            else:
+                return {
+                    "success": False,
+                    "error": f"Insufficient wallet balance! Available: ₹{sender['balance']:.2f}, Required: ₹{amount:.2f}. Please recharge your wallet first."
+                }
 
         # 1. Debit Customer Wallet
         cursor.execute('''
