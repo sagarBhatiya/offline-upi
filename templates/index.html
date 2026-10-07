@@ -577,6 +577,19 @@
         </div>
       </div>
 
+      <!-- Receiver Offline Voucher Claim QR -->
+      <div id="success-voucher-qr-section" class="p-3 bg-slate-950 border border-slate-800 rounded-2xl space-y-2 text-center">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-teal-400 font-bold flex items-center gap-1">
+            <span>📲</span>
+            <span>Receiver Claim QR (P2P Offline)</span>
+          </span>
+          <span class="text-[8px] bg-teal-500/15 text-teal-300 px-1.5 py-0.5 rounded font-mono font-bold">Scan to Claim</span>
+        </div>
+        <p class="text-[9px] text-slate-400 text-left">If sending to another phone offline, show this QR for the receiver to scan and claim money into their wallet.</p>
+        <div id="success-voucher-qr-canvas" class="bg-white p-2.5 rounded-2xl mx-auto w-[180px] h-[180px] flex items-center justify-center shadow-lg"></div>
+      </div>
+
       <div class="space-y-2.5 pt-1">
         <div class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-600/30 text-[11px] text-emerald-300 font-mono text-left space-y-1">
           <div class="font-bold flex items-center gap-1 text-emerald-400">
@@ -1660,6 +1673,58 @@
     function handleParsedQrData(qrString) {
       triggerHaptic(30);
       playSyntheticTone('click');
+
+      // Check if scanned QR is an Incoming Offline Payment Claim Voucher
+      if (qrString && String(qrString).trim().startsWith('UPIOFFLINE:')) {
+        const parts = String(qrString).trim().substring('UPIOFFLINE:'.length).split('|');
+        if (parts.length >= 7) {
+          const fromPayer = parts[0];
+          const targetPayee = parts[1];
+          const receivedAmount = parseFloat(parts[2]) || 0;
+          const utrCode = '409' + Math.floor(100000000 + Math.random() * 900000000);
+
+          closeScannerModal();
+
+          // 1. Credit Receiver's Wallet Balance immediately!
+          let curBal = parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00');
+          let newBal = curBal + receivedAmount;
+          localStorage.setItem('cached_payer_bal_' + payerVpa, newBal.toString());
+          animatePayerBalance(newBal);
+
+          // Also update merchant display if present
+          let curMerch = parseFloat(localStorage.getItem('cached_merchant_bal') || '500.00');
+          localStorage.setItem('cached_merchant_bal', (curMerch + receivedAmount).toString());
+          const mBalEl = document.getElementById('merchant-balance-display');
+          if (mBalEl) mBalEl.textContent = (curMerch + receivedAmount).toFixed(2);
+
+          // 2. Add to Passbook as Received Transaction
+          let txns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          txns.unshift({
+            id: Date.now() % 100000,
+            sender_vpa: fromPayer,
+            receiver_vpa: payerVpa,
+            amount: receivedAmount,
+            auth_mode: "OFFLINE_P2P_CLAIM",
+            status: "RECEIVED_SUCCESS",
+            bank_utr: utrCode,
+            settled_at: new Date().toISOString()
+          });
+          localStorage.setItem('cached_txns', JSON.stringify(txns));
+          cachedTransactions = txns;
+          renderPassbookList();
+
+          // 3. Audio & Haptics Celebration
+          triggerHaptic(50);
+          playSyntheticTone('success');
+          triggerCelebrationConfetti();
+          playSoundboxSpeech(receivedAmount, userName);
+
+          // 4. Alert user with congratulations
+          alert(`🎉 Offline Money Received!\n\n₹${receivedAmount.toFixed(2)} received from ${fromPayer}.\nCredited into your wallet (${payerVpa}).\n\nYour New Balance: ₹${newBal.toFixed(2)}`);
+          return;
+        }
+      }
+
       const parsed = parseQrPayloadLocally(qrString) || {
         payeeVpa: 'sharma_kirana@paytm',
         payeeName: 'Sharma Kirana Store',
@@ -1935,6 +2000,21 @@
 
         const sMerchBal = document.getElementById('success-receiver-balance');
         if (sMerchBal) sMerchBal.textContent = `₹${newMerchBal.toFixed(2)}`;
+
+        // Render Claim QR for Receiver to scan
+        const voucherCanvas = document.getElementById('success-voucher-qr-canvas');
+        if (voucherCanvas && window.QRCode) {
+          voucherCanvas.innerHTML = '';
+          const rawQr = voucher.rawQrPayload || ("UPIOFFLINE:" + voucher.payload.payerVpa + "|" + voucher.payload.payeeVpa + "|" + Number(voucher.payload.amount).toFixed(2) + "|" + voucher.payload.nonce + "|" + voucher.payload.bounty + "|" + voucher.payload.signedAt + "|" + voucher.signatureHex);
+          new QRCode(voucherCanvas, {
+            text: rawQr,
+            width: 160,
+            height: 160,
+            colorDark: "#030712",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
 
         document.getElementById('payment-success-modal').classList.remove('hidden');
 
