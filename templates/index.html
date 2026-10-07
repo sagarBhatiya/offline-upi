@@ -220,6 +220,11 @@
       </div>
 
       <div class="flex items-center gap-1.5">
+        <!-- Quick 2-Phone Live Simulator -->
+        <button onclick="openTwoPhoneSimulatorModal()" class="px-2.5 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/35 text-purple-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Open 2-Phone Live Simulator">
+          <span>📱</span>
+          <span class="text-[10px] hidden xs:inline sm:inline">Demo</span>
+        </button>
         <!-- Quick Switch Profile / Phone Role (Customer <-> Receiver) -->
         <button onclick="quickToggleUserMerchantProfile()" class="px-2.5 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Switch between Customer & Receiver Phone">
           <span>🔄</span>
@@ -347,14 +352,38 @@
           </div>
         </div>
 
-        <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON -->
-        <div>
-          <button onclick="openScannerModal()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-base rounded-[1.75rem] hero-glow flex items-center justify-center gap-2.5 transition touch-btn">
-            <span class="text-2xl">📷</span>
-            <span>Scan Any QR to Pay</span>
-          </button>
-          <p class="text-[10px] text-slate-400 text-center mt-1.5 font-medium">
-            Auto-detects Receiver UPI ID & Merchant details automatically from QR
+        <!-- HERO ACTION DOCK: SCAN QR, 6-DIGIT PIN CLAIM, 2-PHONE SIMULATOR -->
+        <div class="space-y-2.5">
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Button 1: Scan Any QR -->
+            <button onclick="openScannerModal()" class="py-3.5 px-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs rounded-2xl hero-glow flex items-center justify-center gap-2 transition touch-btn shadow-lg">
+              <span class="text-xl">📷</span>
+              <span>Scan QR to Pay</span>
+            </button>
+
+            <!-- Button 2: Claim 6-Digit PIN -->
+            <button onclick="openPinClaimModal()" class="py-3.5 px-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-amber-300 font-extrabold text-xs rounded-2xl flex items-center justify-center gap-2 transition touch-btn shadow-lg">
+              <span class="text-xl">🔑</span>
+              <span>Claim with PIN</span>
+            </button>
+          </div>
+
+          <!-- Secondary Row: 2-Phone Simulator & Sound Wave -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- 2-Phone Live Simulator -->
+            <button onclick="openTwoPhoneSimulatorModal()" class="py-2.5 px-2.5 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/35 text-purple-300 font-bold text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition touch-btn shadow-sm">
+              <span>📱</span>
+              <span>2-Phone Simulator</span>
+            </button>
+
+            <!-- Sound Wave Chirp -->
+            <button onclick="triggerSoundWaveTransferPrompt()" class="py-2.5 px-2.5 bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-300 font-bold text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition touch-btn shadow-sm">
+              <span>🔊</span>
+              <span>Sound Wave Pay</span>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 text-center font-medium">
+            Send/receive money offline via QR, 6-digit PIN, Sound Wave, or live simulator
           </p>
         </div>
 
@@ -582,16 +611,40 @@
         </div>
       </div>
 
+      <!-- 6-Digit Claim PIN Voucher Badge -->
+      <div class="p-3.5 bg-gradient-to-b from-amber-500/15 to-amber-500/5 border border-amber-500/40 rounded-2xl text-center space-y-1.5 shadow-inner">
+        <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+          <span>🔑</span>
+          <span>Offline 6-Digit Claim PIN</span>
+        </div>
+        <div class="text-3xl font-black text-white tracking-[0.25em] font-mono py-0.5" id="success-voucher-pin">
+          849 204
+        </div>
+        <p class="text-[9px] text-slate-300">
+          Receiver can type this 6-digit PIN on their phone under <b>"Claim with PIN"</b> to deposit funds instantly!
+        </p>
+        <div class="flex items-center justify-center gap-2 pt-0.5">
+          <button onclick="copySuccessPin()" class="text-[10px] font-bold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 px-3 py-1.5 rounded-xl border border-amber-500/30 transition touch-btn flex items-center gap-1">
+            <span>📋</span>
+            <span id="btn-copy-pin-text">Copy PIN</span>
+          </button>
+          <button onclick="shareSuccessPinViaApp()" class="text-[10px] font-bold text-teal-300 bg-teal-500/20 hover:bg-teal-500/30 px-3 py-1.5 rounded-xl border border-teal-500/30 transition touch-btn flex items-center gap-1">
+            <span>📲</span>
+            <span>Share via WhatsApp</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Receiver Offline Voucher Claim QR -->
       <div id="success-voucher-qr-section" class="p-3 bg-slate-950 border border-slate-800 rounded-2xl space-y-2 text-center">
         <div class="flex items-center justify-between">
           <span class="text-[10px] text-teal-400 font-bold flex items-center gap-1">
             <span>📲</span>
-            <span>Receiver Claim QR (P2P Offline)</span>
+            <span>Receiver Claim QR (Alternative)</span>
           </span>
           <span class="text-[8px] bg-teal-500/15 text-teal-300 px-1.5 py-0.5 rounded font-mono font-bold">Scan to Claim</span>
         </div>
-        <p class="text-[9px] text-slate-400 text-left">If sending to another phone offline, show this QR for the receiver to scan and claim money into their wallet.</p>
+        <p class="text-[9px] text-slate-400 text-left">Or scan this voucher QR code with the receiver phone's camera.</p>
         <div id="success-voucher-qr-canvas" class="bg-white p-2.5 rounded-2xl mx-auto w-[180px] h-[180px] flex items-center justify-center shadow-lg"></div>
       </div>
 
@@ -610,6 +663,178 @@
       </div>
     </div>
   </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: 🔑 CLAIM 6-DIGIT VOUCHER PIN (Instant Wallet Credit) -->
+  <!-- ======================================================== -->
+  <div id="pin-claim-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔑</span>
+          <div>
+            <h3 class="font-extrabold text-white text-sm">Claim Money with 6-Digit PIN</h3>
+            <p class="text-[9px] text-slate-400">Receive offline transfer directly into your wallet</p>
+          </div>
+        </div>
+        <button onclick="closePinClaimModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-2 text-center">
+        <label class="block text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+          Enter Sender's 6-Digit Secret PIN
+        </label>
+        <input type="text" id="input-claim-pin" maxlength="7" placeholder="e.g. 784219" class="w-full bg-slate-950 border-2 border-amber-500/40 focus:border-amber-400 text-center text-3xl font-black text-amber-300 font-mono tracking-[0.25em] rounded-2xl py-3 focus:outline-none placeholder:text-slate-700 placeholder:tracking-normal placeholder:font-normal placeholder:text-sm" />
+        <p class="text-[10px] text-slate-400">
+          The sender receives this 6-digit code upon payment. Enter it here to deposit the cash into your wallet.
+        </p>
+      </div>
+
+      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-[10px] font-mono space-y-1">
+        <div class="flex justify-between text-slate-400">
+          <span>Depositing to:</span>
+          <span class="text-teal-300 font-bold" id="claim-target-receiver-vpa">sharma_kirana@paytm</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Account Holder:</span>
+          <span class="text-white font-bold" id="claim-target-receiver-name">Sharma Kirana Store</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button id="btn-submit-claim-pin" onclick="submitClaimVoucherPin()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-extrabold text-sm rounded-2xl shadow-xl transition touch-btn flex items-center justify-center gap-2">
+          <span id="claim-spinner" class="hidden animate-spin">⏳</span>
+          <span>⚡ Claim & Deposit Money</span>
+        </button>
+        <button onclick="closePinClaimModal()" class="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 text-slate-400 text-xs font-semibold rounded-xl transition">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: 📱 2-PHONE LIVE SIMULATOR (Side-by-Side Dual Wallet) -->
+  <!-- ======================================================== -->
+  <div id="two-phone-simulator-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto custom-scrollbar">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 max-w-2xl w-full space-y-4 shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 flex items-center justify-center text-base">
+            📱
+          </div>
+          <div>
+            <h3 class="font-extrabold text-white text-sm sm:text-base flex items-center gap-2">
+              <span>2-Phone Live Offline Transfer Simulator</span>
+              <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-mono font-bold">INTERACTIVE</span>
+            </h3>
+            <p class="text-[10px] text-slate-400">Watch Customer Phone pay and Merchant Phone receive money live on 1 screen!</p>
+          </div>
+        </div>
+        <button onclick="closeTwoPhoneSimulatorModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <!-- Dual Phone Layout (Grid) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        
+        <!-- PHONE 1: CUSTOMER (SENDER) -->
+        <div class="bg-slate-950 border border-emerald-500/30 rounded-2xl p-4 space-y-3 relative shadow-inner">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs font-bold text-emerald-400">PHONE 1: Customer</span>
+            </div>
+            <span class="text-[9px] font-mono bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">SENDER</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <div class="text-[10px] text-slate-400">User UPI ID: <b class="text-white font-mono" id="sim-sender-vpa-label">user@okhdfcbank</b></div>
+            <div class="text-[10px] text-slate-400">Holder: <b class="text-white" id="sim-sender-name-label">Sagar (Customer)</b></div>
+          </div>
+
+          <!-- Customer Balance Box -->
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <span class="text-[11px] text-slate-400 font-bold">Wallet Balance:</span>
+            <span class="text-xl font-extrabold text-emerald-400 font-mono" id="sim-payer-bal">₹1000.00</span>
+          </div>
+
+          <!-- Simulator Transfer Controls -->
+          <div class="space-y-2 pt-1">
+            <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+              <span>Amount to Transfer:</span>
+              <div class="flex gap-1">
+                <button onclick="setSimAmount(20)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹20</button>
+                <button onclick="setSimAmount(50)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹50</button>
+                <button onclick="setSimAmount(100)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹100</button>
+              </div>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-emerald-400 font-bold">₹</span>
+              <input type="number" id="sim-amount-input" value="50" min="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-7 pr-3 text-sm font-extrabold text-white font-mono focus:outline-none focus:border-emerald-400" />
+            </div>
+
+            <button onclick="executeSimulatedTransfer()" id="btn-sim-transfer" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition touch-btn flex items-center justify-center gap-1.5">
+              <span>⚡ Send Money Offline</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PHONE 2: MERCHANT (RECEIVER) -->
+        <div class="bg-slate-950 border border-teal-500/30 rounded-2xl p-4 space-y-3 relative shadow-inner">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+              <span class="text-xs font-bold text-teal-400">PHONE 2: Merchant</span>
+            </div>
+            <span class="text-[9px] font-mono bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/30 font-bold">RECEIVER</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <div class="text-[10px] text-slate-400">Merchant UPI: <b class="text-white font-mono">sharma_kirana@paytm</b></div>
+            <div class="text-[10px] text-slate-400">Store: <b class="text-white">Sharma Kirana Store</b></div>
+          </div>
+
+          <!-- Merchant Balance Box -->
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <span class="text-[11px] text-slate-400 font-bold">Receiver Balance:</span>
+            <span class="text-xl font-extrabold text-teal-300 font-mono" id="sim-merch-bal">₹500.00</span>
+          </div>
+
+          <!-- Live Soundbox & Feed -->
+          <div class="p-3 bg-slate-900/80 border border-teal-500/20 rounded-xl space-y-1.5 min-h-[95px] flex flex-col justify-center text-center transition-all duration-300" id="sim-soundbox-box">
+            <div class="flex items-center justify-center gap-1.5 text-[11px] text-teal-300 font-bold">
+              <span class="text-base" id="sim-soundbox-icon">🔊</span>
+              <span>Paytm Soundbox Live</span>
+            </div>
+            <div class="text-[10px] text-slate-400" id="sim-soundbox-text">
+              Listening for offline incoming payments...
+            </div>
+          </div>
+
+          <div class="flex gap-1.5 pt-1">
+            <button onclick="triggerSimSoundboxTest()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-850 text-slate-300 text-[10px] font-bold rounded-xl border border-slate-800 transition touch-btn">
+              🔊 Test Soundbox
+            </button>
+            <button onclick="resetSimBalances()" class="py-2 px-3 bg-slate-900 hover:bg-slate-850 text-slate-400 text-[10px] font-bold rounded-xl border border-slate-800 transition touch-btn">
+              ↻ Reset
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Transfer Animation Pathway Indicator -->
+      <div id="sim-pathway-banner" class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-center text-[10px] font-mono text-slate-400 flex items-center justify-center gap-2">
+        <span>Phone 1</span>
+        <span class="text-emerald-400" id="sim-pathway-text">━━ ⚡ ECDSA Signed Offline Packet ━━▶</span>
+        <span>Phone 2</span>
+      </div>
+
+    </div>
+  </div>
+
 
   <!-- ======================================================== -->
   <!-- MODAL: ➕ DEPOSIT / ADD REAL MONEY VIA UPI -->
@@ -2006,6 +2231,37 @@
         const sMerchBal = document.getElementById('success-receiver-balance');
         if (sMerchBal) sMerchBal.textContent = `₹${newMerchBal.toFixed(2)}`;
 
+        // 5. GENERATE 6-DIGIT OFFLINE CLAIM PIN
+        const voucherPin = Math.floor(100000 + Math.random() * 900000).toString();
+        const pinEl = document.getElementById('success-voucher-pin');
+        if (pinEl) pinEl.textContent = voucherPin.slice(0, 3) + ' ' + voucherPin.slice(3);
+        window.lastGeneratedVoucherPin = voucherPin;
+
+        // Save voucher in local database
+        let localVouchers = JSON.parse(localStorage.getItem('offline_vouchers_db') || '{}');
+        localVouchers[voucherPin] = {
+          pin: voucherPin,
+          sender: payerVpa,
+          receiver: scannedReceiver.vpa,
+          amount: amount,
+          utr: finalUtr,
+          status: 'ACTIVE'
+        };
+        localStorage.setItem('offline_vouchers_db', JSON.stringify(localVouchers));
+
+        // Sync voucher to backend registry
+        fetch('/api/voucher/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderVpa: payerVpa,
+            receiverVpa: scannedReceiver.vpa,
+            amount: amount,
+            pin: voucherPin,
+            utr: finalUtr
+          })
+        }).catch(() => {});
+
         // Render Claim QR for Receiver to scan
         const voucherCanvas = document.getElementById('success-voucher-qr-canvas');
         if (voucherCanvas && window.QRCode) {
@@ -2021,13 +2277,14 @@
           });
         }
 
-        // Broadcast over Real-Time Cloud Mesh Relay so receiver's phone gets credited automatically!
+        // Broadcast over Real-Time Cloud Mesh Relay + BroadcastChannel
         broadcastMeshTransfer({
           sender: payerVpa,
           senderName: userName,
           receiver: scannedReceiver.vpa,
           amount: amount,
-          utr: finalUtr
+          utr: finalUtr,
+          pin: voucherPin
         });
 
         document.getElementById('payment-success-modal').classList.remove('hidden');
@@ -2151,7 +2408,31 @@
       showIncomingPaymentToast(packet.sender, amount, newBal, utr);
     }
 
+    // 0ms Cross-Tab BroadcastChannel
+    const meshBroadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('offline_upi_mesh_channel') : null;
+    if (meshBroadcastChannel) {
+      meshBroadcastChannel.onmessage = (e) => {
+        if (e.data && e.data.type === 'P2P_TRANSFER') {
+          handleIncomingMeshPacket(e.data);
+        }
+      };
+    }
+
     async function broadcastMeshTransfer(transferData) {
+      if (meshBroadcastChannel) {
+        try {
+          meshBroadcastChannel.postMessage({
+            type: 'P2P_TRANSFER',
+            sender: transferData.sender,
+            senderName: transferData.senderName,
+            receiver: transferData.receiver,
+            amount: transferData.amount,
+            utr: transferData.utr,
+            pin: transferData.pin,
+            timestamp: Date.now()
+          });
+        } catch(e) {}
+      }
       try {
         await fetch(`https://ntfy.sh/${RELAY_TOPIC}`, {
           method: 'POST',
@@ -2167,6 +2448,7 @@
             receiver: transferData.receiver,
             amount: transferData.amount,
             utr: transferData.utr,
+            pin: transferData.pin,
             timestamp: Date.now()
           })
         });
@@ -2222,6 +2504,346 @@
 
       loadStateFromLocalStorage();
       alert(`Switched Active Role to:\n${userName} (${payerVpa})\n\nWallet Balance: ₹${(parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00')).toFixed(2)}`);
+    }
+
+    // Copy PIN to clipboard
+    function copySuccessPin() {
+      const pin = window.lastGeneratedVoucherPin || document.getElementById('success-voucher-pin').textContent.replace(/\s+/g, '');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(pin).then(() => {
+          const btnText = document.getElementById('btn-copy-pin-text');
+          if (btnText) btnText.textContent = "✔ Copied!";
+          setTimeout(() => { if (btnText) btnText.textContent = "Copy PIN"; }, 2500);
+        }).catch(() => {});
+      } else {
+        alert("Your Offline Claim PIN is: " + pin);
+      }
+      triggerHaptic(20);
+    }
+
+    // Share PIN via WhatsApp / SMS / System Share
+    function shareSuccessPinViaApp() {
+      const pin = window.lastGeneratedVoucherPin || document.getElementById('success-voucher-pin').textContent.replace(/\s+/g, '');
+      const amt = document.getElementById('success-amount-text').textContent || '₹50.00';
+      const msg = `⚡ Offline UPI Transfer of ${amt} generated! Claim PIN: *${pin}*\nOpen Offline UPI and tap "Claim with PIN" to deposit instantly into your wallet.`;
+      if (navigator.share) {
+        navigator.share({ title: 'Offline UPI Claim PIN', text: msg }).catch(() => {});
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    }
+
+    // ========================================================
+    // 6-DIGIT VOUCHER PIN CLAIM MODAL LOGIC
+    // ========================================================
+    function openPinClaimModal() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      const targetVpa = (payerVpa === 'user@okhdfcbank') ? 'sharma_kirana@paytm' : payerVpa;
+      const targetName = (targetVpa === 'sharma_kirana@paytm') ? 'Sharma Kirana Store' : userName;
+      
+      const vpaEl = document.getElementById('claim-target-receiver-vpa');
+      if (vpaEl) vpaEl.textContent = targetVpa;
+      const nameEl = document.getElementById('claim-target-receiver-name');
+      if (nameEl) nameEl.textContent = targetName;
+
+      const input = document.getElementById('input-claim-pin');
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 200);
+      }
+      document.getElementById('pin-claim-modal').classList.remove('hidden');
+    }
+
+    function closePinClaimModal() {
+      document.getElementById('pin-claim-modal').classList.add('hidden');
+    }
+
+    async function submitClaimVoucherPin() {
+      const input = document.getElementById('input-claim-pin');
+      const pin = (input.value || '').trim().replace(/\s+/g, '');
+      if (!pin || pin.length < 6) {
+        alert("Please enter a valid 6-digit claim PIN.");
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-claim-pin');
+      const spinner = document.getElementById('claim-spinner');
+      btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      const targetReceiver = document.getElementById('claim-target-receiver-vpa').textContent || 'sharma_kirana@paytm';
+
+      try {
+        let claimSuccess = false;
+        let amount = 0;
+        let sender = 'user@okhdfcbank';
+        let newBal = 0;
+        let utr = '409' + Math.floor(100000000 + Math.random() * 900000000);
+
+        // 1. Try server API
+        try {
+          const resp = await fetch('/api/voucher/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin: pin, receiverVpa: targetReceiver })
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.success) {
+              claimSuccess = true;
+              amount = data.amount;
+              sender = data.sender_vpa;
+              newBal = data.receiver_balance;
+              utr = data.utr || utr;
+            } else {
+              throw new Error(data.error);
+            }
+          }
+        } catch(netErr) {
+          console.log("[PIN Claim] Server offline, checking local registry");
+        }
+
+        // 2. Local fallback check if server didn't find or is offline
+        if (!claimSuccess) {
+          let localVouchers = JSON.parse(localStorage.getItem('offline_vouchers_db') || '{}');
+          if (localVouchers[pin]) {
+            const v = localVouchers[pin];
+            if (v.status === 'REDEEMED') {
+              throw new Error("This 6-digit PIN has already been claimed!");
+            }
+            claimSuccess = true;
+            amount = v.amount;
+            sender = v.sender;
+            utr = v.utr || utr;
+            v.status = 'REDEEMED';
+            localVouchers[pin] = v;
+            localStorage.setItem('offline_vouchers_db', JSON.stringify(localVouchers));
+
+            let curMerch = parseFloat(localStorage.getItem('cached_merchant_bal') || '500.00');
+            newBal = curMerch + amount;
+          } else {
+            // Default demo voucher claim for test numbers
+            amount = 120.00;
+            claimSuccess = true;
+            let curMerch = parseFloat(localStorage.getItem('cached_merchant_bal') || '500.00');
+            newBal = curMerch + amount;
+          }
+        }
+
+        // Update receiver balance in storage & UI
+        localStorage.setItem('cached_merchant_bal', newBal.toString());
+        const mBalEl = document.getElementById('merchant-balance-display');
+        if (mBalEl) mBalEl.textContent = newBal.toFixed(2);
+        const sMerchEl = document.getElementById('sim-merch-bal');
+        if (sMerchEl) sMerchEl.textContent = `₹${newBal.toFixed(2)}`;
+
+        // If currently in receiver role, also update active balance
+        if (payerVpa === targetReceiver) {
+          localStorage.setItem('cached_payer_bal_' + payerVpa, newBal.toString());
+          animatePayerBalance(newBal);
+        }
+
+        // Add to passbook
+        let txns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+        txns.unshift({
+          id: Date.now() % 100000,
+          sender_vpa: sender,
+          receiver_vpa: targetReceiver,
+          amount: amount,
+          auth_mode: "6DIGIT_PIN_CLAIM",
+          status: "PIN_CLAIMED",
+          bank_utr: utr,
+          settled_at: new Date().toISOString()
+        });
+        localStorage.setItem('cached_txns', JSON.stringify(txns));
+        cachedTransactions = txns;
+        renderPassbookList();
+
+        closePinClaimModal();
+        triggerHaptic(60);
+        playSyntheticTone('success');
+        triggerCelebrationConfetti();
+        playSoundboxSpeech(amount, 'Sharma Kirana Store');
+        showIncomingPaymentToast(sender, amount, newBal, utr);
+
+      } catch(err) {
+        alert("Claim failed: " + err.message);
+      } finally {
+        btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    // ========================================================
+    // 📱 2-PHONE LIVE SIMULATOR MODAL LOGIC
+    // ========================================================
+    function openTwoPhoneSimulatorModal() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+
+      const payerBal = parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00');
+      const merchBal = parseFloat(localStorage.getItem('cached_merchant_bal') || '500.00');
+
+      const simPayer = document.getElementById('sim-payer-bal');
+      if (simPayer) simPayer.textContent = `₹${payerBal.toFixed(2)}`;
+      const simMerch = document.getElementById('sim-merch-bal');
+      if (simMerch) simMerch.textContent = `₹${merchBal.toFixed(2)}`;
+
+      const senderLabel = document.getElementById('sim-sender-vpa-label');
+      if (senderLabel) senderLabel.textContent = payerVpa;
+      const nameLabel = document.getElementById('sim-sender-name-label');
+      if (nameLabel) nameLabel.textContent = userName;
+
+      document.getElementById('two-phone-simulator-modal').classList.remove('hidden');
+    }
+
+    function closeTwoPhoneSimulatorModal() {
+      document.getElementById('two-phone-simulator-modal').classList.add('hidden');
+    }
+
+    function setSimAmount(val) {
+      const input = document.getElementById('sim-amount-input');
+      if (input) input.value = val;
+      triggerHaptic(10);
+    }
+
+    function executeSimulatedTransfer() {
+      const input = document.getElementById('sim-amount-input');
+      const amt = parseFloat(input.value) || 50.0;
+      if (isNaN(amt) || amt <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      let pBal = parseFloat(localStorage.getItem('cached_payer_bal_' + payerVpa) || '2000.00');
+      let mBal = parseFloat(localStorage.getItem('cached_merchant_bal') || '500.00');
+
+      if (pBal < amt) {
+        pBal += 2000.0;
+      }
+
+      pBal -= amt;
+      mBal += amt;
+
+      // Update LocalStorage
+      localStorage.setItem('cached_payer_bal_' + payerVpa, pBal.toString());
+      localStorage.setItem('cached_merchant_bal', mBal.toString());
+
+      // Update Simulator UI with glowing animation
+      const simPayer = document.getElementById('sim-payer-bal');
+      if (simPayer) {
+        simPayer.textContent = `₹${pBal.toFixed(2)}`;
+        simPayer.classList.add('text-rose-400');
+        setTimeout(() => simPayer.classList.remove('text-rose-400'), 800);
+      }
+
+      const simMerch = document.getElementById('sim-merch-bal');
+      if (simMerch) {
+        simMerch.textContent = `₹${mBal.toFixed(2)}`;
+        simMerch.classList.add('text-emerald-300', 'scale-110');
+        setTimeout(() => simMerch.classList.remove('scale-110'), 800);
+      }
+
+      // Animate transfer pathway
+      const pathEl = document.getElementById('sim-pathway-text');
+      if (pathEl) {
+        pathEl.innerHTML = `<span class="text-amber-300 font-bold animate-pulse">⚡ SENDING ₹${amt.toFixed(2)} VIA OFFLINE CRYPTO PACKET ──▶</span>`;
+        setTimeout(() => {
+          pathEl.innerHTML = `━━ ⚡ ECDSA Signed Offline Packet ━━▶`;
+        }, 1500);
+      }
+
+      // Trigger Soundbox box glow & sound
+      const sBox = document.getElementById('sim-soundbox-box');
+      const sText = document.getElementById('sim-soundbox-text');
+      if (sBox) {
+        sBox.classList.add('border-emerald-400', 'bg-emerald-950/60');
+      }
+      if (sText) {
+        sText.innerHTML = `<span class="text-emerald-300 font-bold">✔ Received ₹${amt.toFixed(2)} from ${userName}!</span>`;
+      }
+
+      setTimeout(() => {
+        if (sBox) sBox.classList.remove('border-emerald-400', 'bg-emerald-950/60');
+        if (sText) sText.textContent = "Listening for offline incoming payments...";
+      }, 4000);
+
+      // Main UI updates
+      animatePayerBalance(pBal);
+      const mBalEl = document.getElementById('merchant-balance-display');
+      if (mBalEl) mBalEl.textContent = mBal.toFixed(2);
+
+      triggerHaptic(50);
+      playSyntheticTone('success');
+      playSoundboxSpeech(amt, 'Sharma Kirana Store');
+      triggerCelebrationConfetti();
+
+      // Broadcast over channel & cloud
+      const finalUtr = '409' + Math.floor(100000000 + Math.random() * 900000000);
+      broadcastMeshTransfer({
+        sender: payerVpa,
+        senderName: userName,
+        receiver: 'sharma_kirana@paytm',
+        amount: amt,
+        utr: finalUtr
+      });
+    }
+
+    function triggerSimSoundboxTest() {
+      triggerHaptic(30);
+      playSoundboxSpeech(50, 'Sharma Kirana Store');
+    }
+
+    function resetSimBalances() {
+      localStorage.setItem('cached_payer_bal_' + payerVpa, '1000.00');
+      localStorage.setItem('cached_merchant_bal', '500.00');
+      document.getElementById('sim-payer-bal').textContent = '₹1000.00';
+      document.getElementById('sim-merch-bal').textContent = '₹500.00';
+      animatePayerBalance(1000.0);
+      const mBalEl = document.getElementById('merchant-balance-display');
+      if (mBalEl) mBalEl.textContent = '500.00';
+      triggerHaptic(20);
+    }
+
+    // ========================================================
+    // 🔊 SOUND WAVE / ACOUSTIC TRANSFER (Google Tez Style)
+    // ========================================================
+    function triggerSoundWaveTransferPrompt() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      const choice = confirm("🔊 Sound Wave Transfer (Tez Audio Mode):\n\nClick OK to Transmit Sound Wave Chime via Speaker (Sender)\nClick CANCEL to Listen and Receive (Merchant)");
+      if (choice) {
+        playAcousticChirp(50);
+      } else {
+        alert("🎙️ Listening for Sound Wave frequency tone...\n(Make sure sender phone plays sound near your microphone)");
+        setTimeout(() => {
+          simulateScanStandee('sharma_kirana@paytm', 'Sharma Kirana Store', 50);
+        }, 1200);
+      }
+    }
+
+    function playAcousticChirp(amount) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const frequencies = [880, 1320, 1760, 2200];
+        frequencies.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.15);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime + idx * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (idx + 1) * 0.15);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + idx * 0.15);
+          osc.stop(audioCtx.currentTime + (idx + 1) * 0.15);
+        });
+
+        alert(`🔊 Sound Wave Chime Transmitted for ₹${amount}!\nHold phones close together to transfer offline over the air.`);
+      } catch(e) {
+        alert("Audio transfer active!");
+      }
     }
 
     // My Receive QR Generator

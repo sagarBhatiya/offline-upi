@@ -73,8 +73,19 @@ def init_db():
             settled_at TEXT NOT NULL
         )
     ''')
-    
-    # Seed initial accounts if empty
+    # 4. Offline Vouchers Table (6-digit PIN and claim registry)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS offline_vouchers (
+            pin TEXT PRIMARY KEY,
+            sender_vpa TEXT NOT NULL,
+            receiver_vpa TEXT NOT NULL,
+            amount REAL NOT NULL,
+            utr TEXT NOT NULL,
+            status TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    ''')
+
     cursor.execute('SELECT COUNT(*) FROM accounts')
     if cursor.fetchone()[0] == 0:
         cursor.executemany('''
@@ -418,9 +429,114 @@ def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode=
         }
     except Exception as e:
         conn.rollback()
+# In-memory voucher registry for fast serverless retrieval
+IN_MEMORY_VOUCHERS = {}
+
+def create_voucher_record(pin, sender_vpa, receiver_vpa, amount, utr):
+    """Stores an offline claim voucher with a 6-digit PIN."""
+    record = {
+        "pin": str(pin),
+        "sender_vpa": sender_vpa,
+        "receiver_vpa": receiver_vpa,
+        "amount": float(amount),
+        "utr": utr,
+        "status": "ACTIVE",
+        "created_at": datetime.now().isoformat()
+    }
+    IN_MEMORY_VOUCHERS[str(pin)] = record
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            INSERT OR REPLACE INTO offline_vouchers (pin, sender_vpa, receiver_vpa, amount, utr, status, created_at)
+            VALUES (?, ?, ?, ?, ?, 'ACTIVE', ?)
+        ''', (str(pin), sender_vpa, receiver_vpa, float(amount), utr, record["created_at"]))
+        conn.commit()
+    except Exception as e:
+        print("Notice: sqlite voucher record write:", e)
+    finally:
+        conn.close()
+    return record
+
+def claim_voucher_record(pin, claimer_vpa=None):
+    """
+    Redeems a 6-digit offline voucher:
+    1. Looks up the voucher by PIN
+    2. Credits claimer/receiver wallet
+    3. Marks voucher as REDEEMED
+    4. Records transaction in audit ledger
+    """
+    pin_str = str(pin).strip()
+    voucher = IN_MEMORY_VOUCHERS.get(pin_str)
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        if not voucher:
+            cursor.execute('SELECT * FROM offline_vouchers WHERE pin = ?', (pin_str,))
+            row = cursor.fetchone()
+            if row:
+                voucher = dict(row)
+                IN_MEMORY_VOUCHERS[pin_str] = voucher
+
+        if not voucher:
+            return {"success": False, "error": f"Voucher PIN '{pin_str}' not found or expired."}
+
+        if voucher.get("status") == "REDEEMED":
+            return {"success": False, "error": f"Voucher PIN '{pin_str}' has already been redeemed."}
+
+        amount = float(voucher["amount"])
+        sender_vpa = voucher["sender_vpa"]
+        target_receiver = claimer_vpa or voucher["receiver_vpa"] or "sharma_kirana@paytm"
+
+        # 1. Credit receiver wallet
+        cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (target_receiver,))
+        acc = cursor.fetchone()
+        if not acc:
+            cursor.execute('INSERT INTO accounts (vpa, holder_name, balance, version) VALUES (?, ?, ?, 1)',
+                           (target_receiver, f"{target_receiver.split('@')[0].capitalize()} (Merchant)", amount))
+        else:
+            cursor.execute('''
+                UPDATE accounts 
+                SET balance = balance + ?, version = version + 1
+                WHERE vpa = ?
+            ''', (amount, target_receiver))
+
+        # 2. Mark voucher redeemed
+        voucher["status"] = "REDEEMED"
+        IN_MEMORY_VOUCHERS[pin_str] = voucher
+        cursor.execute("UPDATE offline_vouchers SET status = 'REDEEMED' WHERE pin = ?", (pin_str,))
+
+        # 3. Add to transactions table
+        tx_hash = f"PIN_CLAIM_{pin_str}_{int(datetime.now().timestamp()*1000)}"
+        cursor.execute('''
+            INSERT INTO transactions (packet_hash, sender_vpa, receiver_vpa, amount, status, bridge_id, hop_count, mule_vpa, mule_reward, auth_mode, bank_utr, deeplink_url, settled_at)
+            VALUES (?, ?, ?, ?, 'OFFLINE_PIN_CLAIMED', 'offline-pin-claim', 0, '', 0.0, '6DIGIT_PIN', ?, '', ?)
+        ''', (tx_hash, sender_vpa, target_receiver, amount, voucher.get("utr", ""), datetime.now().isoformat()))
+
+        tx_id = cursor.lastrowid
+        conn.commit()
+
+        cursor.execute('SELECT balance FROM accounts WHERE vpa = ?', (target_receiver,))
+        new_bal = cursor.fetchone()['balance']
+
+        return {
+            "success": True,
+            "pin": pin_str,
+            "amount": amount,
+            "sender_vpa": sender_vpa,
+            "receiver_vpa": target_receiver,
+            "receiver_balance": new_bal,
+            "transaction_id": tx_id,
+            "utr": voucher.get("utr", "")
+        }
+    except Exception as e:
+        conn.rollback()
         return {"success": False, "error": str(e)}
     finally:
         conn.close()
+
 
 def reset_db():
     conn = get_connection()

@@ -283,5 +283,38 @@ class OfflineUPITestCase(unittest.TestCase):
         self.assertTrue(d_data["success"])
         self.assertEqual(d_data["newBalance"], 800.0)
 
+    def test_10_voucher_pin_create_and_claim(self):
+        """Verifies 6-digit offline voucher creation and receiver redemption."""
+        # Create voucher
+        create_resp = self.client.post('/api/voucher/create', json={
+            "senderVpa": "user@okhdfcbank",
+            "receiverVpa": "sharma_kirana@paytm",
+            "amount": 150.0,
+            "pin": "784219"
+        })
+        c_data = create_resp.get_json()
+        self.assertTrue(c_data["success"])
+        self.assertEqual(c_data["pin"], "784219")
+        self.assertEqual(c_data["amount"], 150.0)
+
+        # Claim voucher as merchant
+        claim_resp = self.client.post('/api/voucher/claim', json={
+            "pin": "784219",
+            "receiverVpa": "sharma_kirana@paytm"
+        })
+        claim_data = claim_resp.get_json()
+        self.assertTrue(claim_data["success"])
+        self.assertEqual(claim_data["amount"], 150.0)
+        self.assertGreaterEqual(claim_data["receiver_balance"], 150.0)
+
+        # Attempt duplicate claim - must be rejected
+        dup_resp = self.client.post('/api/voucher/claim', json={
+            "pin": "784219",
+            "receiverVpa": "sharma_kirana@paytm"
+        })
+        dup_data = dup_resp.get_json()
+        self.assertFalse(dup_data["success"])
+        self.assertIn("already been redeemed", dup_data["error"])
+
 if __name__ == '__main__':
     unittest.main()

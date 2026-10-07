@@ -3,7 +3,12 @@ import os
 import json
 import random
 from flask import Flask, render_template, request, jsonify, send_from_directory
-from database import init_db, get_accounts, get_transactions, claim_packet_hash, execute_settlement, reset_db, record_deposit, record_withdrawal, execute_offline_wallet_transfer, upsert_user_account
+from database import (
+    init_db, get_accounts, get_transactions, claim_packet_hash, 
+    execute_settlement, reset_db, record_deposit, record_withdrawal, 
+    execute_offline_wallet_transfer, upsert_user_account,
+    create_voucher_record, claim_voucher_record
+)
 from crypto_helper import crypto_engine, qr_voucher_engine, compute_sha256
 from mesh_engine import mesh_simulator
 from gateway_service import gateway_service
@@ -195,6 +200,45 @@ def wallet_transfer_offline():
         "transactionId": transfer_res.get('transaction_id'),
         "message": f"Transferred ₹{amount:.2f} offline to {receiver}!"
     })
+
+@app.route('/api/voucher/create', methods=['POST'])
+def voucher_create():
+    """Generates an offline transfer voucher with a 6-digit claim PIN."""
+    data = request.json or {}
+    sender = (data.get('senderVpa') or 'user@okhdfcbank').strip()
+    receiver = (data.get('receiverVpa') or 'sharma_kirana@paytm').strip()
+    amount = float(data.get('amount', 50.0))
+    pin = data.get('pin')
+    if not pin:
+        pin = str(random.randint(100000, 999999))
+    utr = data.get('utr') or f"409{random.randint(100000000, 999999999)}"
+    
+    rec = create_voucher_record(pin=pin, sender_vpa=sender, receiver_vpa=receiver, amount=amount, utr=utr)
+    return jsonify({
+        "success": True,
+        "pin": pin,
+        "amount": amount,
+        "sender": sender,
+        "receiver": receiver,
+        "utr": utr,
+        "message": f"6-Digit Offline Voucher {pin} created!"
+    })
+
+@app.route('/api/voucher/claim', methods=['POST'])
+def voucher_claim():
+    """Redeems a 6-digit offline voucher code into receiver's wallet."""
+    data = request.json or {}
+    pin = (data.get('pin') or '').strip().replace(' ', '').replace('-', '')
+    receiver = (data.get('receiverVpa') or 'sharma_kirana@paytm').strip()
+    
+    if not pin:
+        return jsonify({"success": False, "error": "Please enter a valid 6-digit voucher PIN."}), 400
+        
+    res = claim_voucher_record(pin=pin, claimer_vpa=receiver)
+    if not res.get('success'):
+        return jsonify({"success": False, "error": res.get('error', 'Voucher invalid or expired')}), 400
+        
+    return jsonify(res)
 
 @app.route('/api/qr/parse-any', methods=['POST'])
 def parse_any_qr():
