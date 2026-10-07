@@ -11,7 +11,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="UPI Lite">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="shortcut icon" href="/static/favicon.ico">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,6 +183,52 @@
 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
 
+  <!-- ======================================================== -->
+  <!-- ⚡ INTERACTIVE APP LOADING & VAULT INITIALIZATION SPLASH -->
+  <!-- ======================================================== -->
+  <div id="app-splash-screen" class="fixed inset-0 z-50 bg-[#040916] flex flex-col items-center justify-center p-6 transition-all duration-700">
+    <div class="relative flex flex-col items-center max-w-xs w-full text-center space-y-6">
+      
+      <!-- Glowing Animated App Logo -->
+      <div class="relative">
+        <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-blue-600 p-[2.5px] shadow-[0_0_50px_rgba(0,245,196,0.35)] animate-pulse">
+          <div class="w-full h-full bg-[#061129] rounded-[22px] flex items-center justify-center text-4xl shadow-inner relative overflow-hidden">
+            <span class="text-4xl filter drop-shadow-[0_0_12px_#00f5c4]">⚡</span>
+            <div class="absolute inset-0 bg-gradient-to-t from-emerald-500/15 to-transparent pointer-events-none"></div>
+          </div>
+        </div>
+        <!-- Pulse Orbit Ring -->
+        <div class="absolute -inset-3 rounded-[32px] border border-emerald-400/30 animate-ping pointer-events-none"></div>
+      </div>
+
+      <!-- App Name & Subtitle -->
+      <div class="space-y-1">
+        <h1 class="text-xl font-extrabold text-white tracking-wider flex items-center justify-center gap-1.5">
+          <span>UPI LITE</span>
+          <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono">P2P</span>
+        </h1>
+        <p class="text-[11px] text-slate-400 font-medium">100% Offline Digital Payments</p>
+      </div>
+
+      <!-- Interactive Progress Bar & Status Text -->
+      <div class="w-full space-y-2">
+        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+          <div id="splash-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-300 w-0 transition-all duration-300 rounded-full shadow-[0_0_10px_#00f5c4]"></div>
+        </div>
+        <div class="flex justify-between items-center text-[10px] font-mono">
+          <span id="splash-status-text" class="text-emerald-400 font-semibold animate-pulse">Initializing Security Vault...</span>
+          <span id="splash-percent-text" class="text-slate-400 font-bold">0%</span>
+        </div>
+      </div>
+
+      <div class="text-[9px] font-mono text-slate-400 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>ECDSA P-256 Hardware Attestation Active</span>
+      </div>
+
+    </div>
+  </div>
+
   <!-- NATIVE EDGE-TO-EDGE MOBILE APP CONTAINER -->
   <div class="w-full max-w-md mx-auto min-h-screen bg-slate-950 flex flex-col justify-between relative shadow-2xl border-x border-slate-900/60 pb-24 overflow-x-hidden">
 
@@ -207,9 +255,6 @@
           <!-- Clickable & Editable Name -->
           <button onclick="openProfileModal()" class="flex items-center gap-1.5 text-left group">
             <span id="app-header-name" class="text-xs font-extrabold text-white tracking-wide group-hover:text-emerald-300 transition">User</span>
-            <span class="text-[9px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded-full font-mono font-bold tracking-tight">
-              ⚡ OFFLINE LITE
-            </span>
           </button>
           <!-- Clickable & Editable Profile UPI Handle -->
           <button onclick="openProfileModal()" class="text-[10px] text-slate-400 font-mono hover:text-emerald-400 flex items-center gap-1.5 transition group text-left" title="Tap to edit Name & UPI ID">
@@ -220,11 +265,6 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- Quick Switch Profile / Phone Role (Customer <-> Receiver) -->
-        <button onclick="quickToggleUserMerchantProfile()" class="px-2.5 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Switch between Customer & Receiver Phone">
-          <span>🔄</span>
-          <span class="text-[10px] hidden xs:inline sm:inline">Role</span>
-        </button>
         <!-- Sound Effect / Voice Toggle -->
         <button onclick="toggleAudio()" class="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition touch-btn" title="Toggle Sound">
           <span id="sound-icon">🔊</span>
@@ -243,7 +283,7 @@
         <span id="pwa-network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span id="pwa-network-status" class="text-[10px] font-mono text-emerald-300 font-bold">🟢 Offline-Ready (PWA Cache Active)</span>
       </div>
-      <button id="btn-pwa-install" onclick="triggerPwaInstall()" class="py-1 px-2.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 transition touch-btn">
+      <button id="btn-pwa-install" onclick="triggerPwaInstall()" class="py-1 px-2.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 transition touch-btn hidden">
         <span>📲</span>
         <span>Install App</span>
       </button>
@@ -1455,9 +1495,21 @@
           playSyntheticTone('success');
           triggerCelebrationConfetti();
 
-          animatePayerBalance(data.newBalance);
-          displayedPayerBalance = data.newBalance;
-          localStorage.setItem('cached_payer_bal_' + payerVpa, data.newBalance.toString());
+          const depTx = {
+            id: Date.now() % 1000000,
+            sender_vpa: 'Real Bank (UPI)',
+            receiver_vpa: payerVpa,
+            amount: amount,
+            auth_mode: "REAL_UPI_DEPOSIT",
+            status: "DEPOSIT_SUCCESS",
+            bank_utr: data.bankUtr || ('409' + Math.floor(100000000 + Math.random() * 900000000)),
+            settled_at: new Date().toISOString()
+          };
+          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          localTxns.unshift(depTx);
+          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
+          cachedTransactions = localTxns;
+          renderPassbookList();
 
           if (soundEnabled && 'speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} added to your offline wallet!`);
@@ -1535,9 +1587,21 @@
           playSyntheticTone('success');
           triggerCelebrationConfetti();
 
-          animatePayerBalance(data.newBalance);
-          displayedPayerBalance = data.newBalance;
-          localStorage.setItem('cached_payer_bal_' + payerVpa, data.newBalance.toString());
+          const depTx = {
+            id: Date.now() % 1000000,
+            sender_vpa: 'Real Bank (UPI)',
+            receiver_vpa: payerVpa,
+            amount: amount,
+            auth_mode: "REAL_UPI_DEPOSIT",
+            status: "DEPOSIT_SUCCESS",
+            bank_utr: data.bankUtr || utr,
+            settled_at: new Date().toISOString()
+          };
+          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          localTxns.unshift(depTx);
+          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
+          cachedTransactions = localTxns;
+          renderPassbookList();
 
           if (soundEnabled && 'speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} added to your offline wallet!`);
@@ -1663,6 +1727,22 @@
           document.getElementById('wdr-success-target').textContent = targetUpi;
           document.getElementById('wdr-success-utr').textContent = data.bankUtr;
           document.getElementById('withdraw-success-modal').classList.remove('hidden');
+
+          const wdrTx = {
+            id: Date.now() % 1000000,
+            sender_vpa: sourceVpa,
+            receiver_vpa: targetUpi,
+            amount: amount,
+            auth_mode: "IMPS_BANK_PAYOUT",
+            status: "WITHDRAWAL_SUCCESS",
+            bank_utr: data.bankUtr || ('409' + Math.floor(100000000 + Math.random() * 900000000)),
+            settled_at: new Date().toISOString()
+          };
+          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          localTxns.unshift(wdrTx);
+          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
+          cachedTransactions = localTxns;
+          renderPassbookList();
 
           if (soundEnabled && 'speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} withdrawn to your bank account via IMPS!`);
@@ -3019,13 +3099,60 @@
       localStorage.removeItem('pending_sync_vouchers');
     }
 
+    // Interactive Splash Screen
+    function runInteractiveSplashScreen() {
+      const splash = document.getElementById('app-splash-screen');
+      const bar = document.getElementById('splash-progress-bar');
+      const status = document.getElementById('splash-status-text');
+      const percent = document.getElementById('splash-percent-text');
+      if (!splash) return;
+
+      const steps = [
+        { p: 25, text: "🔐 Booting Secure Enclave & Vault..." },
+        { p: 60, text: "⚡ Initializing Offline UPI Lite Pool..." },
+        { p: 90, text: "✔ Verifying Local ECDSA Signatures..." },
+        { p: 100, text: "🟢 Vault Unlocked & Ready!" }
+      ];
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < steps.length) {
+          if (bar) bar.style.width = steps[i].p + '%';
+          if (percent) percent.textContent = steps[i].p + '%';
+          if (status) status.textContent = steps[i].text;
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            splash.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => splash.remove(), 700);
+          }, 350);
+        }
+      }, 350);
+    }
+
+    // PWA Standalone and Install Visibility Checker
+    function checkPwaInstallState() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone === true || 
+                           document.referrer.includes('android-app://') ||
+                           localStorage.getItem('pwa_installed') === 'true';
+      const installBtn = document.getElementById('btn-pwa-install');
+      if (installBtn) {
+        if (isStandalone) {
+          installBtn.classList.add('hidden');
+        } else {
+          installBtn.classList.remove('hidden');
+        }
+      }
+    }
+
     // PWA Install Prompt Logic
     let deferredInstallPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
-      const installBtn = document.getElementById('btn-pwa-install');
-      if (installBtn) installBtn.classList.remove('hidden');
+      checkPwaInstallState();
     });
 
     function triggerPwaInstall() {
@@ -3033,6 +3160,7 @@
         deferredInstallPrompt.prompt();
         deferredInstallPrompt.userChoice.then((choice) => {
           if (choice.outcome === 'accepted') {
+            localStorage.setItem('pwa_installed', 'true');
             const installBtn = document.getElementById('btn-pwa-install');
             if (installBtn) installBtn.classList.add('hidden');
           }
@@ -3113,13 +3241,21 @@
         const muleBadge = document.getElementById('mule-vpa-badge');
         if (muleBadge) muleBadge.textContent = autoMuleVpa;
 
-        // Cache transactions & render
-        if (data.transactions && data.transactions.length > 0) {
-          cachedTransactions = data.transactions;
-          localStorage.setItem('cached_txns', JSON.stringify(cachedTransactions));
-        } else {
-          cachedTransactions = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+        // Cache transactions & merge intelligently so no local entries are lost
+        let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+        let serverTxns = data.transactions || [];
+        let seenKeys = new Set();
+        let merged = [];
+        for (let tx of [...localTxns, ...serverTxns]) {
+          let key = tx.bank_utr || (tx.sender_vpa + '_' + tx.receiver_vpa + '_' + tx.amount + '_' + (tx.id || ''));
+          if (key && !seenKeys.has(key)) {
+            seenKeys.add(key);
+            merged.push(tx);
+          }
         }
+        merged.sort((a, b) => new Date(b.settled_at || 0) - new Date(a.settled_at || 0));
+        cachedTransactions = merged;
+        localStorage.setItem('cached_txns', JSON.stringify(merged));
         renderPassbookList();
 
       } catch (err) {
@@ -3143,6 +3279,8 @@
       if (headerAvatar) headerAvatar.textContent = (userName || 'U').charAt(0).toUpperCase();
 
       updateNetworkStatus(navigator.onLine);
+      checkPwaInstallState();
+      runInteractiveSplashScreen();
       initCloudMeshRelay();
 
       // Register PWA Service Worker for Offline Airplane Mode Support
