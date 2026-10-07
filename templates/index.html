@@ -220,11 +220,6 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- Quick 2-Phone Live Simulator -->
-        <button onclick="openTwoPhoneSimulatorModal()" class="px-2.5 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/35 text-purple-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Open 2-Phone Live Simulator">
-          <span>📱</span>
-          <span class="text-[10px] hidden xs:inline sm:inline">Demo</span>
-        </button>
         <!-- Quick Switch Profile / Phone Role (Customer <-> Receiver) -->
         <button onclick="quickToggleUserMerchantProfile()" class="px-2.5 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[11px] font-bold flex items-center gap-1 transition touch-btn shadow-sm" title="Switch between Customer & Receiver Phone">
           <span>🔄</span>
@@ -341,49 +336,28 @@
             </div>
           </div>
 
-          <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-400 flex items-center gap-1">
-              <span class="text-emerald-400">⚡</span>
-              Target for Offline Payments
-            </span>
-            <button onclick="simulateScanStandee('sharma_kirana@paytm', 'Sharma Kirana Store', 120)" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 font-bold transition touch-btn flex items-center gap-1.5 shadow-sm active:scale-95">
-              <span>⚡ Quick Pay ₹120</span>
+          <!-- Dual Actions for Receiver: Pay Offline & Withdraw to Bank UPI -->
+          <div class="pt-2.5 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+            <!-- ⚡ Pay Offline Button -->
+            <button onclick="simulateScanStandee('sharma_kirana@paytm', 'Sharma Kirana Store', 120)" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 text-xs font-bold transition touch-btn flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+              <span>⚡ Pay Offline ₹120</span>
+            </button>
+            
+            <!-- 🏦 Withdraw to UPI Button for Receiver -->
+            <button onclick="openWithdrawModal('merchant')" class="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 border border-slate-700/80 text-xs font-bold transition touch-btn flex items-center justify-center gap-1.5 shadow-sm active:scale-95" title="Receiver can withdraw wallet balance directly to bank UPI">
+              <span>🏦 Withdraw to UPI</span>
             </button>
           </div>
         </div>
 
-        <!-- HERO ACTION DOCK: SCAN QR, 6-DIGIT PIN CLAIM, 2-PHONE SIMULATOR -->
-        <div class="space-y-2.5">
-          <div class="grid grid-cols-2 gap-2">
-            <!-- Button 1: Scan Any QR -->
-            <button onclick="openScannerModal()" class="py-3.5 px-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs rounded-2xl hero-glow flex items-center justify-center gap-2 transition touch-btn shadow-lg">
-              <span class="text-xl">📷</span>
-              <span>Scan QR to Pay</span>
-            </button>
-
-            <!-- Button 2: Claim 6-Digit PIN -->
-            <button onclick="openPinClaimModal()" class="py-3.5 px-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-amber-300 font-extrabold text-xs rounded-2xl flex items-center justify-center gap-2 transition touch-btn shadow-lg">
-              <span class="text-xl">🔑</span>
-              <span>Claim with PIN</span>
-            </button>
-          </div>
-
-          <!-- Secondary Row: 2-Phone Simulator & Sound Wave -->
-          <div class="grid grid-cols-2 gap-2">
-            <!-- 2-Phone Live Simulator -->
-            <button onclick="openTwoPhoneSimulatorModal()" class="py-2.5 px-2.5 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/35 text-purple-300 font-bold text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition touch-btn shadow-sm">
-              <span>📱</span>
-              <span>2-Phone Simulator</span>
-            </button>
-
-            <!-- Sound Wave Chirp -->
-            <button onclick="triggerSoundWaveTransferPrompt()" class="py-2.5 px-2.5 bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-300 font-bold text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition touch-btn shadow-sm">
-              <span>🔊</span>
-              <span>Sound Wave Pay</span>
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-400 text-center font-medium">
-            Send/receive money offline via QR, 6-digit PIN, Sound Wave, or live simulator
+        <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON -->
+        <div>
+          <button onclick="openScannerModal()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-base rounded-[1.75rem] hero-glow flex items-center justify-center gap-2.5 transition touch-btn shadow-xl">
+            <span class="text-2xl">📷</span>
+            <span>Scan Any QR to Pay</span>
+          </button>
+          <p class="text-[10px] text-slate-400 text-center mt-1.5 font-medium">
+            Scan receiver QR to transfer offline instantly from wallet to wallet
           </p>
         </div>
 
@@ -611,40 +585,16 @@
         </div>
       </div>
 
-      <!-- 6-Digit Claim PIN Voucher Badge -->
-      <div class="p-3.5 bg-gradient-to-b from-amber-500/15 to-amber-500/5 border border-amber-500/40 rounded-2xl text-center space-y-1.5 shadow-inner">
-        <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
-          <span>🔑</span>
-          <span>Offline 6-Digit Claim PIN</span>
-        </div>
-        <div class="text-3xl font-black text-white tracking-[0.25em] font-mono py-0.5" id="success-voucher-pin">
-          849 204
-        </div>
-        <p class="text-[9px] text-slate-300">
-          Receiver can type this 6-digit PIN on their phone under <b>"Claim with PIN"</b> to deposit funds instantly!
-        </p>
-        <div class="flex items-center justify-center gap-2 pt-0.5">
-          <button onclick="copySuccessPin()" class="text-[10px] font-bold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 px-3 py-1.5 rounded-xl border border-amber-500/30 transition touch-btn flex items-center gap-1">
-            <span>📋</span>
-            <span id="btn-copy-pin-text">Copy PIN</span>
-          </button>
-          <button onclick="shareSuccessPinViaApp()" class="text-[10px] font-bold text-teal-300 bg-teal-500/20 hover:bg-teal-500/30 px-3 py-1.5 rounded-xl border border-teal-500/30 transition touch-btn flex items-center gap-1">
-            <span>📲</span>
-            <span>Share via WhatsApp</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Receiver Offline Voucher Claim QR -->
       <div id="success-voucher-qr-section" class="p-3 bg-slate-950 border border-slate-800 rounded-2xl space-y-2 text-center">
         <div class="flex items-center justify-between">
           <span class="text-[10px] text-teal-400 font-bold flex items-center gap-1">
             <span>📲</span>
-            <span>Receiver Claim QR (Alternative)</span>
+            <span>Receiver Claim QR (P2P Offline)</span>
           </span>
           <span class="text-[8px] bg-teal-500/15 text-teal-300 px-1.5 py-0.5 rounded font-mono font-bold">Scan to Claim</span>
         </div>
-        <p class="text-[9px] text-slate-400 text-left">Or scan this voucher QR code with the receiver phone's camera.</p>
+        <p class="text-[9px] text-slate-400 text-left">Receiver can scan this voucher QR code to instantly verify & credit funds into their wallet.</p>
         <div id="success-voucher-qr-canvas" class="bg-white p-2.5 rounded-2xl mx-auto w-[180px] h-[180px] flex items-center justify-center shadow-lg"></div>
       </div>
 
@@ -664,176 +614,6 @@
     </div>
   </div>
 
-  <!-- ======================================================== -->
-  <!-- MODAL: 🔑 CLAIM 6-DIGIT VOUCHER PIN (Instant Wallet Credit) -->
-  <!-- ======================================================== -->
-  <div id="pin-claim-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🔑</span>
-          <div>
-            <h3 class="font-extrabold text-white text-sm">Claim Money with 6-Digit PIN</h3>
-            <p class="text-[9px] text-slate-400">Receive offline transfer directly into your wallet</p>
-          </div>
-        </div>
-        <button onclick="closePinClaimModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-      </div>
-
-      <div class="space-y-2 text-center">
-        <label class="block text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-          Enter Sender's 6-Digit Secret PIN
-        </label>
-        <input type="text" id="input-claim-pin" maxlength="7" placeholder="e.g. 784219" class="w-full bg-slate-950 border-2 border-amber-500/40 focus:border-amber-400 text-center text-3xl font-black text-amber-300 font-mono tracking-[0.25em] rounded-2xl py-3 focus:outline-none placeholder:text-slate-700 placeholder:tracking-normal placeholder:font-normal placeholder:text-sm" />
-        <p class="text-[10px] text-slate-400">
-          The sender receives this 6-digit code upon payment. Enter it here to deposit the cash into your wallet.
-        </p>
-      </div>
-
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-[10px] font-mono space-y-1">
-        <div class="flex justify-between text-slate-400">
-          <span>Depositing to:</span>
-          <span class="text-teal-300 font-bold" id="claim-target-receiver-vpa">sharma_kirana@paytm</span>
-        </div>
-        <div class="flex justify-between text-slate-400">
-          <span>Account Holder:</span>
-          <span class="text-white font-bold" id="claim-target-receiver-name">Sharma Kirana Store</span>
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <button id="btn-submit-claim-pin" onclick="submitClaimVoucherPin()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-extrabold text-sm rounded-2xl shadow-xl transition touch-btn flex items-center justify-center gap-2">
-          <span id="claim-spinner" class="hidden animate-spin">⏳</span>
-          <span>⚡ Claim & Deposit Money</span>
-        </button>
-        <button onclick="closePinClaimModal()" class="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 text-slate-400 text-xs font-semibold rounded-xl transition">
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- MODAL: 📱 2-PHONE LIVE SIMULATOR (Side-by-Side Dual Wallet) -->
-  <!-- ======================================================== -->
-  <div id="two-phone-simulator-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto custom-scrollbar">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 max-w-2xl w-full space-y-4 shadow-2xl my-auto">
-      
-      <!-- Header -->
-      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 flex items-center justify-center text-base">
-            📱
-          </div>
-          <div>
-            <h3 class="font-extrabold text-white text-sm sm:text-base flex items-center gap-2">
-              <span>2-Phone Live Offline Transfer Simulator</span>
-              <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-mono font-bold">INTERACTIVE</span>
-            </h3>
-            <p class="text-[10px] text-slate-400">Watch Customer Phone pay and Merchant Phone receive money live on 1 screen!</p>
-          </div>
-        </div>
-        <button onclick="closeTwoPhoneSimulatorModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-      </div>
-
-      <!-- Dual Phone Layout (Grid) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        
-        <!-- PHONE 1: CUSTOMER (SENDER) -->
-        <div class="bg-slate-950 border border-emerald-500/30 rounded-2xl p-4 space-y-3 relative shadow-inner">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-xs font-bold text-emerald-400">PHONE 1: Customer</span>
-            </div>
-            <span class="text-[9px] font-mono bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">SENDER</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <div class="text-[10px] text-slate-400">User UPI ID: <b class="text-white font-mono" id="sim-sender-vpa-label">user@okhdfcbank</b></div>
-            <div class="text-[10px] text-slate-400">Holder: <b class="text-white" id="sim-sender-name-label">Sagar (Customer)</b></div>
-          </div>
-
-          <!-- Customer Balance Box -->
-          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
-            <span class="text-[11px] text-slate-400 font-bold">Wallet Balance:</span>
-            <span class="text-xl font-extrabold text-emerald-400 font-mono" id="sim-payer-bal">₹1000.00</span>
-          </div>
-
-          <!-- Simulator Transfer Controls -->
-          <div class="space-y-2 pt-1">
-            <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold">
-              <span>Amount to Transfer:</span>
-              <div class="flex gap-1">
-                <button onclick="setSimAmount(20)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹20</button>
-                <button onclick="setSimAmount(50)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹50</button>
-                <button onclick="setSimAmount(100)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-750 text-xs rounded text-slate-300">₹100</button>
-              </div>
-            </div>
-            <div class="relative">
-              <span class="absolute left-3 top-2 text-emerald-400 font-bold">₹</span>
-              <input type="number" id="sim-amount-input" value="50" min="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-7 pr-3 text-sm font-extrabold text-white font-mono focus:outline-none focus:border-emerald-400" />
-            </div>
-
-            <button onclick="executeSimulatedTransfer()" id="btn-sim-transfer" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition touch-btn flex items-center justify-center gap-1.5">
-              <span>⚡ Send Money Offline</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- PHONE 2: MERCHANT (RECEIVER) -->
-        <div class="bg-slate-950 border border-teal-500/30 rounded-2xl p-4 space-y-3 relative shadow-inner">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-              <span class="text-xs font-bold text-teal-400">PHONE 2: Merchant</span>
-            </div>
-            <span class="text-[9px] font-mono bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/30 font-bold">RECEIVER</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <div class="text-[10px] text-slate-400">Merchant UPI: <b class="text-white font-mono">sharma_kirana@paytm</b></div>
-            <div class="text-[10px] text-slate-400">Store: <b class="text-white">Sharma Kirana Store</b></div>
-          </div>
-
-          <!-- Merchant Balance Box -->
-          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
-            <span class="text-[11px] text-slate-400 font-bold">Receiver Balance:</span>
-            <span class="text-xl font-extrabold text-teal-300 font-mono" id="sim-merch-bal">₹500.00</span>
-          </div>
-
-          <!-- Live Soundbox & Feed -->
-          <div class="p-3 bg-slate-900/80 border border-teal-500/20 rounded-xl space-y-1.5 min-h-[95px] flex flex-col justify-center text-center transition-all duration-300" id="sim-soundbox-box">
-            <div class="flex items-center justify-center gap-1.5 text-[11px] text-teal-300 font-bold">
-              <span class="text-base" id="sim-soundbox-icon">🔊</span>
-              <span>Paytm Soundbox Live</span>
-            </div>
-            <div class="text-[10px] text-slate-400" id="sim-soundbox-text">
-              Listening for offline incoming payments...
-            </div>
-          </div>
-
-          <div class="flex gap-1.5 pt-1">
-            <button onclick="triggerSimSoundboxTest()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-850 text-slate-300 text-[10px] font-bold rounded-xl border border-slate-800 transition touch-btn">
-              🔊 Test Soundbox
-            </button>
-            <button onclick="resetSimBalances()" class="py-2 px-3 bg-slate-900 hover:bg-slate-850 text-slate-400 text-[10px] font-bold rounded-xl border border-slate-800 transition touch-btn">
-              ↻ Reset
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Transfer Animation Pathway Indicator -->
-      <div id="sim-pathway-banner" class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-center text-[10px] font-mono text-slate-400 flex items-center justify-center gap-2">
-        <span>Phone 1</span>
-        <span class="text-emerald-400" id="sim-pathway-text">━━ ⚡ ECDSA Signed Offline Packet ━━▶</span>
-        <span>Phone 2</span>
-      </div>
-
-    </div>
-  </div>
 
 
   <!-- ======================================================== -->
