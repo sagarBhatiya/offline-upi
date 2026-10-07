@@ -1,10 +1,32 @@
 import sqlite3
 import os
+import shutil
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'upi.db')
+def get_db_path():
+    # Detect Vercel, AWS Lambda, or read-only filesystem
+    is_serverless = bool(
+        os.environ.get("VERCEL") or 
+        os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or 
+        not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
+    )
+    if is_serverless:
+        tmp_dir = os.environ.get("TMPDIR", "/tmp")
+        tmp_db = os.path.join(tmp_dir, "upi.db")
+        orig_db = os.path.join(os.path.dirname(os.path.abspath(__file__)), "upi.db")
+        if not os.path.exists(tmp_db) and os.path.exists(orig_db):
+            try:
+                shutil.copyfile(orig_db, tmp_db)
+            except Exception as e:
+                print("Notice: could not copy pre-seeded upi.db to /tmp:", e)
+        return tmp_db
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'upi.db')
+
+DB_PATH = get_db_path()
 
 def get_connection():
+    global DB_PATH
+    DB_PATH = get_db_path()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
