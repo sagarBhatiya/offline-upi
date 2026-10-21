@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>HundiPay — Offline Digital Payments</title>
+  <title>Offline UPI — Zero-Internet Digital Payments</title>
 
   <!-- PWA Manifest & Mobile Standalone Tags -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#040916">
+  <meta name="theme-color" content="#090A0D">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="HundiPay">
+  <meta name="apple-mobile-web-app-title" content="Offline UPI">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="shortcut icon" href="/static/favicon.ico">
@@ -20,6 +20,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   
+  <!-- GSAP & ScrollTrigger Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Locomotive Scroll v4 (Smooth Momentum Scrolling) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
   <!-- High-Resilience QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- jsQR Fallback Engine -->
@@ -33,67 +41,55 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
             mono: ['"JetBrains Mono"', 'monospace'],
           },
           colors: {
-            // Sailor Blue palette mapped to slate for high-fidelity dark naval aesthetic
+            // Minimal Premium Shades of Grey for UPI Fintech
             slate: {
-              50: '#edf4fd',
-              100: '#d7e6fb',
-              200: '#b5d4f9',
-              300: '#8cbeee',
-              400: '#5c9ee6',
-              500: '#3481dc',
-              600: '#2365c4',
-              700: '#1b4ea3',
-              750: '#153e85',
-              800: '#112b5e', // Sailor Navy border & elevated surfaces
-              850: '#0d224d', // Sailor Navy card container
-              900: '#081738', // Deep Sailor Navy
-              925: '#061129', // Nautical Midnight
-              950: '#040916', // Deepest Sailor Void
+              50: '#F9FAFB',
+              100: '#F3F4F6',
+              200: '#E5E7EB',
+              300: '#D1D5DB',
+              400: '#9CA3AF',
+              500: '#6B7280',
+              600: '#4B5563',
+              700: '#323640',
+              750: '#262931',
+              800: '#1C1F26', // Elevated card surface
+              850: '#16181F', // Card background
+              900: '#101115', // Deep matte charcoal
+              925: '#0C0D10', // Dark obsidian
+              950: '#08090C', // Void background
             },
-            // Mint Green palette mapped to emerald for luminous crisp contrast
+            neutral: {
+              50: '#FAFAFA',
+              100: '#F4F4F5',
+              200: '#E4E4E7',
+              300: '#D4D4D8',
+              400: '#A1A1AA',
+              500: '#71717A',
+              600: '#52525B',
+              700: '#3F3F46',
+              750: '#27272A',
+              800: '#1E1F24',
+              850: '#17181D',
+              900: '#111216',
+              950: '#090A0D',
+            },
+            // Soft semantic colors (not loud)
             emerald: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              200: '#99f6e4',
-              300: '#5eead4',
-              400: '#2ef2b8', // Glowing Electric Mint
-              500: '#00f5c4', // Hero Mint Green
-              600: '#00d6aa',
-              700: '#00ab87',
-              800: '#018368',
-              900: '#044d3e',
-              950: '#012921',
-            },
-            sailor: {
-              50: '#edf4fd',
-              100: '#d7e6fb',
-              200: '#b5d4f9',
-              300: '#8cbeee',
-              400: '#5c9ee6',
-              500: '#3481dc',
-              600: '#2365c4',
-              700: '#1b4ea3',
-              800: '#112b5e',
-              850: '#0d224d',
-              900: '#081738',
-              950: '#040916',
-            },
-            mint: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              200: '#99f6e4',
-              300: '#5eead4',
-              400: '#2ef2b8',
-              500: '#00f5c4',
-              600: '#00d6aa',
-              700: '#00ab87',
-              800: '#018368',
-              900: '#044d3e',
-              950: '#012921',
+              50: '#F0FDF4',
+              100: '#DCFCE7',
+              200: '#BBF7D0',
+              300: '#86EFAC',
+              400: '#4ADE80',
+              500: '#22C55E',
+              600: '#16A34A',
+              700: '#15803D',
+              800: '#166534',
+              900: '#14532D',
+              950: '#052E16',
             }
           }
         }
@@ -102,23 +98,38 @@
   </script>
 
   <style>
-    html, body {
-      height: 100%;
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100vh;
       margin: 0;
       padding: 0;
-      background-color: #040916;
+      background-color: #08090C;
       background-image: 
-        radial-gradient(circle at 10% 8%, rgba(0, 245, 196, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 90% 12%, rgba(35, 101, 196, 0.22) 0%, transparent 50%),
-        radial-gradient(circle at 50% 95%, rgba(17, 43, 94, 0.45) 0%, transparent 60%);
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 90% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
+        radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
       background-attachment: fixed;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      color: #F3F4F6;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Guaranteed scroll unlock for App Mode and mobile screens */
+    html.app-active,
+    html.app-active body {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      height: auto !important;
     }
     .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(8, 23, 56, 0.5); }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 245, 196, 0.3); border-radius: 9999px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 245, 196, 0.6); }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #101115; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #323640; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4B5563; }
     
     @keyframes scan-laser {
       0% { top: 6%; opacity: 0.95; }
@@ -126,16 +137,16 @@
     }
     .laser-line {
       animation: scan-laser 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-      background: linear-gradient(90deg, transparent, #00f5c4 25%, #2ef2b8 50%, #00f5c4 75%, transparent);
-      box-shadow: 0 0 14px #00f5c4, 0 0 28px rgba(0, 245, 196, 0.6);
+      background: linear-gradient(90deg, transparent, #FFFFFF 25%, #E5E7EB 50%, #FFFFFF 75%, transparent);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.7), 0 0 28px rgba(255, 255, 255, 0.3);
     }
 
     @keyframes pulse-glow {
       0%, 100% { 
-        box-shadow: 0 0 24px rgba(0, 245, 196, 0.25), 0 0 60px rgba(17, 43, 94, 0.45); 
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.08), 0 0 45px rgba(0, 0, 0, 0.8); 
       }
       50% { 
-        box-shadow: 0 0 42px rgba(0, 245, 196, 0.45), 0 0 85px rgba(17, 43, 94, 0.7); 
+        box-shadow: 0 0 35px rgba(255, 255, 255, 0.16), 0 0 65px rgba(0, 0, 0, 0.9); 
       }
     }
     .hero-glow {
@@ -150,90 +161,96 @@
     }
 
     .glass-card {
-      background: linear-gradient(145deg, rgba(13, 34, 77, 0.78) 0%, rgba(6, 17, 41, 0.92) 100%);
+      background: linear-gradient(180deg, #16181F 0%, #101115 100%);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 245, 196, 0.16);
-      box-shadow: 0 20px 40px -15px rgba(2, 6, 18, 0.75), 0 0 24px -10px rgba(0, 245, 196, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.07);
     }
     .glass-card:hover {
-      border-color: rgba(0, 245, 196, 0.28);
+      border-color: rgba(255, 255, 255, 0.18);
     }
 
     .touch-btn {
-      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
     }
     .touch-btn:active {
       transform: scale(0.96);
     }
 
-    .sailor-badge {
-      background: rgba(17, 43, 94, 0.6);
-      border: 1px solid rgba(35, 101, 196, 0.4);
-      color: #b5d4f9;
+    /* Titanium / Minimal Grey Badges */
+    .titanium-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #E5E7EB;
     }
 
-    .mint-badge {
-      background: rgba(0, 245, 196, 0.12);
-      border: 1px solid rgba(0, 245, 196, 0.35);
-      color: #00f5c4;
+    /* QR Code Display Resilience */
+    #customer-qrcode-canvas canvas,
+    #customer-qrcode-canvas img {
+      margin: 0 auto !important;
+      display: block !important;
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 12px;
+    }
+
+    /* Locomotive Scroll Smooth Wrapper Styles */
+    [data-scroll-container] {
+      min-height: 100vh;
     }
   </style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-neutral-200 selection:text-black">
 
   <!-- ======================================================== -->
   <!-- 🌐 HUNDIPAY WEB MODE: MARKETING & INFORMATIONAL SHOWCASE -->
   <!-- ======================================================== -->
-  <div id="web-landing-page" class="w-full min-h-screen bg-[#040916] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
+  <div id="web-landing-page" data-scroll-container class="w-full min-h-screen bg-[#08090C] text-neutral-100 flex flex-col selection:bg-neutral-300 selection:text-black relative overflow-x-hidden">
 
-    <!-- Ambient Lighting Glows -->
-    <div class="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-emerald-500/15 via-teal-500/5 to-transparent rounded-full blur-3xl z-0"></div>
-    <div class="pointer-events-none fixed bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-t from-cyan-500/10 to-transparent rounded-full blur-3xl z-0"></div>
+    <!-- Ambient Lighting Glows (Minimal Platinum / White) -->
+    <div class="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-white/[0.04] via-white/[0.01] to-transparent rounded-full blur-3xl z-0"></div>
+    <div class="pointer-events-none fixed bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-t from-white/[0.02] to-transparent rounded-full blur-3xl z-0"></div>
 
     <!-- 1. STICKY TOP NAVIGATION BAR -->
-    <header class="sticky top-0 z-40 bg-[#040916]/90 backdrop-blur-xl border-b border-slate-900/90 px-4 sm:px-8 py-3.5 transition-all">
+    <header class="sticky top-0 z-40 bg-[#08090C]/90 backdrop-blur-xl border-b border-neutral-800/80 px-4 sm:px-8 py-3.5 transition-all">
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         
         <!-- Brand Logo & Name -->
         <a href="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-[2px] shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition">
-            <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-full h-full rounded-[14px] object-cover bg-slate-950">
+          <div class="w-10 h-10 rounded-2xl bg-neutral-800 border border-neutral-700/80 flex items-center justify-center text-white font-extrabold text-xs shadow-md group-hover:border-neutral-500 transition">
+            UPI
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-base sm:text-lg font-extrabold text-white tracking-wide font-sans">HundiPay</span>
-              <span class="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">OFFLINE</span>
+              <span class="text-base sm:text-lg font-extrabold text-white tracking-wide font-sans">Offline UPI</span>
+              <span class="text-[10px] bg-neutral-800 text-neutral-300 border border-neutral-700/80 px-2 py-0.5 rounded-full font-mono font-bold">OFFLINE</span>
             </div>
-            <p class="text-[10px] text-slate-400 hidden sm:block">100% Offline Digital Payments</p>
+            <p class="text-[10px] text-neutral-400 hidden sm:block">Direct Peer-to-Peer Protocol</p>
           </div>
         </a>
 
         <!-- Desktop Navigation Links -->
-        <nav class="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
-          <a href="#about" class="hover:text-emerald-400 transition">About</a>
-          <a href="#features" class="hover:text-emerald-400 transition">Features</a>
-          <a href="#how-it-works" class="hover:text-emerald-400 transition">How It Works</a>
-          <a href="#security" class="hover:text-emerald-400 transition">Security</a>
-          <a href="#faq" class="hover:text-emerald-400 transition">FAQ</a>
+        <nav class="hidden md:flex items-center gap-7 text-xs font-semibold text-neutral-400">
+          <a href="#about" class="hover:text-white transition">About</a>
+          <a href="#features" class="hover:text-white transition">Features</a>
+          <a href="#how-it-works" class="hover:text-white transition">How It Works</a>
+          <a href="#security" class="hover:text-white transition">Security</a>
+          <a href="#faq" class="hover:text-white transition">FAQ</a>
         </nav>
 
         <!-- CTA Buttons -->
         <div class="flex items-center gap-2.5">
           <!-- Launch Web Simulator Button -->
-          <button onclick="showAppMode(false)" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 text-xs font-bold transition flex items-center gap-1.5 touch-btn shadow-sm">
-            <span>🚀</span>
+          <button onclick="showAppMode(false)" class="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-850 text-neutral-200 border border-neutral-800 text-xs font-bold transition flex items-center gap-1.5 touch-btn shadow-sm">
+            <span>📱</span>
             <span class="hidden sm:inline">Try App Simulator</span>
             <span class="sm:hidden">Try App</span>
           </button>
 
           <!-- Install App Button (High-Visibility Primary CTA in Web Mode) -->
-          <button onclick="triggerPwaInstall()" class="relative group px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs transition touch-btn shadow-lg shadow-emerald-500/25 flex items-center gap-2 active:scale-95">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-950 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-950"></span>
-            </span>
+          <button onclick="triggerPwaInstall()" class="relative group px-4 py-2 rounded-xl bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-100 text-neutral-950 font-extrabold text-xs transition touch-btn shadow-md flex items-center gap-2 active:scale-95">
             <span>📲 Install App</span>
           </button>
         </div>
@@ -249,7 +266,7 @@
         <div class="flex-1 text-center lg:text-left space-y-6">
           
           <!-- Announcement Pill -->
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-semibold">
             <span class="text-xs">⚡</span>
             <span>Next-Gen Zero-Internet Digital Payments</span>
           </div>
@@ -257,37 +274,37 @@
           <!-- Main Headline -->
           <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
             Pay Anyone, Anywhere.<br/>
-            <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">Even in Airplane Mode.</span>
+            <span class="bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">Even in Airplane Mode.</span>
           </h1>
 
           <!-- Subheadline -->
-          <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-            <strong class="text-emerald-400 font-semibold">HundiPay</strong> revitalizes India's historic <span class="text-white font-semibold">Hundi</span> promissory trust system with military-grade ECDSA cryptography. Load your offline wallet once and transfer funds peer-to-peer in basements, rural valleys, flights, or network blackouts without needing internet connectivity.
+          <p class="text-sm sm:text-base text-neutral-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <strong class="text-white font-semibold">Offline UPI</strong> delivers instant peer-to-peer payments with military-grade ECDSA cryptography. Load your offline wallet once and transfer funds directly in basements, rural valleys, flights, or network blackouts without needing cellular connectivity.
           </p>
 
           <!-- Hero Action CTAs -->
           <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
             <!-- Install Button in Hero -->
-            <button onclick="triggerPwaInstall()" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm transition touch-btn shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2.5 active:scale-95">
+            <button onclick="triggerPwaInstall()" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-100 text-neutral-950 font-extrabold text-sm transition touch-btn shadow-xl flex items-center justify-center gap-2.5 active:scale-95">
               <span class="text-xl">📲</span>
-              <span>Install HundiPay App (PWA)</span>
+              <span>Install App (PWA)</span>
             </button>
 
             <!-- Try Simulator Button in Hero -->
-            <button onclick="showAppMode(false)" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-750 font-bold text-sm transition touch-btn flex items-center justify-center gap-2">
-              <span>🚀</span>
+            <button onclick="showAppMode(false)" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-neutral-900 hover:bg-neutral-850 text-neutral-200 border border-neutral-800 font-bold text-sm transition touch-btn flex items-center justify-center gap-2">
+              <span>📱</span>
               <span>Launch Web Simulator</span>
             </button>
           </div>
 
           <!-- Trust Badges -->
-          <div class="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-slate-400 font-mono">
+          <div class="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-neutral-400 font-mono">
             <div class="flex items-center gap-1.5">
-              <span class="text-emerald-400">✔</span>
+              <span class="text-neutral-200">✔</span>
               <span>ECDSA SECP256R1 Signatures</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="text-emerald-400">✔</span>
+              <span class="text-neutral-200">✔</span>
               <span>0.1s Local Settlement</span>
             </div>
             <div class="flex items-center gap-1.5">
@@ -734,34 +751,14 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs shadow-sm" title="HundiPay">
-          <img src="/static/icons/icon-192.png" class="w-4 h-4 rounded-md object-contain" alt="HundiPay">
-          <span class="tracking-wide font-sans">HundiPay</span>
-        </div>
-        <!-- Sound Effect / Voice Toggle -->
-        <button onclick="toggleAudio()" class="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition touch-btn" title="Toggle Sound">
-          <span id="sound-icon">🔊</span>
-        </button>
-        <!-- My Receive QR Modal -->
-        <button onclick="openCustomerQrModal()" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 text-slate-200 text-[11px] font-semibold flex items-center gap-1.5 transition touch-btn shadow-sm">
-          <span>📲</span>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- My Receive QR Button (High Visibility, Never Squeezed on Mobile) -->
+        <button onclick="openCustomerQrModal()" class="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-750 active:bg-neutral-700 border border-neutral-700/80 text-neutral-100 text-[11px] font-bold flex items-center gap-1.5 transition touch-btn shadow-sm" title="Show My Receive QR Code">
+          <span class="text-xs">📲</span>
           <span>My QR</span>
         </button>
       </div>
     </header>
-
-    <!-- PWA OFFLINE STATUS & INSTALL BANNER -->
-    <div id="pwa-install-banner" class="px-4 py-2 bg-gradient-to-r from-emerald-950/90 via-slate-900 to-slate-900 border-b border-emerald-800/40 flex items-center justify-between text-xs transition-all">
-      <div class="flex items-center gap-2">
-        <span id="pwa-network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="pwa-network-status" class="text-[10px] font-mono text-emerald-300 font-bold">🟢 Offline-Ready (PWA Cache Active)</span>
-      </div>
-      <button id="btn-pwa-install" onclick="triggerPwaInstall()" class="py-1 px-2.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 transition touch-btn hidden">
-        <span>📲</span>
-        <span>Install App</span>
-      </button>
-    </div>
 
     <!-- MAIN SCROLLABLE APP CONTENT -->
     <main class="flex-1 px-4 py-3.5 space-y-4 z-10">
@@ -774,85 +771,72 @@
         <!-- HERO BALANCE CARD (Glassmorphic Titanium Finish) -->
         <div class="glass-card rounded-[2rem] p-5 shadow-2xl relative overflow-hidden group">
           <!-- Subtle corner orb glow -->
-          <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/25 transition duration-500"></div>
+          <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
 
           <div class="flex justify-between items-start">
             <div>
-              <div class="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
-                <span>On-Device HundiPay Pool</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <div class="text-[10px] text-neutral-400 uppercase tracking-widest font-extrabold flex items-center gap-1.5">
+                <span>Offline UPI Balance</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
               </div>
               <div class="text-3xl sm:text-4xl font-extrabold text-white mt-1.5 flex items-baseline gap-1 tracking-tight">
-                <span class="text-2xl text-emerald-400 font-bold">₹</span>
+                <span class="text-2xl text-neutral-400 font-bold">₹</span>
                 <span id="payer-balance-display">0.00</span>
               </div>
             </div>
 
-            <!-- Vault Icon Badge -->
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center p-1.5 shadow-inner" title="HundiPay Vault">
-              <img src="/static/icons/icon-192.png" class="w-full h-full rounded-xl object-contain" alt="HundiPay">
+            <!-- Sleek Minimal Metallic Wallet Monogram -->
+            <div class="w-10 h-10 rounded-2xl bg-neutral-800/80 border border-neutral-700/80 flex items-center justify-center p-1.5 shadow-inner text-neutral-300" title="Offline Vault">
+              <svg class="w-5 h-5 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
             </div>
           </div>
 
-          <!-- Quick Actions Dock inside Hero Card -->
-          <div class="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-slate-800/80">
+          <!-- Quick Actions Dock inside Hero Card: Add Money, Withdraw, My QR -->
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-neutral-800/80">
             <!-- ➕ Add Money Button -->
-            <button onclick="openDepositModal()" class="py-2.5 px-2 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
+            <button onclick="openDepositModal()" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
               <span class="text-base">➕</span>
               <span class="text-[11px]">Add Money</span>
             </button>
 
             <!-- 🏦 Withdraw to Bank Button -->
-            <button onclick="openWithdrawModal('payer')" class="py-2.5 px-2 rounded-2xl bg-slate-800/80 hover:bg-slate-750 text-slate-200 border border-slate-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
+            <button onclick="openWithdrawModal('payer')" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
               <span class="text-base">🏦</span>
               <span class="text-[11px]">Withdraw</span>
             </button>
 
-            <!-- ↻ Refresh Balance Button -->
-            <button onclick="refreshState(true)" class="py-2.5 px-2 rounded-2xl bg-slate-800/80 hover:bg-slate-750 text-slate-200 border border-slate-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm" title="Refresh Live Balance">
-              <span class="text-base" id="refresh-icon">↻</span>
-              <span class="text-[11px]">Sync</span>
+            <!-- 📲 My QR Button -->
+            <button onclick="openCustomerQrModal()" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm" title="Show My QR Code">
+              <span class="text-base">📲</span>
+              <span class="text-[11px]">My QR</span>
             </button>
-          </div>
-
-          <div class="mt-3.5 pt-2.5 border-t border-slate-800/50 flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              ECDSA P-256 Vault Active
-            </span>
-            <span class="text-slate-300">100% Offline Capable</span>
           </div>
         </div>
 
-
-        <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON -->
+        <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON (Brushed Silver Titanium) -->
         <div>
-          <button onclick="openScannerModal()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-base rounded-[1.75rem] hero-glow flex items-center justify-center gap-2.5 transition touch-btn shadow-xl">
+          <button onclick="openScannerModal()" class="w-full py-4 px-4 bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-100 text-neutral-950 font-extrabold text-base rounded-[1.75rem] flex items-center justify-center gap-2.5 transition touch-btn shadow-xl border border-white/20 active:scale-[0.98]">
             <span class="text-2xl">📷</span>
             <span>Scan Any QR to Pay</span>
           </button>
-          <p class="text-[10px] text-slate-400 text-center mt-1.5 font-medium">
+          <p class="text-[10px] text-neutral-400 text-center mt-1.5 font-medium">
             Scan receiver QR to transfer offline instantly from wallet to wallet
           </p>
         </div>
 
         <!-- DIRECT PAY TO UPI ID / MOBILE INPUT -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 space-y-2 shadow-lg">
-          <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+        <div class="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-3.5 space-y-2 shadow-lg">
+          <label class="block text-[11px] font-bold text-neutral-300 uppercase tracking-wider">
             👤 Pay to UPI ID or Mobile Number
           </label>
           <div class="flex gap-2">
-            <input type="text" id="manual-upi-input" placeholder="e.g. name@okhdfcbank or 9876543210@paytm" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder:text-slate-600" />
-            <button onclick="handleManualUpiProceed()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs transition touch-btn shadow">
+            <input type="text" id="manual-upi-input" placeholder="e.g. name@okhdfcbank or 9876543210@paytm" class="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-neutral-500 placeholder:text-neutral-600" />
+            <button onclick="handleManualUpiProceed()" class="px-4 py-2.5 rounded-xl bg-neutral-200 hover:bg-white text-neutral-950 font-extrabold text-xs transition touch-btn shadow">
               Pay
             </button>
           </div>
-        </div>
-
-        <!-- Protocol Trust Footer Badge -->
-        <div class="p-3 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-center text-[10px] text-slate-400 space-y-1">
-          <div class="font-bold text-emerald-400">✔ 100% Free NPCI Direct UPI Protocol</div>
-          <div>Direct device-to-bank settlement &bull; Mandated by RBI/NPCI with zero gateway fees</div>
         </div>
 
       </section>
@@ -888,12 +872,12 @@
 
     <!-- NATIVE FLOATING BOTTOM NAVIGATION DOCK (2-TAB STREAMLINED) -->
     <nav class="fixed bottom-3 left-0 right-0 max-w-md mx-auto px-4 z-40 pointer-events-none">
-      <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-2xl border border-slate-750/90 rounded-2xl p-1.5 flex items-center justify-around shadow-2xl shadow-black/90 gap-2">
-        <button id="nav-payer" onclick="switchPhoneTab('payer')" class="flex-1 py-2.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-500/40 shadow-lg shadow-emerald-500/15 transition touch-btn text-center flex items-center justify-center gap-2">
+      <div class="pointer-events-auto bg-neutral-900/95 backdrop-blur-2xl border border-neutral-800 rounded-2xl p-1.5 flex items-center justify-around shadow-2xl shadow-black/90 gap-2">
+        <button id="nav-payer" onclick="switchPhoneTab('payer')" class="flex-1 py-2.5 rounded-xl text-white font-bold bg-neutral-800 border border-neutral-700/80 shadow-md transition touch-btn text-center flex items-center justify-center gap-2">
           <span class="text-base leading-none">📱</span>
           <span class="text-xs">Pay & Wallet</span>
         </button>
-        <button id="nav-ledger" onclick="switchPhoneTab('ledger')" class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-2">
+        <button id="nav-ledger" onclick="switchPhoneTab('ledger')" class="flex-1 py-2.5 rounded-xl text-neutral-400 hover:text-neutral-200 transition touch-btn text-center flex items-center justify-center gap-2">
           <span class="text-base leading-none">📜</span>
           <span class="text-xs">Passbook & History</span>
         </button>
@@ -1315,23 +1299,40 @@
   <!-- ======================================================== -->
   <!-- MODAL: 📲 CUSTOMER OFFLINE DYNAMIC QR (My Receive QR) -->
   <!-- ======================================================== -->
-  <div id="customer-qr-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-xs w-full text-center space-y-3 shadow-2xl">
-      <div class="flex justify-between items-center">
-        <h3 class="font-bold text-white text-xs">📲 My HundiPay QR</h3>
-        <button onclick="closeCustomerQrModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+  <div id="customer-qr-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-3xl p-5 max-w-xs w-full text-center space-y-3.5 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-2 border-b border-neutral-800/80">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📲</span>
+          <h3 class="font-extrabold text-white text-xs">My UPI QR Code</h3>
+        </div>
+        <button onclick="closeCustomerQrModal()" class="text-neutral-400 hover:text-white text-lg font-bold p-1">&times;</button>
       </div>
-      <p class="text-[11px] text-slate-400">
-        Show this QR code to receive payments offline:
-      </p>
-      <div class="p-3 bg-white rounded-2xl inline-block shadow-2xl mx-auto border-2 border-slate-200">
-        <div id="customer-qrcode-canvas" class="w-[200px] h-[200px] flex items-center justify-center"></div>
+
+      <div>
+        <div id="customer-qr-name-label" class="text-xs font-extrabold text-white">User</div>
+        <div class="text-[10px] text-neutral-400">Scan to pay instantly via any UPI app</div>
       </div>
-      <div class="text-[11px] font-mono text-emerald-400">
-        Handle: <b class="text-white text-xs" id="customer-qr-handle-label">user@okhdfcbank</b>
+
+      <!-- High-Contrast Crisp White Container with subtle border -->
+      <div class="p-3 bg-white rounded-2xl inline-block shadow-2xl mx-auto border-2 border-neutral-200">
+        <div id="customer-qrcode-canvas" class="w-[190px] h-[190px] min-h-[190px] flex items-center justify-center overflow-hidden"></div>
       </div>
-      <button onclick="closeCustomerQrModal()" class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-semibold touch-btn">
-        Close
+
+      <!-- 1-Tap Copy UPI ID -->
+      <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-between text-xs">
+        <div class="text-left min-w-0 pr-2">
+          <div class="text-[9px] text-neutral-500 uppercase font-bold tracking-wider">UPI ID</div>
+          <div class="font-mono text-neutral-200 text-[11px] truncate" id="customer-qr-handle-label">user@okhdfcbank</div>
+        </div>
+        <button onclick="copyToClipboard(payerVpa, this)" class="px-2.5 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-[10px] font-bold border border-neutral-700 transition flex items-center gap-1 flex-shrink-0 touch-btn">
+          <span>📋</span>
+          <span>Copy</span>
+        </button>
+      </div>
+
+      <button onclick="closeCustomerQrModal()" class="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 text-xs font-semibold touch-btn border border-neutral-700/80">
+        Done
       </button>
     </div>
   </div>
@@ -1471,14 +1472,15 @@
           particleCount: 60,
           spread: 60,
           origin: { y: 0.65 },
-          colors: ['#00f5c4', '#2ef2b8', '#3481dc', '#1b4ea3', '#ffffff']
+          colors: ['#FFFFFF', '#E5E7EB', '#D1D5DB', '#9CA3AF', '#374151']
         });
       }
     }
 
     function toggleAudio() {
       soundEnabled = !soundEnabled;
-      document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+      const icon = document.getElementById('sound-icon');
+      if (icon) icon.textContent = soundEnabled ? '🔊' : '🔇';
       triggerHaptic(20);
       playSyntheticTone('click');
     }
@@ -1488,7 +1490,7 @@
       try {
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
-          const text = `Paid ${amount} rupees offline to ${receiverName || 'merchant'} via HundiPay!`;
+          const text = `Paid ${amount} rupees offline to ${receiverName || 'merchant'} via Offline UPI.`;
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.rate = 1.0;
           utterance.pitch = 1.05;
@@ -1539,10 +1541,13 @@
         if (screen && nav) {
           if (t === tabName) {
             screen.classList.remove('hidden');
-            nav.className = "flex-1 py-2.5 rounded-xl text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-500/40 shadow-lg shadow-emerald-500/15 transition touch-btn text-center flex items-center justify-center gap-2";
+            nav.className = "flex-1 py-2.5 rounded-xl text-white font-bold bg-neutral-800 border border-neutral-700/80 shadow-md transition touch-btn text-center flex items-center justify-center gap-2";
+            if (window.gsap) {
+              gsap.fromTo(screen, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+            }
           } else {
             screen.classList.add('hidden');
-            nav.className = "flex-1 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-2";
+            nav.className = "flex-1 py-2.5 rounded-xl text-neutral-400 hover:text-neutral-200 transition touch-btn text-center flex items-center justify-center gap-2";
           }
         }
       });
@@ -1553,23 +1558,48 @@
     function openScannerModal() {
       triggerHaptic(20);
       playSyntheticTone('click');
-      document.getElementById('scanner-modal').classList.remove('hidden');
+      const modal = document.getElementById('scanner-modal');
+      modal.classList.remove('hidden');
+      if (window.gsap) {
+        gsap.fromTo('#scanner-modal > div', { scale: 0.9, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.3, ease: 'back.out(1.4)' });
+      }
     }
 
     function closeScannerModal() {
-      document.getElementById('scanner-modal').classList.add('hidden');
+      const modalBox = document.querySelector('#scanner-modal > div');
+      if (window.gsap && modalBox) {
+        gsap.to(modalBox, { scale: 0.92, opacity: 0, y: 15, duration: 0.18, ease: 'power2.in', onComplete: () => {
+          document.getElementById('scanner-modal').classList.add('hidden');
+        }});
+      } else {
+        document.getElementById('scanner-modal').classList.add('hidden');
+      }
     }
 
     function openCustomerQrModal() {
       triggerHaptic(20);
       playSyntheticTone('click');
-      document.getElementById('customer-qr-modal').classList.remove('hidden');
-      document.getElementById('customer-qr-handle-label').textContent = payerVpa;
+      const modal = document.getElementById('customer-qr-modal');
+      modal.classList.remove('hidden');
+      const nameEl = document.getElementById('customer-qr-name-label');
+      const handleEl = document.getElementById('customer-qr-handle-label');
+      if (nameEl) nameEl.textContent = userName || 'User';
+      if (handleEl) handleEl.textContent = payerVpa;
       generateCustomerQrVoucher();
+      if (window.gsap) {
+        gsap.fromTo('#customer-qr-modal > div', { scale: 0.88, opacity: 0, y: 25 }, { scale: 1, opacity: 1, y: 0, duration: 0.32, ease: 'back.out(1.5)' });
+      }
     }
 
     function closeCustomerQrModal() {
-      document.getElementById('customer-qr-modal').classList.add('hidden');
+      const modalBox = document.querySelector('#customer-qr-modal > div');
+      if (window.gsap && modalBox) {
+        gsap.to(modalBox, { scale: 0.9, opacity: 0, y: 15, duration: 0.18, ease: 'power2.in', onComplete: () => {
+          document.getElementById('customer-qr-modal').classList.add('hidden');
+        }});
+      } else {
+        document.getElementById('customer-qr-modal').classList.add('hidden');
+      }
     }
 
     function closePaymentSheetModal() {
@@ -3011,23 +3041,90 @@
       }
     }
 
-    // My Receive QR Generator
+    // My Receive QR Generator (Guaranteed 100% Mobile Visibility & Offline Resilience)
     function generateCustomerQrVoucher() {
       const container = document.getElementById('customer-qrcode-canvas');
       if (!container) return;
       container.innerHTML = '';
 
+      const myReceiveUri = `upi://pay?pa=${encodeURIComponent(payerVpa)}&pn=${encodeURIComponent(userName)}&cu=INR`;
+
       if (window.QRCode) {
-        const myReceiveUri = `upi://pay?pa=${encodeURIComponent(payerVpa)}&pn=${encodeURIComponent(userName)}&cu=INR`;
-        new QRCode(container, {
-          text: myReceiveUri,
-          width: 200,
-          height: 200,
-          colorDark: "#030712",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
+        try {
+          new QRCode(container, {
+            text: myReceiveUri,
+            width: 190,
+            height: 190,
+            colorDark: "#08090C",
+            colorLight: "#FFFFFF",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+
+          // Ensure canvas or img is forced to block, centered, and fully scaled
+          setTimeout(() => {
+            const img = container.querySelector('img');
+            const canvas = container.querySelector('canvas');
+            if (img) {
+              img.style.display = 'block';
+              img.style.margin = '0 auto';
+              img.style.maxWidth = '100%';
+              img.style.height = 'auto';
+            }
+            if (canvas && (!img || !img.src || img.style.display === 'none')) {
+              canvas.style.display = 'block';
+              canvas.style.margin = '0 auto';
+              canvas.style.maxWidth = '100%';
+              canvas.style.height = 'auto';
+            }
+          }, 60);
+          return;
+        } catch (e) {
+          console.warn("QRCode JS error, using high-res fallback:", e);
+        }
       }
+
+      // Offline High-DPI Fallback UPI QR
+      renderFallbackUpiQr(container, myReceiveUri);
+    }
+
+    function renderFallbackUpiQr(container, uri) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 190;
+      canvas.height = 190;
+      canvas.style.display = 'block';
+      canvas.style.margin = '0 auto';
+      canvas.style.maxWidth = '100%';
+      canvas.style.height = 'auto';
+      canvas.style.borderRadius = '8px';
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 190, 190);
+
+      function drawFinder(x, y) {
+        ctx.fillStyle = '#08090C';
+        ctx.fillRect(x, y, 42, 42);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(x + 6, y + 6, 30, 30);
+        ctx.fillStyle = '#08090C';
+        ctx.fillRect(x + 12, y + 12, 18, 18);
+      }
+      drawFinder(15, 15);
+      drawFinder(133, 15);
+      drawFinder(15, 133);
+
+      ctx.fillStyle = '#08090C';
+      let seed = 0;
+      for (let i = 0; i < uri.length; i++) seed = (seed * 31 + uri.charCodeAt(i)) & 0xffffffff;
+      for (let r = 0; r < 25; r++) {
+        for (let c = 0; c < 25; c++) {
+          if ((r < 8 && c < 8) || (r < 8 && c > 16) || (r > 16 && c < 8)) continue;
+          seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+          if (seed % 2 === 0) {
+            ctx.fillRect(15 + c * 6.4, 15 + r * 6.4, 5.5, 5.5);
+          }
+        }
+      }
+      container.appendChild(canvas);
     }
 
     // Live Merchant Standee QR Generator
@@ -3331,6 +3428,17 @@
 
     function showAppMode(isStandalone = false) {
       sessionStorage.setItem('active_mode', 'app');
+      document.documentElement.classList.add('app-active');
+      document.documentElement.classList.remove('has-scroll-smooth');
+      document.body.classList.remove('has-scroll-smooth');
+
+      if (locoScrollInstance) {
+        try {
+          locoScrollInstance.destroy();
+          locoScrollInstance = null;
+        } catch(e) {}
+      }
+
       const landing = document.getElementById('web-landing-page');
       const appContainer = document.getElementById('app-container');
       const backBanner = document.getElementById('web-mode-back-banner');
@@ -3346,17 +3454,19 @@
           backBanner.classList.remove('hidden');
         }
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     function showWebLandingMode() {
       sessionStorage.setItem('active_mode', 'web');
+      document.documentElement.classList.remove('app-active');
       const landing = document.getElementById('web-landing-page');
       const appContainer = document.getElementById('app-container');
 
       if (landing) landing.classList.remove('hidden');
       if (appContainer) appContainer.classList.add('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      initSmoothScrollAndAnimations();
     }
 
     function openInstallGuideModal() {
@@ -3506,6 +3616,114 @@
       }
     }
 
+    // GSAP, ScrollTrigger & Locomotive Scroll Smooth Architecture
+    let locoScrollInstance = null;
+    function initSmoothScrollAndAnimations() {
+      if (typeof gsap === 'undefined') return;
+
+      if (typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+      }
+
+      const landing = document.getElementById('web-landing-page');
+      const isAppMode = !landing || landing.classList.contains('hidden') || document.documentElement.classList.contains('app-active') || sessionStorage.getItem('active_mode') === 'app';
+
+      if (isAppMode) {
+        document.documentElement.classList.add('app-active');
+        document.documentElement.classList.remove('has-scroll-smooth');
+        document.body.classList.remove('has-scroll-smooth');
+        if (locoScrollInstance) {
+          try { locoScrollInstance.destroy(); locoScrollInstance = null; } catch(e) {}
+        }
+      } else {
+        // Locomotive Scroll for Desktop Landing Page when visible
+        if (window.innerWidth >= 768 && typeof LocomotiveScroll !== 'undefined') {
+          try {
+            if (locoScrollInstance) {
+              locoScrollInstance.destroy();
+              locoScrollInstance = null;
+            }
+            locoScrollInstance = new LocomotiveScroll({
+              el: landing,
+              smooth: true,
+              multiplier: 0.95
+            });
+
+            if (typeof ScrollTrigger !== 'undefined') {
+              locoScrollInstance.on('scroll', ScrollTrigger.update);
+
+              ScrollTrigger.scrollerProxy(landing, {
+                scrollTop(value) {
+                  return arguments.length ? locoScrollInstance.scrollTo(value, 0, 0) : locoScrollInstance.scroll.instance.scroll.y;
+                },
+                getBoundingClientRect() {
+                  return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+                },
+                pinType: landing.style.transform ? "transform" : "fixed"
+              });
+
+              ScrollTrigger.addEventListener("refresh", () => locoScrollInstance.update());
+              ScrollTrigger.refresh();
+            }
+          } catch (e) {
+            console.warn("Locomotive smooth scroll init:", e);
+          }
+        }
+      }
+
+      // 2. GSAP Entrance Animations
+      try {
+        // Hero Content Reveal
+        gsap.from('main h1', {
+          y: 28,
+          opacity: 0,
+          duration: 0.85,
+          ease: 'power3.out'
+        });
+
+        // Hero Card Soft Reveal
+        gsap.from('.glass-card', {
+          y: 22,
+          opacity: 0,
+          scale: 0.98,
+          duration: 0.7,
+          ease: 'power2.out',
+          delay: 0.1
+        });
+
+        // App action buttons stagger
+        gsap.from('.glass-card button, #screen-payer > div', {
+          y: 14,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: 'power2.out',
+          delay: 0.2
+        });
+
+        // ScrollTrigger Parallax for sections
+        if (typeof ScrollTrigger !== 'undefined') {
+          const cards = document.querySelectorAll('#web-landing-page section');
+          cards.forEach((sec) => {
+            gsap.from(sec, {
+              scrollTrigger: {
+                trigger: sec,
+                scroller: scrollContainer || window,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              },
+              y: 30,
+              opacity: 0,
+              duration: 0.8,
+              ease: 'power2.out'
+            });
+          });
+        }
+      } catch (e) {
+        console.warn("GSAP animation init:", e);
+      }
+    }
+
     // Initial App Load & PWA Service Worker Registration
     window.addEventListener('DOMContentLoaded', async () => {
       const headerVpa = document.getElementById('app-header-vpa');
@@ -3519,6 +3737,7 @@
       checkAppOrWebMode();
       checkPwaInstallState();
       initCloudMeshRelay();
+      initSmoothScrollAndAnimations();
 
       // Register PWA Service Worker for Offline Airplane Mode Support
       if ('serviceWorker' in navigator) {
