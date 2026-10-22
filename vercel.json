@@ -2,16 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": {
-        "type": "service",
-        "service": "offline-upi"
-      }
+      "destination": "/api/index"
     }
-  ],
-  "services": {
-    "offline-upi": {
-      "root": ".",
-      "entrypoint": "app.py"
-    }
-  }
+  ]
 }

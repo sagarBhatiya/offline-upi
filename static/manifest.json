@@ -1,13 +1,13 @@
 {
-  "name": "HundiPay — Offline Digital Payments",
-  "short_name": "HundiPay",
-  "description": "100% Offline Peer-to-Peer Wallet-to-Wallet Digital Payments with Zero Internet",
+  "name": "Offline UPI — Digital Payments",
+  "short_name": "Offline UPI",
+  "description": "Zero-Internet Peer-to-Peer Wallet-to-Wallet Digital Payments",
   "start_url": "/?mode=app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#050c1e",
-  "theme_color": "#050c1e",
+  "background_color": "#08090C",
+  "theme_color": "#08090C",
   "categories": ["finance", "utilities"],
   "icons": [
     {

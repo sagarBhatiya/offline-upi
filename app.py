@@ -2,7 +2,7 @@ import time
 import os
 import json
 import random
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
 from database import (
     init_db, get_accounts, get_transactions, claim_packet_hash, 
     execute_settlement, reset_db, record_deposit, record_withdrawal, 
@@ -27,19 +27,27 @@ init_db()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    response = make_response(render_template('index.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/sw.js')
 def service_worker():
     response = send_from_directory('static', 'sw.js')
     response.headers['Content-Type'] = 'application/javascript'
     response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 @app.route('/manifest.json')
 def manifest():
     response = send_from_directory('static', 'manifest.json')
     response.headers['Content-Type'] = 'application/manifest+json'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     return response
 
 @app.route('/api/state', methods=['GET'])

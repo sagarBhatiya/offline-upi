@@ -1,5 +1,5 @@
-// HundiPay Service Worker — 100% Offline PWA Engine
-const CACHE_NAME = 'hundipay-offline-v2';
+// Offline UPI Service Worker — 100% Offline PWA Engine
+const CACHE_NAME = 'offline-upi-v6';
 
 const STATIC_PRECACHE = [
   '/',
@@ -7,18 +7,21 @@ const STATIC_PRECACHE = [
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
   'https://cdn.tailwindcss.com',
+  'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js',
+  'https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js',
+  'https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
   'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'
 ];
 
-// 1. Install Event: Cache Core App Shell
+// 1. Install Event: Cache Core App Shell & Skip Waiting Immediately
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Pre-caching offline app shell');
-      // Cache files individually with catch so failures on external CDNs don't abort entire install
+      console.log('[SW] Pre-caching offline-upi-v6 app shell');
       return Promise.allSettled(
         STATIC_PRECACHE.map((url) =>
           cache.add(url).catch((err) => console.warn(`[SW] Precache failed for ${url}:`, err))
@@ -28,14 +31,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 2. Activate Event: Claim Clients & Purge Stale Caches
+// 2. Activate Event: Claim All Clients Immediately & Purge Old Stale Caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[SW] Deleting stale cache:', key);
+            console.log('[SW] Purging old cache version:', key);
             return caches.delete(key);
           }
         })
@@ -44,22 +47,20 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Fetch Event: Cache-First for Assets, Network-First for App Shell, Offline Fallbacks for API
+// 3. Fetch Event: Network-First for HTML/Navigations, Cache-First for Assets
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Handle API calls when completely offline
+  // Handle API calls when offline
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(req).catch(() => {
-        console.warn(`[SW] Network offline, providing fallback for ${url.pathname}`);
         if (req.method === 'GET' && url.pathname === '/api/state') {
-          // Return simulated offline state from cache or empty fallback
           return new Response(
             JSON.stringify({
               offline: true,
-              message: "Device in 100% Offline Mode (Local Cache Active)",
+              message: "Device in Offline Mode (Local Cache Active)",
               accounts: [],
               transactions: [],
               mesh: { devices: {} }
@@ -80,7 +81,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle Navigation (HTML Page) Requests: Stale-While-Revalidate with Cache Fallback
+  // Handle Navigation (HTML Page) Requests: Network-First to guarantee fresh changes, with Cache Fallback
   if (req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
       fetch(req)
@@ -113,7 +114,6 @@ self.addEventListener('fetch', (event) => {
           return networkRes;
         })
         .catch(() => {
-          console.warn(`[SW] Asset fetch failed while offline: ${req.url}`);
           return new Response('', { status: 408 });
         });
     })
