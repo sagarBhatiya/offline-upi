@@ -1,13 +1,17 @@
 {
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "templates/**,static/**,upi.db"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index"
+      "destination": {
+        "type": "service",
+        "service": "offline-upi"
+      }
     }
-  ]
+  ],
+  "services": {
+    "offline-upi": {
+      "root": ".",
+      "entrypoint": "app.py"
+    }
+  }
 }
