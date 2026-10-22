@@ -20,7 +20,12 @@ from ble_protocol import BleSecureSessionChannel
 
 reconciliation_engine = OfflineReconciliationEngine(db_module=database)
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
 
 # Initialize database on startup
 init_db()
@@ -35,7 +40,7 @@ def index():
 
 @app.route('/sw.js')
 def service_worker():
-    response = send_from_directory('static', 'sw.js')
+    response = send_from_directory(os.path.join(BASE_DIR, 'static'), 'sw.js')
     response.headers['Content-Type'] = 'application/javascript'
     response.headers['Service-Worker-Allowed'] = '/'
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
@@ -45,7 +50,7 @@ def service_worker():
 
 @app.route('/manifest.json')
 def manifest():
-    response = send_from_directory('static', 'manifest.json')
+    response = send_from_directory(os.path.join(BASE_DIR, 'static'), 'manifest.json')
     response.headers['Content-Type'] = 'application/manifest+json'
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     return response
