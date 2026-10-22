@@ -484,5 +484,69 @@ class OfflineUPITestCase(unittest.TestCase):
         )
         self.assertEqual(resp_invalid.status_code, 401)
 
+    def test_16_cashfree_free_sandbox_flow(self):
+        """Verifies Cashfree Free Sandbox order creation and payment confirmation."""
+        # 1. Create Cashfree Sandbox Order
+        order_resp = self.client.post('/api/cashfree/order', json={
+            "vpa": "sagar@okhdfcbank",
+            "amount": 750.0,
+            "name": "Sagar Bhatiya"
+        })
+        self.assertEqual(order_resp.status_code, 200)
+        order_data = order_resp.get_json()
+        self.assertTrue(order_data["success"])
+        self.assertIn("CF_ORD", order_data["orderId"])
+
+        # 2. Confirm Sandbox Test Payment
+        conf_resp = self.client.post('/api/cashfree/confirm', json={
+            "vpa": "sagar@okhdfcbank",
+            "amount": 750.0,
+            "orderId": order_data["orderId"],
+            "cfPaymentId": order_data.get("cfPaymentId")
+        })
+        self.assertEqual(conf_resp.status_code, 200)
+        conf_data = conf_resp.get_json()
+        self.assertTrue(conf_data["success"])
+        self.assertEqual(conf_data["depositedAmount"], 750.0)
+        self.assertEqual(conf_data["mode"], "CASHFREE_SANDBOX_TEST")
+
+    def test_17_wifi_hotspot_offline_p2p_transfer(self):
+        """Verifies Mini Militia-style local Wi-Fi Hotspot offline transfer and radar event polling."""
+        # Pre-deposit funds to payer
+        self.client.post('/api/wallet/deposit/confirm', json={
+            "vpa": "payer_hotspot@upi",
+            "amount": 1000.0,
+            "utr": "409999888777"
+        })
+
+        # 1. Query Hotspot Info
+        info_resp = self.client.get('/api/hotspot/info')
+        self.assertEqual(info_resp.status_code, 200)
+        info_data = info_resp.get_json()
+        self.assertTrue(info_data["success"])
+        self.assertTrue(info_data["miniMilitiaMode"])
+
+        # 2. Execute Hotspot P2P Transfer (Zero internet)
+        transfer_resp = self.client.post('/api/hotspot/transfer', json={
+            "senderVpa": "payer_hotspot@upi",
+            "receiverVpa": "merchant_hotspot@upi",
+            "amount": 250.0,
+            "pin": "1234"
+        })
+        self.assertEqual(transfer_resp.status_code, 200)
+        transfer_data = transfer_resp.get_json()
+        self.assertTrue(transfer_data["success"])
+        self.assertEqual(transfer_data["amount"], 250.0)
+        self.assertEqual(transfer_data["senderBalance"], 750.0)
+
+        # 3. Poll Merchant Hotspot Radar for incoming event
+        recent_resp = self.client.get('/api/hotspot/recent?vpa=merchant_hotspot@upi')
+        self.assertEqual(recent_resp.status_code, 200)
+        recent_data = recent_resp.get_json()
+        self.assertTrue(recent_data["success"])
+        self.assertGreaterEqual(len(recent_data["events"]), 1)
+        self.assertEqual(recent_data["events"][-1]["sender"], "payer_hotspot@upi")
+        self.assertEqual(recent_data["events"][-1]["amount"], 250.0)
+
 if __name__ == '__main__':
     unittest.main()

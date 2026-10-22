@@ -793,24 +793,30 @@
             </div>
           </div>
 
-          <!-- Quick Actions Dock inside Hero Card: Add Money, Withdraw, My QR -->
-          <div class="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-neutral-800/80">
+          <!-- Quick Actions Dock inside Hero Card: Add Money, Hotspot Pay, Withdraw, My QR -->
+          <div class="grid grid-cols-4 gap-1.5 mt-4 pt-3.5 border-t border-neutral-800/80">
             <!-- ➕ Add Money Button -->
-            <button onclick="openDepositModal()" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
+            <button onclick="openDepositModal()" class="py-2.5 px-1 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-[11px] font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
               <span class="text-base">➕</span>
-              <span class="text-[11px]">Add Money</span>
+              <span class="text-[10px]">Add Money</span>
+            </button>
+
+            <!-- 📶 Hotspot Pay Button (Mini Militia Mode) -->
+            <button onclick="openHotspotModal('sender')" class="py-2.5 px-1 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-[11px] font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm" title="Wi-Fi Hotspot Transfer">
+              <span class="text-base">📶</span>
+              <span class="text-[10px]">Hotspot Pay</span>
             </button>
 
             <!-- 🏦 Withdraw to Bank Button -->
-            <button onclick="openWithdrawModal('payer')" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
+            <button onclick="openWithdrawModal('payer')" class="py-2.5 px-1 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-[11px] font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm">
               <span class="text-base">🏦</span>
-              <span class="text-[11px]">Withdraw</span>
+              <span class="text-[10px]">Withdraw</span>
             </button>
 
             <!-- 📲 My QR Button -->
-            <button onclick="openCustomerQrModal()" class="py-2.5 px-2 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-xs font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm" title="Show My QR Code">
+            <button onclick="openCustomerQrModal()" class="py-2.5 px-1 rounded-2xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 border border-neutral-700/80 text-[11px] font-bold flex flex-col items-center justify-center gap-1 transition touch-btn shadow-sm" title="Show My QR Code">
               <span class="text-base">📲</span>
-              <span class="text-[11px]">My QR</span>
+              <span class="text-[10px]">My QR</span>
             </button>
           </div>
         </div>
@@ -1093,14 +1099,16 @@
         <button onclick="closeDepositModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
 
-      <!-- Deposit Mode Switcher (2 Tabs) -->
-      <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1 text-[11px] font-bold">
-        <button id="deposit-tab-instant" onclick="switchDepositTab('instant')" class="flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm">
-          <span>⚡ 1-Tap Load</span>
-          <span class="text-[8px] bg-emerald-500 text-slate-950 px-1 py-0.2 rounded font-mono font-extrabold">FAST</span>
+      <!-- Deposit Mode Switcher (3 Tabs) -->
+      <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1 text-[10px] font-bold">
+        <button id="deposit-tab-cashfree" onclick="switchDepositTab('cashfree')" class="flex-1 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition touch-btn text-center flex items-center justify-center gap-1 shadow-sm">
+          <span>💳 Cashfree Free Test</span>
         </button>
-        <button id="deposit-tab-real" onclick="switchDepositTab('real')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5">
-          <span>📲 Pay via Real UPI</span>
+        <button id="deposit-tab-instant" onclick="switchDepositTab('instant')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1">
+          <span>⚡ Instant Load</span>
+        </button>
+        <button id="deposit-tab-real" onclick="switchDepositTab('real')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1">
+          <span>📲 Real UPI</span>
         </button>
       </div>
 
@@ -1117,6 +1125,60 @@
           <button type="button" onclick="setDepositAmount(200)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹200</button>
           <button type="button" onclick="setDepositAmount(500)" class="py-1 px-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold touch-btn transition">₹500</button>
           <button type="button" onclick="setDepositAmount(2000)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹2,000</button>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 0: CASHFREE FREE SANDBOX TEST ================= -->
+      <div id="deposit-panel-cashfree" class="space-y-3">
+        <div class="p-3 bg-cyan-950/30 border border-cyan-500/30 rounded-2xl space-y-1.5">
+          <div class="flex items-center justify-between text-cyan-400 text-[10px] font-bold uppercase tracking-wider">
+            <span class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              Cashfree Developer Sandbox
+            </span>
+            <span class="text-[8px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono border border-cyan-500/30">100% FREE</span>
+          </div>
+          <p class="text-[9px] text-slate-300 leading-relaxed">
+            Test adding money to your wallet without real payments. Generates real Cashfree order sessions and validates test settlement with simulated or live Cashfree API keys.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 pt-0.5 flex justify-between">
+            <span>Target Account:</span>
+            <b class="text-cyan-400 font-bold" id="cashfree-target-vpa-label">user@okhdfcbank</b>
+          </div>
+        </div>
+
+        <!-- 1-Click Cashfree Test Payment Button -->
+        <button id="btn-cashfree-deposit" onclick="executeCashfreeDeposit()" class="w-full py-4 px-4 bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 hover:from-cyan-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm rounded-2xl shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 transition touch-btn active:scale-95">
+          <span id="cashfree-deposit-spinner" class="hidden animate-spin">⏳</span>
+          <span>⚡ Add ₹<span id="btn-cashfree-amount-label">500</span> via Cashfree Sandbox</span>
+        </button>
+
+        <!-- Collapsible: Cashfree Developer API Keys -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-950 p-2.5 space-y-2">
+          <button type="button" onclick="toggleCashfreeKeyInputs()" class="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 hover:text-white transition">
+            <span class="flex items-center gap-1.5">
+              <span>⚙</span>
+              <span>Cashfree API Keys (Optional)</span>
+            </span>
+            <span id="cashfree-chevron" class="text-xs">▼</span>
+          </button>
+          
+          <div id="cashfree-keys-container" class="space-y-2 pt-1 hidden">
+            <div>
+              <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Cashfree App ID</label>
+              <input type="text" id="cf-app-id-input" placeholder="e.g. CF123456..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-slate-600" />
+            </div>
+            <div>
+              <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Cashfree Secret Key</label>
+              <input type="password" id="cf-secret-input" placeholder="e.g. cfsk_ma_test_..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-slate-600" />
+            </div>
+            <div class="flex gap-2 pt-1">
+              <button type="button" onclick="saveAndTestCashfreeKeys()" class="flex-1 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/40 text-cyan-300 text-[10px] font-bold transition">
+                <span>Save & Test Keys</span>
+              </button>
+            </div>
+            <div id="cf-key-test-status" class="text-[9px] font-mono text-slate-400 text-center"></div>
+          </div>
         </div>
       </div>
 
@@ -1334,6 +1396,154 @@
       <button onclick="closeCustomerQrModal()" class="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-750 text-neutral-100 text-xs font-semibold touch-btn border border-neutral-700/80">
         Done
       </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: 📶 MINI MILITIA WI-FI HOTSPOT OFFLINE P2P TRANSFER -->
+  <!-- ======================================================== -->
+  <div id="hotspot-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar text-neutral-100">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center pb-2 border-b border-neutral-800">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center text-lg">
+            📶
+          </div>
+          <div>
+            <h3 class="font-extrabold text-white text-xs">Wi-Fi Hotspot Transfer</h3>
+            <p class="text-[9px] text-neutral-400">Mini Militia-style offline P2P (0% Internet)</p>
+          </div>
+        </div>
+        <button onclick="closeHotspotModal()" class="text-neutral-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <!-- Segmented Mode Switcher: Sender vs Merchant -->
+      <div class="flex bg-neutral-950 p-1 rounded-2xl border border-neutral-800 gap-1 text-[11px] font-bold">
+        <button id="hotspot-tab-sender" onclick="switchHotspotTab('sender')" class="flex-1 py-2 rounded-xl bg-neutral-800 text-white border border-neutral-700 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm">
+          <span>📱 Sender (Pay)</span>
+        </button>
+        <button id="hotspot-tab-merchant" onclick="switchHotspotTab('merchant')" class="flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1.5">
+          <span>🏪 Merchant (Host)</span>
+        </button>
+      </div>
+
+      <!-- ================= SENDER PANEL (CLIENT CONNECTED TO HOTSPOT) ================= -->
+      <div id="hotspot-sender-panel" class="space-y-3">
+        <!-- Hotspot Connection Guidance -->
+        <div class="p-3 bg-neutral-950/80 border border-neutral-800 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between text-[10px] font-bold">
+            <span class="text-neutral-300 flex items-center gap-1.5">
+              <span id="hotspot-ping-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Hotspot Network Status
+            </span>
+            <span id="hotspot-ping-badge" class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              LAN READY
+            </span>
+          </div>
+          <p class="text-[9px] text-neutral-400 leading-tight">
+            Connect your phone's Wi-Fi to the Merchant's Hotspot. Zero mobile data is used.
+          </p>
+          <div class="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-1 border-t border-neutral-850">
+            <span>Gateway Host:</span>
+            <span id="hotspot-detected-gateway" class="text-neutral-200 font-bold">192.168.43.1 (Auto)</span>
+          </div>
+        </div>
+
+        <!-- Receiver UPI ID & Amount -->
+        <div class="space-y-2">
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Merchant UPI ID</label>
+            <input type="text" id="hotspot-receiver-vpa" value="merchant@upi" placeholder="merchant@upi" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-neutral-500" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Amount to Pay (₹)</label>
+            <div class="flex items-center justify-center gap-1 bg-neutral-950 border border-neutral-800 rounded-xl p-2">
+              <span class="text-xl text-neutral-400 font-bold">₹</span>
+              <input type="number" id="hotspot-amount-input" value="150" min="1" max="10000" class="w-28 bg-transparent text-center text-2xl font-extrabold text-white focus:outline-none" />
+            </div>
+            <!-- Preset Quick Pills -->
+            <div class="grid grid-cols-4 gap-1.5 pt-1.5">
+              <button type="button" onclick="setHotspotAmount(50)" class="py-1 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-[10px] font-mono font-bold touch-btn">₹50</button>
+              <button type="button" onclick="setHotspotAmount(100)" class="py-1 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-[10px] font-mono font-bold touch-btn">₹100</button>
+              <button type="button" onclick="setHotspotAmount(150)" class="py-1 rounded-lg bg-neutral-700 text-white text-[10px] font-mono font-bold touch-btn">₹150</button>
+              <button type="button" onclick="setHotspotAmount(500)" class="py-1 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-[10px] font-mono font-bold touch-btn">₹500</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">4-Digit UPI PIN</label>
+            <input type="password" id="hotspot-pin-input" maxlength="6" value="1234" placeholder="••••" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-center text-base tracking-[0.4em] font-mono text-white focus:outline-none focus:border-neutral-500" />
+          </div>
+        </div>
+
+        <!-- Pay Button -->
+        <button id="btn-hotspot-transfer" onclick="executeHotspotPayment()" class="w-full py-3.5 px-4 bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-200 text-neutral-950 font-extrabold text-xs rounded-xl shadow-xl flex items-center justify-center gap-2 transition touch-btn active:scale-95">
+          <span id="hotspot-spinner" class="hidden animate-spin">⏳</span>
+          <span>⚡ Send Money over Wi-Fi Hotspot</span>
+        </button>
+        <p class="text-[9px] text-neutral-500 text-center">Transfers directly through local radio waves in &lt;100ms.</p>
+      </div>
+
+      <!-- ================= MERCHANT PANEL (HOSTING HOTSPOT) ================= -->
+      <div id="hotspot-merchant-panel" class="space-y-3 hidden">
+        <div class="p-3 bg-neutral-950/80 border border-neutral-800 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between text-[10px] font-bold">
+            <span class="text-neutral-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Step 1: Turn on Mobile Hotspot
+            </span>
+            <span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              HOST
+            </span>
+          </div>
+          <p class="text-[9px] text-neutral-400 leading-tight">
+            Enable Portable Hotspot on your phone. Customers connect their Wi-Fi to your hotspot to pay.
+          </p>
+          <div class="text-[10px] font-mono text-neutral-300 pt-1 border-t border-neutral-850 flex justify-between">
+            <span>Your UPI ID:</span>
+            <b class="text-white font-bold" id="hotspot-merchant-handle-label">merchant@upi</b>
+          </div>
+        </div>
+
+        <!-- 1-Tap Wi-Fi QR Code for Quick Join -->
+        <div class="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 text-center space-y-2">
+          <div class="text-[10px] font-bold text-neutral-300">
+            📲 Scan to Connect to Hotspot (1-Tap Join)
+          </div>
+          <div class="p-3 bg-white rounded-2xl inline-block shadow-lg mx-auto border border-neutral-300">
+            <div id="hotspot-wifi-qr-canvas" class="w-[150px] h-[150px] flex items-center justify-center"></div>
+          </div>
+          <div class="text-[9px] text-neutral-400">
+            Customers point camera here to auto-join Wi-Fi
+          </div>
+        </div>
+
+        <!-- Live Radar Listener Animation -->
+        <div class="p-3 rounded-2xl bg-neutral-950 border border-neutral-800 text-center space-y-2">
+          <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20 animate-ping"></span>
+            <div class="w-10 h-10 rounded-full bg-neutral-800 border border-emerald-500/50 flex items-center justify-center text-emerald-400 text-lg">
+              📡
+            </div>
+          </div>
+          <div class="text-xs font-bold text-white">Live Hotspot Radar Active</div>
+          <p class="text-[9px] text-neutral-400" id="hotspot-radar-status">
+            Listening for incoming P2P packets on local Wi-Fi...
+          </p>
+        </div>
+
+        <!-- Recent Payments Feed -->
+        <div id="hotspot-recent-feed" class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar text-[10px] font-mono">
+          <div class="text-[9px] uppercase font-bold text-neutral-500 text-left">Recent Hotspot Payments</div>
+          <div class="p-2 rounded-xl bg-neutral-950 border border-neutral-850 text-neutral-400 text-center text-[10px]" id="hotspot-empty-feed">
+            No payments received yet. Waiting for sender...
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1683,25 +1893,35 @@
       openProfileModal();
     }
 
-    let currentDepositTab = 'instant';
+    let currentDepositTab = 'cashfree';
 
     function switchDepositTab(tab) {
       currentDepositTab = tab;
       triggerHaptic(15);
+      const tabCashfree = document.getElementById('deposit-tab-cashfree');
       const tabInstant = document.getElementById('deposit-tab-instant');
       const tabReal = document.getElementById('deposit-tab-real');
+
+      const panelCashfree = document.getElementById('deposit-panel-cashfree');
       const panelInstant = document.getElementById('deposit-panel-instant');
       const panelReal = document.getElementById('deposit-panel-real');
 
-      if (tab === 'instant') {
+      if (panelCashfree) panelCashfree.classList.add('hidden');
+      if (panelInstant) panelInstant.classList.add('hidden');
+      if (panelReal) panelReal.classList.add('hidden');
+
+      if (tabCashfree) tabCashfree.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
+      if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
+      if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
+
+      if (tab === 'cashfree') {
+        if (panelCashfree) panelCashfree.classList.remove('hidden');
+        if (tabCashfree) tabCashfree.className = "flex-1 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition touch-btn text-center flex items-center justify-center gap-1 shadow-sm";
+      } else if (tab === 'instant') {
         if (panelInstant) panelInstant.classList.remove('hidden');
-        if (panelReal) panelReal.classList.add('hidden');
         if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
-        if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5";
       } else {
-        if (panelInstant) panelInstant.classList.add('hidden');
         if (panelReal) panelReal.classList.remove('hidden');
-        if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1.5";
         if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
         updateDepositIntent();
       }
@@ -1734,15 +1954,21 @@
       const targetLbl = document.getElementById('instant-target-vpa-label');
       if (targetLbl) targetLbl.textContent = payerVpa;
 
+      const cfTargetLbl = document.getElementById('cashfree-target-vpa-label');
+      if (cfTargetLbl) cfTargetLbl.textContent = payerVpa;
+
       const amtInput = document.getElementById('deposit-amount-input');
       const amt = parseFloat(amtInput?.value) || 500;
+      
+      const cfLbl = document.getElementById('btn-cashfree-amount-label');
+      if (cfLbl) cfLbl.textContent = amt.toString();
       const lbl = document.getElementById('btn-instant-amount-label');
       if (lbl) lbl.textContent = amt.toString();
       const realLbl = document.getElementById('btn-real-amount-label');
       if (realLbl) realLbl.textContent = amt.toString();
 
       document.getElementById('deposit-modal').classList.remove('hidden');
-      switchDepositTab(currentDepositTab || 'instant');
+      switchDepositTab(currentDepositTab || 'cashfree');
     }
 
     function closeDepositModal() {
@@ -1751,6 +1977,8 @@
 
     function onDepositInputChanged() {
       const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
+      const cfLbl = document.getElementById('btn-cashfree-amount-label');
+      if (cfLbl) cfLbl.textContent = amount.toString();
       const lbl = document.getElementById('btn-instant-amount-label');
       if (lbl) lbl.textContent = amount.toString();
       const realLbl = document.getElementById('btn-real-amount-label');
@@ -1765,6 +1993,8 @@
         if (headerEl) headerEl.textContent = payerVpa;
         const targetLbl = document.getElementById('instant-target-vpa-label');
         if (targetLbl) targetLbl.textContent = payerVpa;
+        const cfTargetLbl = document.getElementById('cashfree-target-vpa-label');
+        if (cfTargetLbl) cfTargetLbl.textContent = payerVpa;
       }
 
       clearTimeout(depositDebounceTimer);
@@ -1825,6 +2055,368 @@
         }
       } catch (err) {
         console.error("Error creating deposit intent:", err);
+    async function executeCashfreeDeposit() {
+      const spinner = document.getElementById('cashfree-deposit-spinner');
+      const btn = document.getElementById('btn-cashfree-deposit');
+      const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
+
+      let typedUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
+      if (typedUpi && typedUpi.includes('@')) {
+        payerVpa = typedUpi;
+        localStorage.setItem('cfg_payer_vpa', payerVpa);
+        const headerEl = document.getElementById('app-header-vpa');
+        if (headerEl) headerEl.textContent = payerVpa;
+      }
+
+      if (amount <= 0) {
+        alert("Please enter a valid amount greater than ₹0");
+        return;
+      }
+
+      btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      try {
+        // Step 1: Create Cashfree Order
+        const orderResp = await fetch('/api/cashfree/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vpa: payerVpa,
+            amount: amount,
+            name: userName || 'UPI User'
+          })
+        });
+        const orderData = await orderResp.json();
+
+        // Step 2: Confirm Sandbox Test Payment
+        const confResp = await fetch('/api/cashfree/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vpa: payerVpa,
+            amount: amount,
+            orderId: orderData.orderId,
+            cfPaymentId: orderData.cfPaymentId
+          })
+        });
+        const confData = await confResp.json();
+
+        if (confData.success) {
+          closeDepositModal();
+          triggerHaptic(50);
+          playSyntheticTone('success');
+          triggerCelebrationConfetti();
+
+          const depTx = {
+            id: Date.now() % 1000000,
+            sender_vpa: 'Cashfree Sandbox PG',
+            receiver_vpa: payerVpa,
+            amount: amount,
+            auth_mode: "CASHFREE_SANDBOX_TEST",
+            status: "DEPOSIT_SUCCESS",
+            bank_utr: confData.bankUtr,
+            settled_at: new Date().toISOString()
+          };
+          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          localTxns.unshift(depTx);
+          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
+
+          alert(`🎉 Cashfree Sandbox Credit!\n\n₹${amount.toFixed(2)} loaded into wallet (${payerVpa}).\nOrder ID: ${confData.orderId}\nBank UTR: ${confData.bankUtr}\nNew Balance: ₹${confData.newBalance.toFixed(2)}`);
+          await refreshState();
+        } else {
+          alert(`Cashfree payment failed: ${confData.error}`);
+        }
+      } catch (e) {
+        console.error("Cashfree deposit error:", e);
+        alert("Cashfree deposit error: " + e.message);
+      } finally {
+        btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    function toggleCashfreeKeyInputs() {
+      const c = document.getElementById('cashfree-keys-container');
+      const chev = document.getElementById('cashfree-chevron');
+      if (c) {
+        const isHidden = c.classList.contains('hidden');
+        if (isHidden) {
+          c.classList.remove('hidden');
+          if (chev) chev.textContent = '▲';
+        } else {
+          c.classList.add('hidden');
+          if (chev) chev.textContent = '▼';
+        }
+      }
+    }
+
+    async function saveAndTestCashfreeKeys() {
+      const appId = document.getElementById('cf-app-id-input')?.value.trim();
+      const secret = document.getElementById('cf-secret-input')?.value.trim();
+      const statusEl = document.getElementById('cf-key-test-status');
+
+      if (!appId || !secret) {
+        if (statusEl) statusEl.innerHTML = `<span class="text-amber-400">Please enter both App ID and Secret Key</span>`;
+        return;
+      }
+
+      if (statusEl) statusEl.innerHTML = `<span class="text-cyan-400">Testing Cashfree Sandbox connection...</span>`;
+
+      try {
+        const resp = await fetch('/api/config/gateway/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cashfreeAppId: appId,
+            cashfreeSecretKey: secret,
+            isSandbox: true
+          })
+        });
+        const data = await resp.json();
+        if (data.connected) {
+          if (statusEl) statusEl.innerHTML = `<span class="text-emerald-400">✔ ${data.message}</span>`;
+        } else {
+          if (statusEl) statusEl.innerHTML = `<span class="text-rose-400">✖ ${data.message}</span>`;
+        }
+      } catch (e) {
+        if (statusEl) statusEl.innerHTML = `<span class="text-rose-400">Error: ${e.message}</span>`;
+      }
+    }
+
+    // ========================================================
+    // MINI MILITIA WI-FI HOTSPOT OFFLINE P2P ENGINE
+    // ========================================================
+    let hotspotPollingInterval = null;
+    let hotspotCurrentMode = 'sender';
+
+    function openHotspotModal(mode = 'sender') {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      hotspotCurrentMode = mode;
+      
+      const modal = document.getElementById('hotspot-modal');
+      if (modal) modal.classList.remove('hidden');
+      
+      switchHotspotTab(mode);
+      
+      const amtInput = document.getElementById('hotspot-amount-input');
+      if (amtInput && !amtInput.value) amtInput.value = "150";
+
+      const merchantHandleLbl = document.getElementById('hotspot-merchant-handle-label');
+      if (merchantHandleLbl) merchantHandleLbl.textContent = payerVpa || 'merchant@upi';
+      
+      checkHotspotNetworkStatus();
+      
+      if (mode === 'merchant') {
+        renderHotspotWifiQr();
+        startHotspotPolling();
+      }
+    }
+
+    function closeHotspotModal() {
+      const modal = document.getElementById('hotspot-modal');
+      if (modal) modal.classList.add('hidden');
+      stopHotspotPolling();
+    }
+
+    function switchHotspotTab(mode) {
+      hotspotCurrentMode = mode;
+      triggerHaptic(15);
+      const tabSender = document.getElementById('hotspot-tab-sender');
+      const tabMerchant = document.getElementById('hotspot-tab-merchant');
+      const panelSender = document.getElementById('hotspot-sender-panel');
+      const panelMerchant = document.getElementById('hotspot-merchant-panel');
+
+      if (mode === 'sender') {
+        if (panelSender) panelSender.classList.remove('hidden');
+        if (panelMerchant) panelMerchant.classList.add('hidden');
+        if (tabSender) tabSender.className = "flex-1 py-2 rounded-xl bg-neutral-800 text-white border border-neutral-700 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
+        if (tabMerchant) tabMerchant.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1.5";
+        stopHotspotPolling();
+      } else {
+        if (panelSender) panelSender.classList.add('hidden');
+        if (panelMerchant) panelMerchant.classList.remove('hidden');
+        if (tabSender) tabSender.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1.5";
+        if (tabMerchant) tabMerchant.className = "flex-1 py-2 rounded-xl bg-neutral-800 text-white border border-neutral-700 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
+        renderHotspotWifiQr();
+        startHotspotPolling();
+      }
+    }
+
+    function setHotspotAmount(amt) {
+      triggerHaptic(15);
+      const input = document.getElementById('hotspot-amount-input');
+      if (input) input.value = amt;
+    }
+
+    async function checkHotspotNetworkStatus() {
+      const badge = document.getElementById('hotspot-ping-badge');
+      const gwLabel = document.getElementById('hotspot-detected-gateway');
+      try {
+        const resp = await fetch('/api/hotspot/info');
+        const data = await resp.json();
+        if (data.success) {
+          if (badge) {
+            badge.textContent = "CONNECTED (LAN)";
+            badge.className = "px-1.5 py-0.5 rounded font-mono text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+          }
+          if (gwLabel) {
+            const ip = data.detectedIps && data.detectedIps.length > 0 ? data.detectedIps[0] : '192.168.43.1';
+            gwLabel.textContent = `${ip}:${data.defaultPort || 5000}`;
+          }
+        }
+      } catch (e) {
+        if (badge) {
+          badge.textContent = "OFFLINE LAN READY";
+          badge.className = "px-1.5 py-0.5 rounded font-mono text-[9px] bg-neutral-800 text-neutral-300 border border-neutral-700";
+        }
+      }
+    }
+
+    function renderHotspotWifiQr() {
+      const container = document.getElementById('hotspot-wifi-qr-canvas');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const ssid = "OfflineUPI-Hotspot";
+      const pass = "offline123";
+      const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};;`;
+
+      try {
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(container, {
+            text: wifiString,
+            width: 140,
+            height: 140,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          return;
+        }
+      } catch (e) {
+        console.warn("QRCode lib error for wifi QR:", e);
+      }
+
+      container.innerHTML = `
+        <div class="p-2 text-center text-neutral-900 font-mono text-[10px]">
+          <div class="text-xl font-bold">📶</div>
+          <div class="font-bold">SSID: ${ssid}</div>
+          <div>Password: ${pass}</div>
+        </div>
+      `;
+    }
+
+    function startHotspotPolling() {
+      stopHotspotPolling();
+      hotspotPollingInterval = setInterval(async () => {
+        try {
+          const resp = await fetch(`/api/hotspot/recent?vpa=${encodeURIComponent(payerVpa)}&since=${Date.now() - 10000}`);
+          const data = await resp.json();
+          if (data.success && data.events && data.events.length > 0) {
+            const latest = data.events[data.events.length - 1];
+            onHotspotPaymentReceived(latest);
+          }
+        } catch (e) {
+          // Offline polling silent
+        }
+      }, 2000);
+    }
+
+    function stopHotspotPolling() {
+      if (hotspotPollingInterval) {
+        clearInterval(hotspotPollingInterval);
+        hotspotPollingInterval = null;
+      }
+    }
+
+    function onHotspotPaymentReceived(ev) {
+      triggerHaptic(80);
+      playSyntheticTone('success');
+      triggerCelebrationConfetti();
+      
+      const feed = document.getElementById('hotspot-recent-feed');
+      const emptyFeed = document.getElementById('hotspot-empty-feed');
+      if (emptyFeed) emptyFeed.remove();
+
+      if (feed) {
+        const item = document.createElement('div');
+        item.className = "p-2 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 flex justify-between items-center";
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white text-[11px]">+₹${ev.amount.toFixed(2)}</div>
+            <div class="text-[9px] text-neutral-400">From: ${ev.sender}</div>
+          </div>
+          <span class="text-[9px] bg-emerald-500 text-neutral-950 font-bold px-1.5 py-0.5 rounded">RECEIVED</span>
+        `;
+        feed.prepend(item);
+      }
+
+      refreshState();
+    }
+
+    async function executeHotspotPayment() {
+      const spinner = document.getElementById('hotspot-spinner');
+      const btn = document.getElementById('btn-hotspot-transfer');
+      const receiverVpa = (document.getElementById('hotspot-receiver-vpa')?.value || '').trim();
+      const amount = parseFloat(document.getElementById('hotspot-amount-input')?.value) || 0;
+      const pin = (document.getElementById('hotspot-pin-input')?.value || '').trim();
+
+      if (!receiverVpa) {
+        alert("Please enter Merchant's UPI ID");
+        return;
+      }
+      if (amount <= 0) {
+        alert("Please enter an amount greater than ₹0");
+        return;
+      }
+      if (!pin || pin.length < 4) {
+        alert("Please enter a 4-digit UPI PIN");
+        return;
+      }
+
+      btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      try {
+        const resp = await fetch('/api/hotspot/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderVpa: payerVpa,
+            receiverVpa: receiverVpa,
+            amount: amount,
+            pin: pin
+          })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          closeHotspotModal();
+          triggerHaptic(50);
+          playSyntheticTone('success');
+          triggerCelebrationConfetti();
+
+          showPaymentSuccessModal(
+            amount,
+            receiverVpa,
+            data.receiver || "Merchant",
+            data.senderBalance,
+            data.receiverBalance,
+            "409" + Math.floor(100000000 + Math.random() * 900000000)
+          );
+
+          await refreshState();
+        } else {
+          alert(`Hotspot transfer failed: ${data.error}`);
+        }
+      } catch (e) {
+        console.error("Hotspot transfer network error:", e);
+        alert("Transfer Error: Make sure your Wi-Fi is connected to the Merchant's Hotspot!");
+      } finally {
+        btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
       }
     }
 

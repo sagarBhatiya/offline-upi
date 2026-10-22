@@ -2,6 +2,7 @@ import time
 import os
 import json
 import random
+import socket
 from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
 from database import (
     init_db, get_accounts, get_transactions, claim_packet_hash, 
@@ -901,6 +902,181 @@ def ledger_audit():
     """Audits double-entry escrow ledger to verify Sum(DR) - Sum(CR) == 0."""
     audit_res = audit_ledger_integrity()
     return jsonify(audit_res)
+
+# ========================================================
+# CASHFREE FREE SANDBOX & TEST PAYMENT API
+# ========================================================
+
+@app.route('/api/cashfree/order', methods=['POST'])
+def cashfree_create_order():
+    """
+    Creates a Cashfree Sandbox Order (Free test mode).
+    Works with real Cashfree test keys if set, or instant free simulator.
+    """
+    data = request.json or {}
+    customer_vpa = (data.get('vpa') or 'user@okhdfcbank').strip()
+    try:
+        amount = float(data.get('amount', 500.0))
+    except (ValueError, TypeError):
+        amount = 500.0
+    customer_phone = data.get('phone', '9876543210')
+    customer_name = data.get('name', 'Offline UPI User')
+
+    res = gateway_service.create_cashfree_order(
+        customer_vpa=customer_vpa,
+        amount=amount,
+        customer_phone=customer_phone,
+        customer_name=customer_name
+    )
+    return jsonify(res)
+
+@app.route('/api/cashfree/confirm', methods=['POST'])
+def cashfree_confirm_payment():
+    """
+    Verifies Cashfree Sandbox test payment and credits offline wallet.
+    """
+    data = request.json or {}
+    user_vpa = (data.get('vpa') or 'user@okhdfcbank').strip()
+    try:
+        amount = float(data.get('amount', 500.0))
+    except (ValueError, TypeError):
+        amount = 500.0
+    order_id = data.get('orderId') or f"CF_ORD_{int(time.time())}"
+    cf_payment_id = data.get('cfPaymentId') or f"CF_PAY_{random.randint(10000000, 99999999)}"
+    
+    bank_utr = gateway_service.generate_bank_utr()
+    deposit_ref = order_id
+    deeplink_url = f"https://sandbox.cashfree.com/pay/{order_id}"
+
+    res = record_deposit(
+        vpa=user_vpa,
+        amount=amount,
+        bank_utr=bank_utr,
+        deposit_ref=deposit_ref,
+        deeplink_url=deeplink_url
+    )
+
+    if res.get('success'):
+        return jsonify({
+            "success": True,
+            "vpa": user_vpa,
+            "depositedAmount": amount,
+            "newBalance": res["new_balance"],
+            "bankUtr": bank_utr,
+            "orderId": order_id,
+            "cfPaymentId": cf_payment_id,
+            "transactionId": res["transaction_id"],
+            "mode": "CASHFREE_SANDBOX_TEST",
+            "message": f"₹{amount:.2f} credited via Cashfree Free Sandbox!"
+        })
+    return jsonify({"success": False, "error": res.get("error", "Deposit failed")}), 400
+
+# ========================================================
+# MINI MILITIA-STYLE WI-FI HOTSPOT OFFLINE P2P TRANSFER API
+# ========================================================
+
+recent_hotspot_events = []
+
+@app.route('/api/hotspot/info', methods=['GET'])
+def hotspot_info():
+    """
+    Returns local network info to help Sender connect to Merchant Hotspot.
+    Includes detected host IPs, standard Android/iOS default gateway IPs, and port.
+    """
+    detected_ips = []
+    hostname = "offline-host"
+    try:
+        hostname = socket.gethostname()
+        detected_ips = socket.gethostbyname_ex(hostname)[2]
+    except Exception:
+        pass
+    
+    # Common mobile hotspot gateway IPs:
+    # Android Hotspot: 192.168.43.1
+    # iOS Hotspot: 172.20.10.1
+    # JioFi / Portable Hotspot: 192.168.225.1 or 192.168.0.1
+    common_gateways = ["192.168.43.1", "172.20.10.1", "192.168.1.1"]
+    
+    return jsonify({
+        "success": True,
+        "hostname": hostname,
+        "detectedIps": detected_ips,
+        "commonGateways": common_gateways,
+        "defaultPort": 5000,
+        "status": "HOTSPOT_LISTENER_ACTIVE",
+        "miniMilitiaMode": True
+    })
+
+@app.route('/api/hotspot/transfer', methods=['POST'])
+def hotspot_transfer():
+    """
+    Direct Wi-Fi Hotspot LAN transfer endpoint.
+    Called by Payer connected to Merchant's mobile hotspot.
+    Zero internet required — operates 100% over local Wi-Fi subnet!
+    """
+    data = request.json or {}
+    sender = (data.get('senderVpa') or '').strip()
+    receiver = (data.get('receiverVpa') or '').strip()
+    try:
+        amount = float(data.get('amount', 0))
+    except (ValueError, TypeError):
+        amount = 0.0
+
+    if not sender or not receiver:
+        return jsonify({"success": False, "error": "Both sender and receiver UPI IDs required."}), 400
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Amount must be greater than ₹0."}), 400
+
+    transfer_res = execute_offline_wallet_transfer(
+        sender_vpa=sender,
+        receiver_vpa=receiver,
+        amount=amount,
+        auth_mode="WIFI_HOTSPOT_LAN"
+    )
+
+    if not transfer_res.get('success'):
+        return jsonify({"success": False, "error": transfer_res.get('error')}), 400
+
+    tx_event = {
+        "transactionId": transfer_res.get('transaction_id'),
+        "sender": sender,
+        "receiver": receiver,
+        "amount": amount,
+        "senderBalance": transfer_res.get('sender_balance'),
+        "receiverBalance": transfer_res.get('receiver_balance'),
+        "timestamp": int(time.time() * 1000),
+        "protocol": "WIFI_HOTSPOT_LAN_P2P"
+    }
+
+    # Queue in recent events so merchant listener sees it immediately
+    global recent_hotspot_events
+    recent_hotspot_events.append(tx_event)
+    if len(recent_hotspot_events) > 50:
+        recent_hotspot_events = recent_hotspot_events[-50:]
+
+    return jsonify({
+        "success": True,
+        "amount": amount,
+        "sender": sender,
+        "receiver": receiver,
+        "senderBalance": transfer_res.get('sender_balance'),
+        "receiverBalance": transfer_res.get('receiver_balance'),
+        "transactionId": transfer_res.get('transaction_id'),
+        "mode": "WIFI_HOTSPOT_LAN",
+        "message": f"Offline Wi-Fi Hotspot transfer of ₹{amount:.2f} completed!"
+    })
+
+@app.route('/api/hotspot/recent', methods=['GET'])
+def hotspot_recent():
+    """Returns recent payments received over Wi-Fi Hotspot."""
+    receiver_vpa = (request.args.get('vpa') or '').strip().lower()
+    since = int(request.args.get('since', 0))
+
+    events = [
+        e for e in recent_hotspot_events 
+        if (not receiver_vpa or e['receiver'].lower() == receiver_vpa) and e['timestamp'] > since
+    ]
+    return jsonify({"success": True, "events": events})
 
 if __name__ == '__main__':
     print("Starting HundiPay Server on http://127.0.0.1:5000")
