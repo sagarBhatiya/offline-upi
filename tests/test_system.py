@@ -1,8 +1,9 @@
 import unittest
 import time
 from app import app
-from database import reset_db, get_accounts
-from crypto_helper import crypto_engine, qr_voucher_engine
+from src.db.schema import reset_db
+from src.db.repository import get_accounts
+from src.core.crypto import crypto_engine, qr_voucher_engine
 
 class OfflineUPITestCase(unittest.TestCase):
     def setUp(self):
@@ -318,7 +319,7 @@ class OfflineUPITestCase(unittest.TestCase):
 
     def test_11_ble_ecdh_chunking_and_crc_corruption(self):
         """Verifies BLE X25519 ECDH forward secrecy, frame chunking, and CRC-32 integrity."""
-        from ble_protocol import BleSecureSessionChannel
+        from src.core.ble import BleSecureSessionChannel
         # Device A and Device B
         device_a = BleSecureSessionChannel()
         device_b = BleSecureSessionChannel()
@@ -347,8 +348,8 @@ class OfflineUPITestCase(unittest.TestCase):
 
     def test_12_reconciliation_hash_chain_and_fork_detection(self):
         """Verifies monotonic hash-chain progression and critical fork / double-spend quarantine."""
-        from reconciliation_engine import OfflineReconciliationEngine
-        import database
+        from src.core.reconciliation import OfflineReconciliationEngine
+        from src.db import repository as database
         reconciler = OfflineReconciliationEngine(db_module=database)
 
         payer = "user@okhdfcbank"
@@ -410,7 +411,7 @@ class OfflineUPITestCase(unittest.TestCase):
 
     def test_13_regulatory_limits_enforcement(self):
         """Verifies enforcement of RBI ₹500 offline transaction limit."""
-        from reconciliation_engine import RegulatoryRiskEngine
+        from src.core.reconciliation import RegulatoryRiskEngine
         # Within limit
         RegulatoryRiskEngine.validate_offline_instruction(
             amount=500.0,
@@ -427,7 +428,7 @@ class OfflineUPITestCase(unittest.TestCase):
 
     def test_14_double_entry_ledger_invariant(self):
         """Verifies immutable double-entry escrow accounting invariant: Sum(DR) == Sum(CR)."""
-        from database import record_double_entry_transaction, audit_ledger_integrity
+        from src.db.repository import record_double_entry_transaction, audit_ledger_integrity
 
         # Record multiple transactions
         record_double_entry_transaction("OFFLINE_P2P", "TX_1001", "user@okhdfcbank", "receiver@upi", 150.0)
@@ -446,7 +447,7 @@ class OfflineUPITestCase(unittest.TestCase):
         import hmac
         import hashlib
         import json
-        from gateway_service import gateway_service
+        from src.services.gateway import gateway_service
 
         raw_payload = json.dumps({
             "type": "PAYMENT_SUCCESS",
