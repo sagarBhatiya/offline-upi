@@ -550,7 +550,7 @@ def validate_upi_id():
     Verifies that the handle has a valid bank PSP suffix and active VPA status.
     """
     data = request.json or {}
-    vpa = (data.get('vpa') or '').strip().lower()
+    vpa = (data.get('vpa') or data.get('upi_id') or '').strip().lower()
     
     if not vpa or '@' not in vpa:
         return jsonify({
