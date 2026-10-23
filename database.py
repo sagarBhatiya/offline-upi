@@ -516,6 +516,10 @@ def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode=
         }
     except Exception as e:
         conn.rollback()
+        return {"success": False, "error": str(e)}
+    finally:
+        conn.close()
+
 # In-memory voucher registry for fast serverless retrieval
 IN_MEMORY_VOUCHERS = {}
 

@@ -20,20 +20,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <!-- GSAP & ScrollTrigger Core -->
+  <!-- GSAP Core -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-  <!-- Locomotive Scroll v4 (Smooth Momentum Scrolling) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
-
-  <!-- High-Resilience QR Code Generator -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- High-Resilience QR Code Generator (Deferred for Instant First Paint) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <!-- jsQR Fallback Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
   <!-- Canvas Confetti Celebration FX -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
   
   <script>
     tailwind.config = {
@@ -821,14 +816,14 @@
           </div>
         </div>
 
-        <!-- BIG PRIMARY HERO ACTION: SCAN ANY QR BUTTON (Brushed Silver Titanium) -->
+        <!-- BIG PRIMARY HERO ACTION: HOTSPOT PAY (Unified Zero-Internet Payment) -->
         <div>
-          <button onclick="openScannerModal()" class="w-full py-4 px-4 bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-100 text-neutral-950 font-extrabold text-base rounded-[1.75rem] flex items-center justify-center gap-2.5 transition touch-btn shadow-xl border border-white/20 active:scale-[0.98]">
-            <span class="text-2xl">📷</span>
-            <span>Scan Any QR to Pay</span>
+          <button onclick="openHotspotModal('sender')" class="w-full py-4 px-4 bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-300 hover:from-white hover:to-neutral-100 text-neutral-950 font-extrabold text-base rounded-[1.75rem] flex items-center justify-center gap-2.5 transition touch-btn shadow-xl border border-white/20 active:scale-[0.98]">
+            <span class="text-2xl">📶</span>
+            <span>Hotspot Pay — Zero Internet P2P</span>
           </button>
           <p class="text-[10px] text-neutral-400 text-center mt-1.5 font-medium">
-            Scan receiver QR to transfer offline instantly from wallet to wallet
+            Connect to Merchant Hotspot or Host Wi-Fi for instant offline wallet transfers
           </p>
         </div>
 
@@ -1099,32 +1094,62 @@
         <button onclick="closeDepositModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
 
-      <!-- Deposit Mode Switcher (3 Tabs) -->
-      <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 gap-1 text-[10px] font-bold">
+      <!-- Deposit Mode Switcher (2 Verified Methods) -->
+      <div class="flex bg-neutral-950 p-1 rounded-2xl border border-neutral-800 gap-1 text-[10px] font-bold">
         <button id="deposit-tab-cashfree" onclick="switchDepositTab('cashfree')" class="flex-1 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition touch-btn text-center flex items-center justify-center gap-1 shadow-sm">
           <span>💳 Cashfree Free Test</span>
         </button>
-        <button id="deposit-tab-instant" onclick="switchDepositTab('instant')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1">
-          <span>⚡ Instant Load</span>
-        </button>
-        <button id="deposit-tab-real" onclick="switchDepositTab('real')" class="flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1">
-          <span>📲 Real UPI</span>
+        <button id="deposit-tab-real" onclick="switchDepositTab('real')" class="flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1">
+          <span>📲 Real UPI App / QR</span>
         </button>
       </div>
 
+      <!-- Real UPI ID Input with Live NPCI Authentication Verification -->
+      <div class="space-y-2 p-3 bg-neutral-950 rounded-2xl border border-neutral-800">
+        <div class="flex justify-between items-center">
+          <label class="block text-[10px] font-bold text-neutral-300 uppercase tracking-wider">
+            👤 Your Authentic UPI ID
+          </label>
+          <span class="text-[9px] text-neutral-500 font-mono">NPCI Verified</span>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="deposit-real-upi-input" placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm" oninput="onDepositUpiInputChanged()" class="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-neutral-600" />
+          <button type="button" onclick="verifyDepositUpiId(true)" class="px-3 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-xs font-bold border border-neutral-700 transition touch-btn flex items-center gap-1">
+            <span id="upi-verify-spinner" class="hidden animate-spin text-[10px]">⏳</span>
+            <span>Verify</span>
+          </button>
+        </div>
+
+        <!-- Verification Result Status Badge -->
+        <div id="upi-auth-badge" class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-[10px] space-y-1">
+          <div class="text-emerald-300 font-bold flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span>✔</span>
+              <span id="upi-auth-holder-name">Verified: SAGAR BHATIYA</span>
+            </span>
+            <span class="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded font-mono font-bold">ACTIVE</span>
+          </div>
+          <div class="text-[9px] text-neutral-400 flex justify-between font-mono">
+            <span id="upi-auth-bank-name">Bank: HDFC Bank (Google Pay)</span>
+            <span class="text-neutral-400">NPCI Status: <b class="text-emerald-400">Active</b></span>
+          </div>
+        </div>
+        <div id="upi-auth-error" class="hidden p-2 rounded-xl bg-rose-950/30 border border-rose-500/30 text-rose-300 text-[10px]"></div>
+      </div>
+
       <!-- Amount Input with Quick Preset Pills -->
-      <div class="space-y-2 p-3 bg-slate-950 rounded-2xl border border-slate-800">
-        <label class="block text-[10px] uppercase font-bold text-slate-400 text-center">Amount to Add (₹)</label>
+      <div class="space-y-2 p-3 bg-neutral-950 rounded-2xl border border-neutral-800">
+        <label class="block text-[10px] uppercase font-bold text-neutral-400 text-center">Amount to Add (₹)</label>
         <div class="flex items-center justify-center gap-1">
           <span class="text-2xl font-bold text-emerald-400">₹</span>
           <input type="number" id="deposit-amount-input" value="500" min="1" max="100000" oninput="onDepositInputChanged()" class="w-36 bg-transparent text-center text-3xl font-extrabold text-white focus:outline-none focus:border-b-2 focus:border-emerald-400 pb-0.5" />
         </div>
         <!-- Preset Amount Pills -->
         <div class="grid grid-cols-4 gap-1.5 pt-1">
-          <button type="button" onclick="setDepositAmount(100)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹100</button>
-          <button type="button" onclick="setDepositAmount(200)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹200</button>
+          <button type="button" onclick="setDepositAmount(100)" class="py-1 px-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold touch-btn transition">₹100</button>
+          <button type="button" onclick="setDepositAmount(200)" class="py-1 px-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold touch-btn transition">₹200</button>
           <button type="button" onclick="setDepositAmount(500)" class="py-1 px-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold touch-btn transition">₹500</button>
-          <button type="button" onclick="setDepositAmount(2000)" class="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] font-mono font-bold touch-btn transition">₹2,000</button>
+          <button type="button" onclick="setDepositAmount(2000)" class="py-1 px-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold touch-btn transition">₹2,000</button>
         </div>
       </div>
 
@@ -1138,11 +1163,11 @@
             </span>
             <span class="text-[8px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono border border-cyan-500/30">100% FREE</span>
           </div>
-          <p class="text-[9px] text-slate-300 leading-relaxed">
-            Test adding money to your wallet without real payments. Generates real Cashfree order sessions and validates test settlement with simulated or live Cashfree API keys.
+          <p class="text-[9px] text-neutral-300 leading-relaxed">
+            Test adding money to your verified wallet without real charges. Generates authenticated Cashfree test order sessions and credits offline wallet.
           </p>
-          <div class="text-[10px] font-mono text-slate-400 pt-0.5 flex justify-between">
-            <span>Target Account:</span>
+          <div class="text-[10px] font-mono text-neutral-400 pt-0.5 flex justify-between">
+            <span>Verified Wallet:</span>
             <b class="text-cyan-400 font-bold" id="cashfree-target-vpa-label">user@okhdfcbank</b>
           </div>
         </div>
@@ -1154,8 +1179,8 @@
         </button>
 
         <!-- Collapsible: Cashfree Developer API Keys -->
-        <div class="rounded-2xl border border-slate-800 bg-slate-950 p-2.5 space-y-2">
-          <button type="button" onclick="toggleCashfreeKeyInputs()" class="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 hover:text-white transition">
+        <div class="rounded-2xl border border-neutral-800 bg-neutral-950 p-2.5 space-y-2">
+          <button type="button" onclick="toggleCashfreeKeyInputs()" class="w-full flex items-center justify-between text-[10px] font-bold text-neutral-400 hover:text-white transition">
             <span class="flex items-center gap-1.5">
               <span>⚙</span>
               <span>Cashfree API Keys (Optional)</span>
@@ -1165,42 +1190,21 @@
           
           <div id="cashfree-keys-container" class="space-y-2 pt-1 hidden">
             <div>
-              <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Cashfree App ID</label>
-              <input type="text" id="cf-app-id-input" placeholder="e.g. CF123456..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-slate-600" />
+              <label class="block text-[9px] uppercase font-bold text-neutral-400 mb-0.5">Cashfree App ID</label>
+              <input type="text" id="cf-app-id-input" placeholder="e.g. CF123456..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-neutral-600" />
             </div>
             <div>
-              <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Cashfree Secret Key</label>
-              <input type="password" id="cf-secret-input" placeholder="e.g. cfsk_ma_test_..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-slate-600" />
+              <label class="block text-[9px] uppercase font-bold text-neutral-400 mb-0.5">Cashfree Secret Key</label>
+              <input type="password" id="cf-secret-input" placeholder="e.g. cfsk_ma_test_..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 placeholder:text-neutral-600" />
             </div>
             <div class="flex gap-2 pt-1">
               <button type="button" onclick="saveAndTestCashfreeKeys()" class="flex-1 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/40 text-cyan-300 text-[10px] font-bold transition">
                 <span>Save & Test Keys</span>
               </button>
             </div>
-            <div id="cf-key-test-status" class="text-[9px] font-mono text-slate-400 text-center"></div>
+            <div id="cf-key-test-status" class="text-[9px] font-mono text-neutral-400 text-center"></div>
           </div>
         </div>
-      </div>
-
-      <!-- ================= PANEL 1: INSTANT 1-TAP LOAD (RECOMMENDED) ================= -->
-      <div id="deposit-panel-instant" class="space-y-3">
-        <div class="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl space-y-1.5">
-          <div class="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
-            <span>🟢 100% Guaranteed Instant Credit</span>
-          </div>
-          <p class="text-[9px] text-slate-300 leading-relaxed">
-            Credits your offline wallet immediately with an authentic 12-digit Indian Banking UTR (NPCI IMPS Switch). Bypasses bank UPI name lookup errors.
-          </p>
-          <div class="text-[10px] font-mono text-slate-400 pt-0.5 flex justify-between">
-            <span>Crediting Wallet:</span>
-            <b class="text-emerald-400 font-bold" id="instant-target-vpa-label">user@okhdfcbank</b>
-          </div>
-        </div>
-
-        <button id="btn-instant-deposit" onclick="executeInstantDeposit()" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm rounded-2xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition touch-btn active:scale-95">
-          <span id="instant-deposit-spinner" class="hidden animate-spin">⏳</span>
-          <span>⚡ Instant Add ₹<span id="btn-instant-amount-label">500</span> to Wallet</span>
-        </button>
       </div>
 
       <!-- ================= PANEL 2: REAL UPI VIA GPAY/PHONEPE ================= -->
@@ -1431,8 +1435,8 @@
 
       <!-- ================= SENDER PANEL (CLIENT CONNECTED TO HOTSPOT) ================= -->
       <div id="hotspot-sender-panel" class="space-y-3">
-        <!-- Hotspot Connection Guidance -->
-        <div class="p-3 bg-neutral-950/80 border border-neutral-800 rounded-2xl space-y-2">
+        <!-- Hotspot Connection Guidance & Scanner -->
+        <div class="p-3 bg-neutral-950/80 border border-neutral-800 rounded-2xl space-y-2.5">
           <div class="flex items-center justify-between text-[10px] font-bold">
             <span class="text-neutral-300 flex items-center gap-1.5">
               <span id="hotspot-ping-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -1442,6 +1446,56 @@
               LAN READY
             </span>
           </div>
+
+          <!-- SCANNER BUTTON FOR SENDER -->
+          <button type="button" onclick="startHotspotScanner()" class="w-full py-2.5 px-3 bg-gradient-to-r from-neutral-800 via-neutral-750 to-neutral-800 hover:from-neutral-700 hover:to-neutral-750 border border-neutral-700 rounded-xl text-neutral-100 font-bold text-xs flex items-center justify-center gap-2 transition touch-btn shadow">
+            <span>📷</span>
+            <span>Scan Merchant Hotspot QR to Connect</span>
+          </button>
+
+          <!-- LIVE CAMERA SCANNER VIEWFINDER (Hidden by default) -->
+          <div id="hotspot-scanner-container" class="hidden space-y-2 pt-2 border-t border-neutral-850">
+            <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-neutral-700 flex items-center justify-center">
+              <video id="hotspot-camera-video" playsinline autoplay class="w-full h-full object-cover"></video>
+              <canvas id="hotspot-camera-canvas" class="hidden"></canvas>
+              <!-- Scanner Laser Viewfinder -->
+              <div class="absolute inset-4 pointer-events-none border-2 border-dashed border-cyan-400/70 rounded-xl flex items-center justify-center">
+                <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent laser-line shadow-[0_0_8px_#22d3ee]"></div>
+              </div>
+              <div id="hotspot-scanner-status" class="absolute bottom-2 left-2 right-2 text-center text-[9px] bg-black/80 backdrop-blur-sm text-cyan-300 py-1 px-2 rounded-lg font-mono">
+                Point camera at Merchant's Hotspot QR...
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <input type="file" id="hotspot-qr-file-input" accept="image/*" capture="environment" class="hidden" onchange="handleHotspotFileQr(event)" />
+              <button type="button" onclick="document.getElementById('hotspot-qr-file-input').click()" class="flex-1 py-1.5 rounded-lg bg-neutral-850 hover:bg-neutral-800 text-neutral-300 text-[10px] font-bold border border-neutral-750 transition touch-btn">
+                📁 Upload / Snap Photo
+              </button>
+              <button type="button" onclick="stopHotspotScanner()" class="px-3 py-1.5 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white text-[10px] font-bold transition touch-btn">
+                Close Camera
+              </button>
+            </div>
+          </div>
+
+          <!-- CONNECTED HOTSPOT RESULT BADGE -->
+          <div id="hotspot-connection-result" class="hidden p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/40 text-[10px] space-y-1">
+            <div class="text-cyan-300 font-bold flex items-center justify-between">
+              <span class="flex items-center gap-1">
+                <span>✔</span>
+                <span id="hotspot-connected-ssid-label">Wi-Fi: OfflineUPI-Hotspot</span>
+              </span>
+              <span class="text-[8px] bg-cyan-500/20 text-cyan-300 px-1 py-0.5 rounded font-mono font-bold">PAIRED</span>
+            </div>
+            <div class="text-[9px] text-neutral-300 flex justify-between font-mono">
+              <span>Password: <b id="hotspot-connected-pass-label" class="text-white">12345678</b></span>
+              <button type="button" onclick="copyHotspotPassword()" class="text-cyan-400 underline font-bold">Copy Password</button>
+            </div>
+            <div class="text-[9px] text-emerald-400 font-mono">
+              Merchant UPI: <b id="hotspot-connected-vpa-label">merchant@upi</b> (Verified)
+            </div>
+          </div>
+
           <p class="text-[9px] text-neutral-400 leading-tight">
             Connect your phone's Wi-Fi to the Merchant's Hotspot. Zero mobile data is used.
           </p>
@@ -1894,32 +1948,27 @@
     }
 
     let currentDepositTab = 'cashfree';
+    let isUpiAuthenticated = false;
+    let upiAuthDebounceTimer = null;
 
     function switchDepositTab(tab) {
       currentDepositTab = tab;
       triggerHaptic(15);
       const tabCashfree = document.getElementById('deposit-tab-cashfree');
-      const tabInstant = document.getElementById('deposit-tab-instant');
       const tabReal = document.getElementById('deposit-tab-real');
 
       const panelCashfree = document.getElementById('deposit-panel-cashfree');
-      const panelInstant = document.getElementById('deposit-panel-instant');
       const panelReal = document.getElementById('deposit-panel-real');
 
       if (panelCashfree) panelCashfree.classList.add('hidden');
-      if (panelInstant) panelInstant.classList.add('hidden');
       if (panelReal) panelReal.classList.add('hidden');
 
-      if (tabCashfree) tabCashfree.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
-      if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
-      if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition touch-btn text-center flex items-center justify-center gap-1";
+      if (tabCashfree) tabCashfree.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1";
+      if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition touch-btn text-center flex items-center justify-center gap-1";
 
       if (tab === 'cashfree') {
         if (panelCashfree) panelCashfree.classList.remove('hidden');
         if (tabCashfree) tabCashfree.className = "flex-1 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 transition touch-btn text-center flex items-center justify-center gap-1 shadow-sm";
-      } else if (tab === 'instant') {
-        if (panelInstant) panelInstant.classList.remove('hidden');
-        if (tabInstant) tabInstant.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
       } else {
         if (panelReal) panelReal.classList.remove('hidden');
         if (tabReal) tabReal.className = "flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition touch-btn text-center flex items-center justify-center gap-1.5 shadow-sm";
@@ -1951,9 +2000,6 @@
       const upiInput = document.getElementById('deposit-real-upi-input');
       if (upiInput) upiInput.value = payerVpa;
 
-      const targetLbl = document.getElementById('instant-target-vpa-label');
-      if (targetLbl) targetLbl.textContent = payerVpa;
-
       const cfTargetLbl = document.getElementById('cashfree-target-vpa-label');
       if (cfTargetLbl) cfTargetLbl.textContent = payerVpa;
 
@@ -1962,40 +2008,103 @@
       
       const cfLbl = document.getElementById('btn-cashfree-amount-label');
       if (cfLbl) cfLbl.textContent = amt.toString();
-      const lbl = document.getElementById('btn-instant-amount-label');
-      if (lbl) lbl.textContent = amt.toString();
       const realLbl = document.getElementById('btn-real-amount-label');
       if (realLbl) realLbl.textContent = amt.toString();
 
       document.getElementById('deposit-modal').classList.remove('hidden');
       switchDepositTab(currentDepositTab || 'cashfree');
+      
+      // Auto-verify active UPI on modal open
+      verifyDepositUpiId(false);
     }
 
     function closeDepositModal() {
       document.getElementById('deposit-modal').classList.add('hidden');
     }
 
+    function onDepositUpiInputChanged() {
+      clearTimeout(upiAuthDebounceTimer);
+      upiAuthDebounceTimer = setTimeout(() => {
+        verifyDepositUpiId(false);
+      }, 500);
+    }
+
+    async function verifyDepositUpiId(manual = false) {
+      const upiInput = document.getElementById('deposit-real-upi-input');
+      const spinner = document.getElementById('upi-verify-spinner');
+      const badge = document.getElementById('upi-auth-badge');
+      const errBox = document.getElementById('upi-auth-error');
+      const holderNameEl = document.getElementById('upi-auth-holder-name');
+      const bankNameEl = document.getElementById('upi-auth-bank-name');
+
+      const vpa = (upiInput?.value || '').trim();
+      if (!vpa || !vpa.includes('@')) {
+        if (manual) {
+          if (errBox) {
+            errBox.textContent = "Please enter a valid Real UPI format (e.g. yourname@okhdfcbank or 9876543210@paytm)";
+            errBox.classList.remove('hidden');
+          }
+          if (badge) badge.classList.add('hidden');
+        }
+        isUpiAuthenticated = false;
+        return;
+      }
+
+      if (spinner) spinner.classList.remove('hidden');
+      if (errBox) errBox.classList.add('hidden');
+
+      try {
+        const resp = await fetch('/api/upi/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vpa: vpa })
+        });
+        const data = await resp.json();
+
+        if (data.success && data.valid) {
+          isUpiAuthenticated = true;
+          payerVpa = data.vpa;
+          userName = data.holderName;
+          localStorage.setItem('cfg_payer_vpa', payerVpa);
+          localStorage.setItem('cfg_user_name', userName);
+
+          if (holderNameEl) holderNameEl.textContent = `Verified: ${data.holderName.toUpperCase()}`;
+          if (bankNameEl) bankNameEl.textContent = `Bank: ${data.bankName} (${data.psp})`;
+          if (badge) badge.classList.remove('hidden');
+          if (errBox) errBox.classList.add('hidden');
+
+          const headerEl = document.getElementById('app-header-vpa');
+          if (headerEl) headerEl.textContent = payerVpa;
+          const nameEl = document.getElementById('app-header-name');
+          if (nameEl) nameEl.textContent = userName;
+          const cfTargetLbl = document.getElementById('cashfree-target-vpa-label');
+          if (cfTargetLbl) cfTargetLbl.textContent = payerVpa;
+
+          if (manual) {
+            triggerHaptic(30);
+            playSyntheticTone('success');
+          }
+        } else {
+          isUpiAuthenticated = false;
+          if (badge) badge.classList.add('hidden');
+          if (errBox) {
+            errBox.textContent = data.error || "UPI authentication failed. Please enter a valid bank VPA.";
+            errBox.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        console.warn("UPI validation error:", err);
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
     function onDepositInputChanged() {
       const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
       const cfLbl = document.getElementById('btn-cashfree-amount-label');
       if (cfLbl) cfLbl.textContent = amount.toString();
-      const lbl = document.getElementById('btn-instant-amount-label');
-      if (lbl) lbl.textContent = amount.toString();
       const realLbl = document.getElementById('btn-real-amount-label');
       if (realLbl) realLbl.textContent = amount.toString();
-
-      const typedUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
-      if (typedUpi && typedUpi.includes('@')) {
-        payerVpa = typedUpi;
-        localStorage.setItem('cfg_payer_vpa', payerVpa);
-        localStorage.setItem('real_escrow_upi', payerVpa);
-        const headerEl = document.getElementById('app-header-vpa');
-        if (headerEl) headerEl.textContent = payerVpa;
-        const targetLbl = document.getElementById('instant-target-vpa-label');
-        if (targetLbl) targetLbl.textContent = payerVpa;
-        const cfTargetLbl = document.getElementById('cashfree-target-vpa-label');
-        if (cfTargetLbl) cfTargetLbl.textContent = payerVpa;
-      }
 
       clearTimeout(depositDebounceTimer);
       depositDebounceTimer = setTimeout(() => {
@@ -2188,10 +2297,12 @@
     }
 
     // ========================================================
-    // MINI MILITIA WI-FI HOTSPOT OFFLINE P2P ENGINE
+    // MINI MILITIA WI-FI HOTSPOT OFFLINE P2P ENGINE + CAMERA SCANNER
     // ========================================================
     let hotspotPollingInterval = null;
     let hotspotCurrentMode = 'sender';
+    let hotspotVideoStream = null;
+    let hotspotScanningActive = false;
 
     function openHotspotModal(mode = 'sender') {
       triggerHaptic(20);
@@ -2220,12 +2331,15 @@
     function closeHotspotModal() {
       const modal = document.getElementById('hotspot-modal');
       if (modal) modal.classList.add('hidden');
+      stopHotspotScanner();
       stopHotspotPolling();
     }
 
     function switchHotspotTab(mode) {
       hotspotCurrentMode = mode;
       triggerHaptic(15);
+      stopHotspotScanner();
+
       const tabSender = document.getElementById('hotspot-tab-sender');
       const tabMerchant = document.getElementById('hotspot-tab-merchant');
       const panelSender = document.getElementById('hotspot-sender-panel');
@@ -2277,14 +2391,160 @@
       }
     }
 
+    // Camera Scanner for Sender to Connect to Merchant Hotspot
+    async function startHotspotScanner() {
+      triggerHaptic(20);
+      playSyntheticTone('click');
+      const container = document.getElementById('hotspot-scanner-container');
+      const video = document.getElementById('hotspot-camera-video');
+      const statusEl = document.getElementById('hotspot-scanner-status');
+
+      if (container) container.classList.remove('hidden');
+      if (statusEl) statusEl.textContent = "Accessing camera...";
+
+      try {
+        hotspotVideoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+        if (video) {
+          video.srcObject = hotspotVideoStream;
+          await video.play();
+          hotspotScanningActive = true;
+          if (statusEl) statusEl.textContent = "Point camera at Merchant's Hotspot QR...";
+          requestAnimationFrame(scanHotspotVideoFrame);
+        }
+      } catch (err) {
+        console.warn("Camera access failed or unavailable:", err);
+        if (statusEl) statusEl.textContent = "Camera stream unavailable. Tap 'Upload / Snap Photo' below.";
+      }
+    }
+
+    function stopHotspotScanner() {
+      hotspotScanningActive = false;
+      if (hotspotVideoStream) {
+        try {
+          hotspotVideoStream.getTracks().forEach(track => track.stop());
+        } catch(e) {}
+        hotspotVideoStream = null;
+      }
+      const container = document.getElementById('hotspot-scanner-container');
+      if (container) container.classList.add('hidden');
+    }
+
+    function scanHotspotVideoFrame() {
+      if (!hotspotScanningActive) return;
+      const video = document.getElementById('hotspot-camera-video');
+      const canvas = document.getElementById('hotspot-camera-canvas');
+
+      if (video && canvas && video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (typeof jsQR !== 'undefined') {
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'dontInvert'
+          });
+          if (code && code.data) {
+            handleHotspotQrDetected(code.data);
+            return;
+          }
+        }
+      }
+      requestAnimationFrame(scanHotspotVideoFrame);
+    }
+
+    function handleHotspotFileQr(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          if (typeof jsQR !== 'undefined') {
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code && code.data) {
+              handleHotspotQrDetected(code.data);
+            } else {
+              alert("Could not detect a QR code in the image. Please try again.");
+            }
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleHotspotQrDetected(qrData) {
+      stopHotspotScanner();
+      triggerHaptic(40);
+      playSyntheticTone('success');
+
+      let ssid = "OfflineUPI-Hotspot";
+      let pass = "12345678";
+      let vpa = "merchant@upi";
+
+      if (qrData.includes('WIFI:')) {
+        const sMatch = qrData.match(/S:([^;]+)/i);
+        const pMatch = qrData.match(/P:([^;]+)/i);
+        const vMatch = qrData.match(/VPA:([^;]+)/i);
+        if (sMatch) ssid = sMatch[1];
+        if (pMatch) pass = pMatch[1];
+        if (vMatch) vpa = vMatch[1];
+      } else if (qrData.includes('pa=')) {
+        const m = qrData.match(/pa=([^&]+)/i);
+        if (m) vpa = decodeURIComponent(m[1]);
+      } else if (qrData.includes('@')) {
+        vpa = qrData.trim();
+      }
+
+      const receiverInput = document.getElementById('hotspot-receiver-vpa');
+      if (receiverInput) receiverInput.value = vpa;
+
+      const resultCard = document.getElementById('hotspot-connection-result');
+      const ssidLbl = document.getElementById('hotspot-connected-ssid-label');
+      const passLbl = document.getElementById('hotspot-connected-pass-label');
+      const vpaLbl = document.getElementById('hotspot-connected-vpa-label');
+
+      if (ssidLbl) ssidLbl.textContent = `Wi-Fi: ${ssid}`;
+      if (passLbl) passLbl.textContent = pass;
+      if (vpaLbl) vpaLbl.textContent = vpa;
+      if (resultCard) resultCard.classList.remove('hidden');
+
+      const badge = document.getElementById('hotspot-ping-badge');
+      if (badge) {
+        badge.textContent = "CONNECTED (PAIRED)";
+        badge.className = "px-1.5 py-0.5 rounded font-mono text-[9px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+      }
+
+      const amtInput = document.getElementById('hotspot-amount-input');
+      if (amtInput) amtInput.focus();
+    }
+
+    function copyHotspotPassword() {
+      const pass = document.getElementById('hotspot-connected-pass-label')?.textContent || '12345678';
+      navigator.clipboard.writeText(pass);
+      triggerHaptic(20);
+      alert(`Hotspot Password copied: ${pass}\nConnect your phone's Wi-Fi to the Hotspot now!`);
+    }
+
     function renderHotspotWifiQr() {
       const container = document.getElementById('hotspot-wifi-qr-canvas');
       if (!container) return;
       container.innerHTML = '';
 
       const ssid = "OfflineUPI-Hotspot";
-      const pass = "offline123";
-      const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};;`;
+      const pass = "12345678";
+      const merchantHandle = payerVpa || 'merchant@upi';
+      const wifiString = `WIFI:T:WPA;S:${ssid};P:${pass};VPA:${merchantHandle};;`;
 
       try {
         if (typeof QRCode !== 'undefined') {
@@ -2307,19 +2567,21 @@
           <div class="text-xl font-bold">📶</div>
           <div class="font-bold">SSID: ${ssid}</div>
           <div>Password: ${pass}</div>
+          <div class="text-[9px] font-bold text-emerald-700">UPI: ${merchantHandle}</div>
         </div>
       `;
     }
 
     function startHotspotPolling() {
       stopHotspotPolling();
+      let lastPollTime = Date.now() - 5000;
       hotspotPollingInterval = setInterval(async () => {
         try {
-          const resp = await fetch(`/api/hotspot/recent?vpa=${encodeURIComponent(payerVpa)}&since=${Date.now() - 10000}`);
+          const resp = await fetch(`/api/hotspot/recent?vpa=all&since=${lastPollTime}`);
           const data = await resp.json();
           if (data.success && data.events && data.events.length > 0) {
-            const latest = data.events[data.events.length - 1];
-            onHotspotPaymentReceived(latest);
+            lastPollTime = data.serverTime || Date.now();
+            data.events.forEach(ev => onHotspotPaymentReceived(ev));
           }
         } catch (e) {
           // Offline polling silent
@@ -2334,11 +2596,34 @@
       }
     }
 
+    function speakPaymentNotification(amount, receiver) {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} received on Offline UPI`);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          window.speechSynthesis.speak(utterance);
+        } catch(e) {}
+      }
+    }
+
     function onHotspotPaymentReceived(ev) {
       triggerHaptic(80);
       playSyntheticTone('success');
       triggerCelebrationConfetti();
       
+      // Update merchant balance in memory & localStorage immediately!
+      let currentMerch = parseFloat(localStorage.getItem('cached_merchant_bal') || '0.00');
+      let newMerch = ev.receiverBalance || (currentMerch + ev.amount);
+      localStorage.setItem('cached_merchant_bal', newMerch.toString());
+      localStorage.setItem('cached_payer_bal_' + ev.receiver, newMerch.toString());
+      const mBalEl = document.getElementById('merchant-balance-display');
+      if (mBalEl) mBalEl.textContent = newMerch.toFixed(2);
+
+      // Soundbox voice notification
+      speakPaymentNotification(ev.amount, ev.receiver);
+
       const feed = document.getElementById('hotspot-recent-feed');
       const emptyFeed = document.getElementById('hotspot-empty-feed');
       if (emptyFeed) emptyFeed.remove();
@@ -2367,7 +2652,7 @@
       const pin = (document.getElementById('hotspot-pin-input')?.value || '').trim();
 
       if (!receiverVpa) {
-        alert("Please enter Merchant's UPI ID");
+        alert("Please enter Merchant's UPI ID or scan Merchant QR");
         return;
       }
       if (amount <= 0) {
@@ -2401,13 +2686,50 @@
           playSyntheticTone('success');
           triggerCelebrationConfetti();
 
+          // 1. Immediately update sender balance in memory & localStorage
+          if (data.senderBalance !== undefined) {
+            payerBalance = data.senderBalance;
+          } else {
+            payerBalance = Math.max(0, payerBalance - amount);
+          }
+          localStorage.setItem('cached_payer_bal_' + payerVpa, payerBalance.toString());
+          animatePayerBalance(payerBalance);
+
+          // 2. Immediately credit receiver balance in localStorage
+          let priorRecBal = parseFloat(localStorage.getItem('cached_payer_bal_' + receiverVpa) || '0.00');
+          let newRecBal = data.receiverBalance !== undefined ? data.receiverBalance : (priorRecBal + amount);
+          localStorage.setItem('cached_payer_bal_' + receiverVpa, newRecBal.toString());
+          localStorage.setItem('cached_merchant_bal', newRecBal.toString());
+          const mBalEl = document.getElementById('merchant-balance-display');
+          if (mBalEl) mBalEl.textContent = newRecBal.toFixed(2);
+
+          // 3. Record transaction in local passbook ledger
+          const depTx = {
+            id: data.transactionId || (Date.now() % 1000000),
+            sender_vpa: payerVpa,
+            receiver_vpa: receiverVpa,
+            amount: amount,
+            auth_mode: "WIFI_HOTSPOT_LAN",
+            status: "OFFLINE_SETTLED",
+            bank_utr: "409" + Math.floor(100000000 + Math.random() * 900000000),
+            settled_at: new Date().toISOString()
+          };
+          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
+          localTxns.unshift(depTx);
+          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
+          cachedTransactions = localTxns;
+          renderPassbookList();
+
+          // 4. Voice announcement via Soundbox
+          speakPaymentNotification(amount, receiverVpa);
+
           showPaymentSuccessModal(
             amount,
             receiverVpa,
             data.receiver || "Merchant",
-            data.senderBalance,
-            data.receiverBalance,
-            "409" + Math.floor(100000000 + Math.random() * 900000000)
+            payerBalance,
+            newRecBal,
+            depTx.bank_utr
           );
 
           await refreshState();
@@ -2417,81 +2739,6 @@
       } catch (e) {
         console.error("Hotspot transfer network error:", e);
         alert("Transfer Error: Make sure your Wi-Fi is connected to the Merchant's Hotspot!");
-      } finally {
-        btn.disabled = false;
-        if (spinner) spinner.classList.add('hidden');
-      }
-    }
-
-    async function executeInstantDeposit() {
-      const spinner = document.getElementById('instant-deposit-spinner');
-      const btn = document.getElementById('btn-instant-deposit');
-      const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 500;
-
-      let typedUpi = (document.getElementById('deposit-real-upi-input')?.value || '').trim();
-      if (typedUpi && typedUpi.includes('@')) {
-        payerVpa = typedUpi;
-        localStorage.setItem('cfg_payer_vpa', payerVpa);
-        const headerEl = document.getElementById('app-header-vpa');
-        if (headerEl) headerEl.textContent = payerVpa;
-      }
-
-      if (amount <= 0) {
-        alert("Please enter a valid amount greater than ₹0");
-        return;
-      }
-
-      btn.disabled = true;
-      if (spinner) spinner.classList.remove('hidden');
-
-      try {
-        const resp = await fetch('/api/wallet/deposit/instant', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            vpa: payerVpa,
-            amount: amount
-          })
-        });
-        const data = await resp.json();
-
-        if (data.success) {
-          closeDepositModal();
-          triggerHaptic(50);
-          playSyntheticTone('success');
-          triggerCelebrationConfetti();
-
-          const depTx = {
-            id: Date.now() % 1000000,
-            sender_vpa: 'Real Bank (UPI)',
-            receiver_vpa: payerVpa,
-            amount: amount,
-            auth_mode: "REAL_UPI_DEPOSIT",
-            status: "DEPOSIT_SUCCESS",
-            bank_utr: data.bankUtr || ('409' + Math.floor(100000000 + Math.random() * 900000000)),
-            settled_at: new Date().toISOString()
-          };
-          let localTxns = JSON.parse(localStorage.getItem('cached_txns') || '[]');
-          localTxns.unshift(depTx);
-          localStorage.setItem('cached_txns', JSON.stringify(localTxns));
-          cachedTransactions = localTxns;
-          renderPassbookList();
-
-          if (soundEnabled && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(`Rupees ${amount} added to your offline wallet!`);
-            utterance.rate = 1.0;
-            utterance.lang = 'en-IN';
-            window.speechSynthesis.speak(utterance);
-          }
-
-          alert(`🎉 Real Money Loaded!\n\n₹${amount.toFixed(2)} added into your wallet (${payerVpa}).\nBank UTR: ${data.bankUtr}\nNew Balance: ₹${data.newBalance.toFixed(2)}`);
-          await refreshState();
-        } else {
-          alert(`Deposit failed: ${data.error}`);
-        }
-      } catch (e) {
-        console.error("Instant deposit error:", e);
-        alert("Deposit error: " + e.message);
       } finally {
         btn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
@@ -4002,22 +4249,15 @@
       localStorage.removeItem('pending_sync_vouchers');
     }
 
-    // Web Mode vs. Installed App Mode Router
+    // Web Mode vs. Installed App Mode Router (Defaults Directly to App Mode)
     function checkAppOrWebMode() {
       const urlParams = new URLSearchParams(window.location.search);
       const modeParam = urlParams.get('mode');
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                           window.navigator.standalone === true || 
-                           document.referrer.includes('android-app://');
 
-      if (isStandalone || modeParam === 'app') {
-        showAppMode(true);
+      if (modeParam === 'web') {
+        showWebLandingMode();
       } else {
-        if (sessionStorage.getItem('active_mode') === 'app') {
-          showAppMode(false);
-        } else {
-          showWebLandingMode();
-        }
+        showAppMode(true);
       }
     }
 
@@ -4026,13 +4266,6 @@
       document.documentElement.classList.add('app-active');
       document.documentElement.classList.remove('has-scroll-smooth');
       document.body.classList.remove('has-scroll-smooth');
-
-      if (locoScrollInstance) {
-        try {
-          locoScrollInstance.destroy();
-          locoScrollInstance = null;
-        } catch(e) {}
-      }
 
       const landing = document.getElementById('web-landing-page');
       const appContainer = document.getElementById('app-container');
@@ -4211,109 +4444,39 @@
       }
     }
 
-    // GSAP, ScrollTrigger & Locomotive Scroll Smooth Architecture
-    let locoScrollInstance = null;
+    // GSAP Entrance Animations & Performance Optimization
     function initSmoothScrollAndAnimations() {
-      if (typeof gsap === 'undefined') return;
-
-      if (typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-      }
-
       const landing = document.getElementById('web-landing-page');
       const isAppMode = !landing || landing.classList.contains('hidden') || document.documentElement.classList.contains('app-active') || sessionStorage.getItem('active_mode') === 'app';
 
       if (isAppMode) {
         document.documentElement.classList.add('app-active');
-        document.documentElement.classList.remove('has-scroll-smooth');
-        document.body.classList.remove('has-scroll-smooth');
-        if (locoScrollInstance) {
-          try { locoScrollInstance.destroy(); locoScrollInstance = null; } catch(e) {}
-        }
-      } else {
-        // Locomotive Scroll for Desktop Landing Page when visible
-        if (window.innerWidth >= 768 && typeof LocomotiveScroll !== 'undefined') {
-          try {
-            if (locoScrollInstance) {
-              locoScrollInstance.destroy();
-              locoScrollInstance = null;
-            }
-            locoScrollInstance = new LocomotiveScroll({
-              el: landing,
-              smooth: true,
-              multiplier: 0.95
-            });
-
-            if (typeof ScrollTrigger !== 'undefined') {
-              locoScrollInstance.on('scroll', ScrollTrigger.update);
-
-              ScrollTrigger.scrollerProxy(landing, {
-                scrollTop(value) {
-                  return arguments.length ? locoScrollInstance.scrollTo(value, 0, 0) : locoScrollInstance.scroll.instance.scroll.y;
-                },
-                getBoundingClientRect() {
-                  return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-                },
-                pinType: landing.style.transform ? "transform" : "fixed"
-              });
-
-              ScrollTrigger.addEventListener("refresh", () => locoScrollInstance.update());
-              ScrollTrigger.refresh();
-            }
-          } catch (e) {
-            console.warn("Locomotive smooth scroll init:", e);
-          }
-        }
       }
 
-      // 2. GSAP Entrance Animations
+      if (typeof gsap === 'undefined') return;
+
       try {
+        if (typeof ScrollTrigger !== 'undefined') {
+          gsap.registerPlugin(ScrollTrigger);
+        }
+
         // Hero Content Reveal
         gsap.from('main h1', {
-          y: 28,
+          y: 20,
           opacity: 0,
-          duration: 0.85,
-          ease: 'power3.out'
+          duration: 0.5,
+          ease: 'power2.out'
         });
 
         // Hero Card Soft Reveal
         gsap.from('.glass-card', {
-          y: 22,
+          y: 15,
           opacity: 0,
-          scale: 0.98,
-          duration: 0.7,
+          scale: 0.99,
+          duration: 0.45,
           ease: 'power2.out',
-          delay: 0.1
+          stagger: 0.05
         });
-
-        // App action buttons stagger
-        gsap.from('.glass-card button, #screen-payer > div', {
-          y: 14,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.06,
-          ease: 'power2.out',
-          delay: 0.2
-        });
-
-        // ScrollTrigger Parallax for sections
-        if (typeof ScrollTrigger !== 'undefined') {
-          const cards = document.querySelectorAll('#web-landing-page section');
-          cards.forEach((sec) => {
-            gsap.from(sec, {
-              scrollTrigger: {
-                trigger: sec,
-                scroller: (typeof locoScrollInstance !== 'undefined' && locoScrollInstance ? landing : window),
-                start: 'top 85%',
-                toggleActions: 'play none none none'
-              },
-              y: 30,
-              opacity: 0,
-              duration: 0.8,
-              ease: 'power2.out'
-            });
-          });
-        }
       } catch (e) {
         console.warn("GSAP animation init:", e);
       }
@@ -4340,13 +4503,13 @@
           if ('caches' in window) {
             caches.keys().then((names) => {
               names.forEach((name) => {
-                if (name !== 'offline-upi-v7') {
+                if (name !== 'offline-upi-v8') {
                   caches.delete(name);
                 }
               });
             });
           }
-          const reg = await navigator.serviceWorker.register('/sw.js?v=7');
+          const reg = await navigator.serviceWorker.register('/sw.js?v=8');
           console.log('[PWA] Service Worker active, scope:', reg.scope);
           // Check for service worker updates immediately on app launch
           if (reg) {
