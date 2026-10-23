@@ -2055,6 +2055,9 @@
         }
       } catch (err) {
         console.error("Error creating deposit intent:", err);
+      }
+    }
+
     async function executeCashfreeDeposit() {
       const spinner = document.getElementById('cashfree-deposit-spinner');
       const btn = document.getElementById('btn-cashfree-deposit');
@@ -4337,13 +4340,13 @@
           if ('caches' in window) {
             caches.keys().then((names) => {
               names.forEach((name) => {
-                if (name !== 'offline-upi-v6') {
+                if (name !== 'offline-upi-v7') {
                   caches.delete(name);
                 }
               });
             });
           }
-          const reg = await navigator.serviceWorker.register('/sw.js?v=6');
+          const reg = await navigator.serviceWorker.register('/sw.js?v=7');
           console.log('[PWA] Service Worker active, scope:', reg.scope);
           // Check for service worker updates immediately on app launch
           if (reg) {

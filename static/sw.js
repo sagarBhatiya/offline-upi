@@ -1,5 +1,5 @@
 // Offline UPI Service Worker — 100% Offline PWA Engine
-const CACHE_NAME = 'offline-upi-v6';
+const CACHE_NAME = 'offline-upi-v7';
 
 const STATIC_PRECACHE = [
   '/',
@@ -21,7 +21,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Pre-caching offline-upi-v6 app shell');
+      console.log('[SW] Pre-caching offline-upi-v7 app shell');
       return Promise.allSettled(
         STATIC_PRECACHE.map((url) =>
           cache.add(url).catch((err) => console.warn(`[SW] Precache failed for ${url}:`, err))
