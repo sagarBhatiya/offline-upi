@@ -647,35 +647,35 @@
   <!-- ======================================================== -->
   <!-- 📲 MODAL: PWA INSTALLATION GUIDE FOR ALL BROWSERS / IOS  -->
   <!-- ======================================================== -->
-  <div id="install-guide-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+  <div id="install-guide-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-2 border-b border-neutral-800">
         <div class="flex items-center gap-2">
-          <img src="/static/icons/icon-192.png" alt="HundiPay" class="w-6 h-6 rounded-lg object-cover">
-          <h3 class="font-extrabold text-white text-xs">Install HundiPay App</h3>
+          <img src="/static/icons/icon-192.png" alt="Offline UPI" class="w-6 h-6 rounded-lg object-cover">
+          <h3 class="font-extrabold text-white text-xs">Install Offline UPI App</h3>
         </div>
-        <button onclick="closeInstallGuideModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+        <button onclick="closeInstallGuideModal()" class="text-neutral-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
 
       <div class="space-y-3 text-left text-xs">
         <!-- Android Chrome -->
-        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+        <div class="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 space-y-1">
           <div class="font-bold text-emerald-400 flex items-center gap-1.5">
             <span>🤖 Android (Google Chrome)</span>
           </div>
-          <p class="text-slate-300 text-[11px] leading-relaxed">
+          <p class="text-neutral-300 text-[11px] leading-relaxed">
             1. Tap the <strong>3 dots (⋮)</strong> menu in top-right.<br/>
             2. Tap <strong>"Install App"</strong> or <strong>"Add to Home screen"</strong>.<br/>
-            3. HundiPay will install to your app drawer!
+            3. Offline UPI will install directly to your phone!
           </p>
         </div>
 
         <!-- iPhone Safari -->
-        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+        <div class="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 space-y-1">
           <div class="font-bold text-teal-300 flex items-center gap-1.5">
             <span>🍏 iPhone (Apple Safari)</span>
           </div>
-          <p class="text-slate-300 text-[11px] leading-relaxed">
+          <p class="text-neutral-300 text-[11px] leading-relaxed">
             1. Tap the <strong>Share button (↑)</strong> at bottom of Safari.<br/>
             2. Scroll down and tap <strong>"Add to Home Screen"</strong>.<br/>
             3. Tap <strong>"Add"</strong> in top-right!
@@ -683,21 +683,21 @@
         </div>
 
         <!-- Desktop Chrome / Edge -->
-        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+        <div class="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 space-y-1">
           <div class="font-bold text-cyan-300 flex items-center gap-1.5">
             <span>💻 Desktop (Chrome / Edge)</span>
           </div>
-          <p class="text-slate-300 text-[11px] leading-relaxed">
-            Click the <strong>Install icon (⊕)</strong> on the right side of the URL address bar.
+          <p class="text-neutral-300 text-[11px] leading-relaxed">
+            Click the <strong>Install icon (⊕)</strong> on the right side of your browser URL bar.
           </p>
         </div>
       </div>
 
       <div class="space-y-2 pt-1">
-        <button onclick="closeInstallGuideModal(); showAppMode(false);" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition touch-btn">
-          🚀 Try Web Simulator Now Instead
+        <button onclick="closeInstallGuideModal(); showAppMode(false);" class="w-full py-3 bg-gradient-to-r from-neutral-100 to-neutral-200 text-neutral-950 font-extrabold text-xs rounded-xl shadow-md transition touch-btn hover:from-white hover:to-neutral-100 active:scale-95">
+          🚀 Open Web Simulator Directly
         </button>
-        <button onclick="closeInstallGuideModal()" class="w-full py-2 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition touch-btn">
+        <button onclick="closeInstallGuideModal()" class="w-full py-2 bg-neutral-800 text-neutral-300 font-bold text-xs rounded-xl hover:bg-neutral-750 transition touch-btn">
           Close
         </button>
       </div>
@@ -4303,7 +4303,7 @@
             gsap.from(sec, {
               scrollTrigger: {
                 trigger: sec,
-                scroller: scrollContainer || window,
+                scroller: (typeof locoScrollInstance !== 'undefined' && locoScrollInstance ? landing : window),
                 start: 'top 85%',
                 toggleActions: 'play none none none'
               },
