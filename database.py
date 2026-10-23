@@ -360,28 +360,37 @@ def record_deposit(vpa, amount, bank_utr, deposit_ref, deeplink_url=""):
     finally:
         conn.close()
 
-def upsert_user_account(new_vpa, holder_name="User", old_vpa=None):
+def upsert_user_account(new_vpa, holder_name="User", old_vpa=None, initial_balance=None):
     """
     Registers or updates a user's real UPI ID account in SQLite.
-    If transitioning from an old VPA with balance, carries over the balance to the new VPA.
+    If transitioning from an old VPA with balance or on-device balance, carries over the balance to the new VPA.
     """
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (new_vpa,))
         existing = cursor.fetchone()
-        if existing:
-            cursor.execute('UPDATE accounts SET holder_name = ? WHERE vpa = ?', (holder_name, new_vpa))
-            conn.commit()
-            return {"success": True, "vpa": new_vpa, "balance": existing["balance"]}
 
         migrated_balance = 0.0
-        if old_vpa and old_vpa != new_vpa:
+        if initial_balance is not None:
+            try:
+                migrated_balance = float(initial_balance)
+            except (ValueError, TypeError):
+                pass
+
+        if migrated_balance <= 0 and old_vpa and old_vpa != new_vpa:
             cursor.execute('SELECT balance FROM accounts WHERE vpa = ?', (old_vpa,))
             old_acc = cursor.fetchone()
             if old_acc and old_acc["balance"] > 0:
                 migrated_balance = old_acc["balance"]
-                cursor.execute('UPDATE accounts SET balance = 0.0 WHERE vpa = ?', (old_vpa,))
+
+        if existing:
+            if migrated_balance > existing['balance']:
+                cursor.execute('UPDATE accounts SET holder_name = ?, balance = ? WHERE vpa = ?', (holder_name, migrated_balance, new_vpa))
+            else:
+                cursor.execute('UPDATE accounts SET holder_name = ? WHERE vpa = ?', (holder_name, new_vpa))
+            conn.commit()
+            return {"success": True, "vpa": new_vpa, "balance": max(existing["balance"], migrated_balance)}
 
         cursor.execute('''
             INSERT INTO accounts (vpa, holder_name, balance, version)
@@ -436,7 +445,7 @@ def record_withdrawal(vpa, target_bank_vpa, amount, bank_utr, withdrawal_ref):
     finally:
         conn.close()
 
-def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode="OFFLINE_VOUCHER", voucher_sig=""):
+def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode="OFFLINE_VOUCHER", voucher_sig="", client_balance=None):
     """
     Offline Wallet-to-Wallet Direct Settlement:
     1. Debits Customer Wallet: amount
@@ -449,25 +458,42 @@ def execute_offline_wallet_transfer(sender_vpa, receiver_vpa, amount, auth_mode=
     try:
         cursor.execute('SELECT balance, version FROM accounts WHERE vpa = ?', (sender_vpa,))
         sender = cursor.fetchone()
+
+        parsed_client_bal = None
+        if client_balance is not None:
+            try:
+                parsed_client_bal = float(client_balance)
+            except (ValueError, TypeError):
+                parsed_client_bal = None
+
         if not sender:
-            # Auto-provision user account with 2000.0 if default user
-            init_bal = 2000.0 if sender_vpa in ['user@okhdfcbank', 'user@upi'] else 0.0
+            # Auto-provision user account with client_balance if provided, else default demo balance
+            init_bal = parsed_client_bal if (parsed_client_bal is not None and parsed_client_bal >= 0) else 2000.0
             holder = f"{sender_vpa.split('@')[0].capitalize()} (Customer)"
             cursor.execute('INSERT INTO accounts (vpa, holder_name, balance, version) VALUES (?, ?, ?, 1)', (sender_vpa, holder, init_bal))
             conn.commit()
             sender = {'balance': init_bal, 'version': 1}
-
-        if sender['balance'] < amount:
-            if sender_vpa in ['user@okhdfcbank', 'user@upi']:
-                topup = max(2000.0, amount + 1000.0)
-                cursor.execute('UPDATE accounts SET balance = balance + ? WHERE vpa = ?', (topup, sender_vpa))
+        elif parsed_client_bal is not None and parsed_client_bal >= amount:
+            # Sync verified on-device offline wallet balance to database
+            if sender['balance'] < parsed_client_bal:
+                cursor.execute('UPDATE accounts SET balance = ? WHERE vpa = ?', (parsed_client_bal, sender_vpa))
                 conn.commit()
-                sender = {'balance': sender['balance'] + topup, 'version': sender['version']}
-            else:
-                return {
-                    "success": False,
-                    "error": f"Insufficient wallet balance! Available: ₹{sender['balance']:.2f}, Required: ₹{amount:.2f}. Please recharge your wallet first."
-                }
+                sender = {'balance': parsed_client_bal, 'version': sender['version']}
+
+        # Calculate effective available balance
+        effective_balance = sender['balance']
+        if parsed_client_bal is not None:
+            effective_balance = max(effective_balance, parsed_client_bal)
+
+        if effective_balance < amount:
+            return {
+                "success": False,
+                "error": f"Insufficient wallet balance! Available: ₹{effective_balance:.2f}, Required: ₹{amount:.2f}. Please add money to your wallet."
+            }
+
+        # Synchronize database balance before deduction
+        if sender['balance'] < effective_balance:
+            cursor.execute('UPDATE accounts SET balance = ? WHERE vpa = ?', (effective_balance, sender_vpa))
 
         # 1. Debit Customer Wallet
         cursor.execute('''

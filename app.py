@@ -153,13 +153,15 @@ def qr_verify_scan():
     payer_vpa = payload.get('payerVpa')
     payee_vpa = payload.get('payeeVpa')
     amount = float(payload.get('amount', 0))
+    client_balance = payload.get('clientBalance') or data.get('clientBalance')
 
     transfer_res = execute_offline_wallet_transfer(
         sender_vpa=payer_vpa,
         receiver_vpa=payee_vpa,
         amount=amount,
         auth_mode="OFFLINE_QR_VOUCHER",
-        voucher_sig=signature_hex
+        voucher_sig=signature_hex,
+        client_balance=client_balance
     )
 
     if not transfer_res.get('success'):
@@ -195,6 +197,7 @@ def wallet_transfer_offline():
     sender = (data.get('payerVpa') or '').strip()
     receiver = (data.get('payeeVpa') or '').strip()
     amount = float(data.get('amount', 0))
+    client_balance = data.get('clientBalance')
 
     if not sender or not receiver:
         return jsonify({"success": False, "error": "Both sender and merchant UPI handles are required."}), 400
@@ -205,7 +208,8 @@ def wallet_transfer_offline():
         sender_vpa=sender,
         receiver_vpa=receiver,
         amount=amount,
-        auth_mode="OFFLINE_DIRECT_HANDLE"
+        auth_mode="OFFLINE_DIRECT_HANDLE",
+        client_balance=client_balance
     )
 
     if not transfer_res.get('success'):
@@ -605,8 +609,10 @@ def validate_upi_id():
     if not holder_name:
         holder_name = f"UPI Account Holder ({username})"
 
-    # Auto-register/verify in local ledger
-    upsert_user_account(new_vpa=vpa, holder_name=holder_name)
+    # Auto-register/verify in local ledger with balance carryover
+    old_vpa = (data.get('oldVpa') or '').strip()
+    initial_balance = data.get('initialBalance')
+    upsert_user_account(new_vpa=vpa, holder_name=holder_name, old_vpa=old_vpa, initial_balance=initial_balance)
 
     return jsonify({
         "success": True,
@@ -1094,6 +1100,7 @@ def hotspot_transfer():
     data = request.json or {}
     sender = (data.get('senderVpa') or '').strip()
     receiver = (data.get('receiverVpa') or '').strip()
+    client_balance = data.get('clientBalance')
     try:
         amount = float(data.get('amount', 0))
     except (ValueError, TypeError):
@@ -1108,7 +1115,8 @@ def hotspot_transfer():
         sender_vpa=sender,
         receiver_vpa=receiver,
         amount=amount,
-        auth_mode="WIFI_HOTSPOT_LAN"
+        auth_mode="WIFI_HOTSPOT_LAN",
+        client_balance=client_balance
     )
 
     if not transfer_res.get('success'):
