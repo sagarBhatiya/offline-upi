@@ -49,6 +49,68 @@ def get_accounts():
     return accounts
 
 
+def get_account_by_vpa(vpa):
+    """Retrieves a single registered account by VPA."""
+    if not vpa:
+        return None
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT vpa, holder_name, balance, version FROM accounts WHERE LOWER(vpa) = LOWER(?)', (vpa.strip(),))
+    r = cursor.fetchone()
+    conn.close()
+    if not r:
+        return None
+    if isinstance(r, dict):
+        return dict(r)
+    return {
+        'vpa': r[0],
+        'holder_name': r[1],
+        'balance': float(r[2]),
+        'version': r[3]
+    }
+
+
+def get_recent_transactions_for_vpa(vpa, limit=10):
+    """Retrieves recent transactions involving a specific VPA."""
+    if not vpa:
+        return []
+    vpa_clean = vpa.strip().lower()
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, packet_hash, sender_vpa, receiver_vpa, amount, status, 
+               bridge_id, hop_count, mule_vpa, mule_reward, auth_mode, bank_utr, deeplink_url, settled_at
+        FROM transactions 
+        WHERE LOWER(sender_vpa) = ? OR LOWER(receiver_vpa) = ?
+        ORDER BY id DESC 
+        LIMIT ?
+    ''', (vpa_clean, vpa_clean, limit))
+    rows = cursor.fetchall()
+    conn.close()
+    txns = []
+    for r in rows:
+        if isinstance(r, dict):
+            txns.append(dict(r))
+        else:
+            txns.append({
+                'id': r[0],
+                'packet_hash': r[1],
+                'sender_vpa': r[2],
+                'receiver_vpa': r[3],
+                'amount': float(r[4]),
+                'status': r[5],
+                'bridge_id': r[6],
+                'hop_count': r[7],
+                'mule_vpa': r[8],
+                'mule_reward': float(r[9]),
+                'auth_mode': r[10],
+                'bank_utr': r[11],
+                'deeplink_url': r[12],
+                'settled_at': r[13]
+            })
+    return txns
+
+
 def get_transactions(limit=50):
     """Retrieves recent audit ledger transactions."""
     conn = get_connection()
