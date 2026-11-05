@@ -52,18 +52,35 @@ def init_db():
         )
     ''')
 
-    # 4. Offline Vouchers Table
+    # 4. Offline Vouchers Table (Room / SQLite Encrypted Offline State Machine)
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS offline_vouchers (
-            pin VARCHAR(20) PRIMARY KEY,
-            sender_vpa VARCHAR(255) NOT NULL,
-            receiver_vpa VARCHAR(255) NOT NULL,
+            id {pk_auto},
+            voucher_id VARCHAR(100) UNIQUE,
+            type VARCHAR(20) NOT NULL DEFAULT 'DEBIT',
             amount {real_type} NOT NULL,
-            utr VARCHAR(100) NOT NULL,
             status VARCHAR(50) NOT NULL,
-            created_at VARCHAR(100) NOT NULL
+            raw_payload TEXT DEFAULT '',
+            created_at VARCHAR(100) NOT NULL,
+            synced_at VARCHAR(100) DEFAULT '',
+            pin VARCHAR(20) DEFAULT '',
+            sender_vpa VARCHAR(255) DEFAULT '',
+            receiver_vpa VARCHAR(255) DEFAULT '',
+            utr VARCHAR(100) DEFAULT ''
         )
     ''')
+
+    # Column migrations for existing tables
+    for col_def in [
+        ("voucher_id", "VARCHAR(100)"),
+        ("type", "VARCHAR(20) DEFAULT 'DEBIT'"),
+        ("raw_payload", "TEXT DEFAULT ''"),
+        ("synced_at", "VARCHAR(100) DEFAULT ''")
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE offline_vouchers ADD COLUMN {col_def[0]} {col_def[1]}")
+        except Exception:
+            pass
 
     # 5. Production Wallets State Table
     cursor.execute(f'''

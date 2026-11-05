@@ -548,21 +548,35 @@
     }
 
     // Generate Host Connection QR Code
-    function initQrCode() {
-      const hostUrl = window.location.href;
+    async function initQrCode() {
       const qrEl = document.getElementById('host-qrcode');
       qrEl.innerHTML = '';
       try {
+        const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
+        const partnerVpa = profiles[partnerRole].vpa;
+        const res = await fetch(`/api/hotspot/qr?vpa=${encodeURIComponent(partnerVpa)}`);
+        const data = await res.json();
+        const qrString = data.qrString || JSON.stringify(data.qr);
         new QRCode(qrEl, {
-          text: hostUrl,
+          text: qrString,
           width: 90,
           height: 90,
           colorDark: "#000000",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
+        if (data.qr && data.qr.ssid) {
+          document.getElementById('host-ip-display').innerText = `${data.qr.ssid} (${data.qr.host}:${data.qr.port})`;
+        }
       } catch (err) {
-        console.warn('QR code init error', err);
+        new QRCode(qrEl, {
+          text: window.location.href,
+          width: 90,
+          height: 90,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
       }
     }
 
@@ -686,6 +700,10 @@
       }
       if (amountVal <= 0) {
         alert("Please enter a valid transfer amount.");
+        return;
+      }
+      if (amountVal > 500) {
+        alert("Maximum offline limit is ₹500.00 per transaction.");
         return;
       }
       if (p.balance < amountVal) {

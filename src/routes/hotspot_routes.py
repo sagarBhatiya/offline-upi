@@ -1,11 +1,20 @@
 import time
+import json
 import socket
+import uuid
 from flask import Blueprint, request, jsonify
 from src.db.repository import (
     execute_offline_wallet_transfer,
     get_account_by_vpa,
     get_recent_transactions_for_vpa,
-    upsert_user_account
+    upsert_user_account,
+    record_offline_voucher,
+    get_pending_sync_vouchers
+)
+from src.core.hotspot_socket import (
+    HotspotVoucherEngine,
+    OfflinePaymentService,
+    MAX_OFFLINE_TRANSACTION_LIMIT
 )
 
 hotspot_bp = Blueprint('hotspot_bp', __name__)
@@ -44,6 +53,49 @@ def hotspot_info():
         "miniMilitiaMode": True,
         "mode": "OFFLINE_LAN"
     })
+
+@hotspot_bp.route('/api/hotspot/qr', methods=['GET'])
+def get_hotspot_qr():
+    """
+    Returns connection QR JSON for Device B (Sender) to connect to Device A (Receiver):
+    { "ssid": "UPI_...", "psk": "...", "host": "192.168.49.1", "port": 8888, "receiverVpa": "...", "pubKey": "..." }
+    """
+    receiver_vpa = (request.args.get('vpa') or 'merchant@okhdfcbank').strip().lower()
+    suffix = uuid.uuid4().hex[:6].upper()
+    ssid = f"UPI_{suffix}"
+    psk = uuid.uuid4().hex[:12]
+
+    # Best detected host IP
+    host_ip = "192.168.49.1"
+    try:
+        host_ip = socket.gethostbyname(socket.gethostname())
+    except Exception:
+        pass
+
+    engine = HotspotVoucherEngine()
+    qr_payload = {
+        "ssid": ssid,
+        "psk": psk,
+        "host": host_ip,
+        "port": 8888,
+        "receiverVpa": receiver_vpa,
+        "pubKey": engine.get_public_key_pem()
+    }
+
+    return jsonify({
+        "success": True,
+        "qr": qr_payload,
+        "qrString": json.dumps(qr_payload)
+    })
+
+@hotspot_bp.route('/api/hotspot/sync', methods=['POST'])
+def trigger_cloud_sync():
+    """
+    Simulates background WorkManager sync job:
+    Pushes pending offline vouchers to the central ledger when connectivity resumes.
+    """
+    res = OfflinePaymentService.sync_pending_vouchers_to_cloud()
+    return jsonify(res)
 
 @hotspot_bp.route('/api/hotspot/ping', methods=['GET'])
 def hotspot_ping():
@@ -154,6 +206,11 @@ def hotspot_transfer():
         return jsonify({"success": False, "error": "Sender and receiver cannot be the same UPI ID."}), 400
     if amount <= 0:
         return jsonify({"success": False, "error": "Amount must be greater than 0."}), 400
+    if amount > MAX_OFFLINE_TRANSACTION_LIMIT:
+        return jsonify({
+            "success": False,
+            "error": f"Amount exceeds maximum offline limit of Rs.{MAX_OFFLINE_TRANSACTION_LIMIT:.2f} per transaction."
+        }), 400
 
     transfer_res = execute_offline_wallet_transfer(
         sender_vpa=sender,
@@ -165,6 +222,18 @@ def hotspot_transfer():
 
     if not transfer_res.get('success'):
         return jsonify({"success": False, "error": transfer_res.get('error')}), 400
+
+    # Record in Room/SQLite offline_vouchers state machine
+    voucher_uuid = str(uuid.uuid4())
+    record_offline_voucher(
+        voucher_id=voucher_uuid,
+        voucher_type="DEBIT",
+        amount=amount,
+        status="COMPLETED",
+        raw_payload=json.dumps({"sender": sender, "receiver": receiver, "amount": amount}),
+        sender_vpa=sender,
+        receiver_vpa=receiver
+    )
 
     tx_event = {
         "transactionId": transfer_res.get('transaction_id'),
@@ -179,6 +248,7 @@ def hotspot_transfer():
 
     global recent_hotspot_events
     recent_hotspot_events.append(tx_event)
+
     if len(recent_hotspot_events) > 50:
         recent_hotspot_events = recent_hotspot_events[-50:]
 

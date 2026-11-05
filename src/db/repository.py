@@ -760,3 +760,153 @@ def audit_ledger_integrity():
         "total_journal_entries": entries_val,
         "total_postings": postings_val
     }
+
+
+def record_offline_voucher(voucher_id, voucher_type, amount, status, raw_payload, sender_vpa="", receiver_vpa="", created_at=None, synced_at=""):
+    """
+    Records an offline voucher state machine transition (DEBIT/CREDIT, PENDING_SYNC/COMPLETED/QUARANTINED).
+    Matches Room/SQLite offline_vouchers entity.
+    """
+    if created_at is None:
+        created_at = datetime.now().isoformat()
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT voucher_id FROM offline_vouchers WHERE voucher_id = ?', (voucher_id,))
+        if cursor.fetchone():
+            cursor.execute('''
+                UPDATE offline_vouchers
+                SET type = ?, amount = ?, status = ?, raw_payload = ?, synced_at = ?
+                WHERE voucher_id = ?
+            ''', (voucher_type, float(amount), status, raw_payload, synced_at, voucher_id))
+        else:
+            utr = f"OFFLINE-VCR-{voucher_id[:8]}"
+            cursor.execute('''
+                INSERT INTO offline_vouchers (voucher_id, type, amount, status, raw_payload, created_at, synced_at, pin, sender_vpa, receiver_vpa, utr)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (voucher_id, voucher_type, float(amount), status, raw_payload, created_at, synced_at, voucher_id[:6], sender_vpa, receiver_vpa, utr))
+        conn.commit()
+        return True
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+
+def get_offline_voucher_by_id(voucher_id):
+    """Retrieves an offline voucher record by voucher_id."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, voucher_id, type, amount, status, raw_payload, created_at, synced_at, sender_vpa, receiver_vpa, utr
+        FROM offline_vouchers
+        WHERE voucher_id = ?
+    ''', (voucher_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    if isinstance(row, dict):
+        return dict(row)
+    return {
+        'id': row[0],
+        'voucher_id': row[1],
+        'type': row[2],
+        'amount': float(row[3]),
+        'status': row[4],
+        'raw_payload': row[5],
+        'created_at': row[6],
+        'synced_at': row[7],
+        'sender_vpa': row[8],
+        'receiver_vpa': row[9],
+        'utr': row[10]
+    }
+
+
+def update_offline_voucher_status(voucher_id, new_status, synced_at=""):
+    """Updates status and synced timestamp for an offline voucher."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        if synced_at:
+            cursor.execute('UPDATE offline_vouchers SET status = ?, synced_at = ? WHERE voucher_id = ?', (new_status, synced_at, voucher_id))
+        else:
+            cursor.execute('UPDATE offline_vouchers SET status = ? WHERE voucher_id = ?', (new_status, voucher_id))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def get_pending_sync_vouchers():
+    """Retrieves all offline vouchers pending cloud sync (Room / WorkManager sync equivalent)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, voucher_id, type, amount, status, raw_payload, created_at, synced_at, sender_vpa, receiver_vpa
+        FROM offline_vouchers
+        WHERE status = 'PENDING_SYNC'
+        ORDER BY id ASC
+    ''')
+    rows = cursor.fetchall()
+    conn.close()
+    results = []
+    for r in rows:
+        if isinstance(r, dict):
+            results.append(dict(r))
+        else:
+            results.append({
+                'id': r[0],
+                'voucher_id': r[1],
+                'type': r[2],
+                'amount': float(r[3]),
+                'status': r[4],
+                'raw_payload': r[5],
+                'created_at': r[6],
+                'synced_at': r[7],
+                'sender_vpa': r[8],
+                'receiver_vpa': r[9]
+            })
+    return results
+
+
+def get_last_monotonic_nonce(sender_vpa):
+    """
+    Retrieves the highest monotonic sequence counter for a sender VPA
+    from wallets or transactions to prevent replay attacks.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT current_seq FROM wallets WHERE vpa = ?', (sender_vpa,))
+        row = cursor.fetchone()
+        if row:
+            return row['current_seq'] if isinstance(row, dict) else row[0]
+        cursor.execute('SELECT COUNT(*) FROM transactions WHERE LOWER(sender_vpa) = LOWER(?)', (sender_vpa,))
+        count_row = cursor.fetchone()
+        return (count_row['count'] if isinstance(count_row, dict) else count_row[0]) or 0
+    finally:
+        conn.close()
+
+
+def increment_monotonic_nonce(sender_vpa, new_nonce=None):
+    """Updates/increments the monotonic sequence counter for a sender VPA."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT current_seq FROM wallets WHERE vpa = ?', (sender_vpa,))
+        row = cursor.fetchone()
+        if row:
+            curr = row['current_seq'] if isinstance(row, dict) else row[0]
+            val = new_nonce if new_nonce is not None else (curr + 1)
+            cursor.execute('UPDATE wallets SET current_seq = ?, updated_at = ? WHERE vpa = ?', 
+                           (val, datetime.now().isoformat(), sender_vpa))
+        else:
+            val = new_nonce if new_nonce is not None else 1
+            cursor.execute('INSERT INTO wallets (vpa, state, current_seq, last_hash, escrow_balance, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+                           (sender_vpa, 'ACTIVE', val, 'INIT_HASH', 2000.0, datetime.now().isoformat()))
+        conn.commit()
+        return val
+    finally:
+        conn.close()
