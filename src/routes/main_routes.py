@@ -9,7 +9,8 @@ def index():
     return render_template('index.html')
 
 @main_bp.route('/app')
-def app_view():
+@main_bp.route('/app/<path:subpath>')
+def app_view(subpath=None):
     return render_template('app.html')
 
 @main_bp.route('/manifest.json')
