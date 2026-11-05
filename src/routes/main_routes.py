@@ -8,6 +8,10 @@ main_bp = Blueprint('main_bp', __name__)
 def index():
     return render_template('index.html')
 
+@main_bp.route('/app')
+def app_view():
+    return render_template('app.html')
+
 @main_bp.route('/manifest.json')
 def manifest():
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))

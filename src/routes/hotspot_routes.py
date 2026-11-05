@@ -58,7 +58,7 @@ def hotspot_info():
 def get_hotspot_qr():
     """
     Returns connection QR JSON for Device B (Sender) to connect to Device A (Receiver):
-    { "ssid": "UPI_...", "psk": "...", "host": "192.168.49.1", "port": 8888, "receiverVpa": "...", "pubKey": "..." }
+    Generates Dual-Compatible Wi-Fi format: WIFI:S:...;T:WPA;P:...;;URL:http://...
     """
     receiver_vpa = (request.args.get('vpa') or 'merchant@okhdfcbank').strip().lower()
     suffix = uuid.uuid4().hex[:6].upper()
@@ -66,26 +66,73 @@ def get_hotspot_qr():
     psk = uuid.uuid4().hex[:12]
 
     # Best detected host IP
-    host_ip = "192.168.49.1"
+    host_ip = "192.168.43.1"
     try:
         host_ip = socket.gethostbyname(socket.gethostname())
     except Exception:
         pass
 
     engine = HotspotVoucherEngine()
+    wifi_string = f"WIFI:S:{ssid};T:WPA;P:{psk};;URL:http://{host_ip}:5000"
     qr_payload = {
         "ssid": ssid,
         "psk": psk,
         "host": host_ip,
-        "port": 8888,
+        "port": 5000,
         "receiverVpa": receiver_vpa,
+        "wifiString": wifi_string,
         "pubKey": engine.get_public_key_pem()
     }
 
     return jsonify({
         "success": True,
         "qr": qr_payload,
-        "qrString": json.dumps(qr_payload)
+        "wifiString": wifi_string,
+        "qrString": wifi_string
+    })
+
+@hotspot_bp.route('/api/hotspot/payment-qr', methods=['POST'])
+def generate_payment_qr():
+    """
+    Generates Dynamic Payment QR (QR 2) for Receiver with locked amount and UPI URI.
+    """
+    data = request.json or {}
+    receiver_vpa = (data.get('receiverVpa') or 'merchant@okhdfcbank').strip().lower()
+    try:
+        amount = float(data.get('amount', 0.0))
+    except (ValueError, TypeError):
+        amount = 0.0
+
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Amount must be greater than Rs. 0."}), 400
+    if amount > MAX_OFFLINE_TRANSACTION_LIMIT:
+        return jsonify({"success": False, "error": f"Amount exceeds maximum offline limit of Rs.{MAX_OFFLINE_TRANSACTION_LIMIT:.2f}."}), 400
+
+    voucher_id = str(uuid.uuid4())
+    nonce = int(time.time() * 1000)
+    engine = HotspotVoucherEngine()
+    
+    # Dual-compatible UPI URL string for QR scanning
+    upi_uri = f"upi://pay?pa={receiver_vpa}&pn=OfflineMerchant&am={amount:.2f}&cu=INR&mode=02&offline=true&vid={voucher_id}&nonce={nonce}"
+
+    qr_payload = {
+        "voucherId": voucher_id,
+        "receiverVpa": receiver_vpa,
+        "amount": amount,
+        "nonce": nonce,
+        "timestamp": int(time.time()),
+        "upiUri": upi_uri,
+        "pubKey": engine.get_public_key_pem()
+    }
+
+    return jsonify({
+        "success": True,
+        "voucherId": voucher_id,
+        "receiverVpa": receiver_vpa,
+        "amount": amount,
+        "upiUri": upi_uri,
+        "qrString": upi_uri,
+        "qrPayload": qr_payload
     })
 
 @hotspot_bp.route('/api/hotspot/sync', methods=['POST'])

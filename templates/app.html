@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Offline UPI — Interactive Dual Device Console</title>
+
+  <!-- PWA & Mobile Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#07080d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+
+  <!-- Tailwind CSS & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core Libraries: QR Generator, Camera Scanner & Confetti -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#131622',
+              900: '#0d1019',
+              950: '#07080d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #07080d;
+      color: #f3f4f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+    .glass-card {
+      background: rgba(19, 23, 35, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    .glass-card-elevated {
+      background: rgba(24, 29, 45, 0.88);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
+
+  <!-- ========================================================================= -->
+  <!-- TOP APP BAR -->
+  <!-- ========================================================================= -->
+  <header class="w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-md group-hover:scale-105 transition">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-extrabold tracking-tight text-white">Offline UPI</span>
+            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              APP CONSOLE
+            </span>
+          </div>
+          <p class="text-[10px] text-zinc-400">Wi-Fi Hotspot LAN P2P Engine</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Layout Switcher and Back to Home -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1 rounded-xl text-xs">
+        <button id="btn-layout-split" onclick="switchConsoleLayout('split')" class="px-3 py-1.5 rounded-lg font-bold bg-zinc-800 text-white shadow transition text-[11px] sm:text-xs">
+          Dual Phone
+        </button>
+        <button id="btn-layout-single" onclick="switchConsoleLayout('single')" class="px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition text-[11px] sm:text-xs">
+          Single Phone
+        </button>
+      </div>
+
+      <button onclick="openInstallModal()" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-bold text-zinc-300 transition">
+        <span>📲</span>
+        <span>Install PWA</span>
+      </button>
+
+      <a href="/" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 font-semibold text-xs transition flex items-center gap-1">
+        <span>← Home / Docs</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN APP CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- Active Single Phone View Toggle (shown when Single Phone mode is active) -->
+    <div id="single-role-bar" class="glass-card rounded-2xl p-2.5 flex items-center justify-between text-xs hidden">
+      <div class="flex items-center gap-2 pl-2">
+        <span class="text-zinc-400">Active View:</span>
+        <span id="label-active-view" class="font-bold text-emerald-400 font-mono">Payer (Phone A)</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+        <button id="sbtn-phone-a" onclick="switchSingleRole('phone_a')" class="px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white shadow transition">
+          Payer (Phone A)
+        </button>
+        <button id="sbtn-phone-b" onclick="switchSingleRole('phone_b')" class="px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition">
+          Receiver (Phone B)
+        </button>
+      </div>
+    </div>
+
+    <!-- THE DUAL CONSOLE GRID -->
+    <div id="dual-console-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+      <!-- =================================================================== -->
+      <!-- PANE 1: DEVICE A - RECEIVER / MERCHANT -->
+      <!-- =================================================================== -->
+      <div id="pane-receiver" class="space-y-5">
+        
+        <!-- Header: Device A -->
+        <div class="glass-card-elevated rounded-3xl p-5 border-l-4 border-l-emerald-500 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold">
+                🏪
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-extrabold text-white">Device A (Receiver / Merchant)</h3>
+                  <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                    HOST
+                  </span>
+                </div>
+                <p class="text-xs text-zinc-400">Metro Cafe • <span class="font-mono text-emerald-300">merchant@okhdfcbank</span></p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] font-mono text-zinc-500 uppercase">Merchant Vault</div>
+              <div class="text-xl font-extrabold text-white font-mono">₹<span id="bal-receiver">500.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. Hotspot QR 1 Display -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center text-xs font-mono font-bold">1</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hotspot Connection QR (QR 1)</h4>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400 font-bold px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+              Hotspot Active
+            </span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 bg-zinc-950/70 p-4 rounded-2xl border border-zinc-800/80">
+            <div id="qr-hotspot-render" class="bg-white p-2.5 rounded-2xl shadow-xl shrink-0"></div>
+            <div class="space-y-1.5 text-center sm:text-left flex-1">
+              <div>
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Wi-Fi Hotspot SSID</div>
+                <div id="hotspot-ssid-text" class="text-sm font-bold font-mono text-emerald-300">UPI_HOTSPOT_A9</div>
+              </div>
+              <div>
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Wi-Fi Password (PSK)</div>
+                <div id="hotspot-psk-text" class="text-xs font-bold font-mono text-white tracking-widest">upi12345678</div>
+              </div>
+              <p class="text-[11px] text-zinc-500 pt-1">
+                Standard Android / iOS camera scans this to join Wi-Fi instantly without typing passwords!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Dynamic Payment QR 2 Generator -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-mono font-bold">2</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-white">Dynamic Payment QR (QR 2)</h4>
+            </div>
+            <span class="text-[10px] font-mono text-zinc-400">Max ₹500/txn</span>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs text-zinc-300">
+              <span>Enter Amount to Request:</span>
+              <span class="font-mono text-emerald-400 text-[11px]">Dynamic Locked Amount</span>
+            </div>
+
+            <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-2.5 px-4 focus-within:border-emerald-500 transition">
+              <span class="text-xl font-bold text-zinc-400 mr-2">₹</span>
+              <input type="number" id="input-payment-amt" min="1" max="500" value="150" class="bg-transparent text-white font-mono text-2xl font-extrabold flex-1 outline-none">
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 pt-1">
+              <button onclick="setAmountQuick(50)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹50</button>
+              <button onclick="setAmountQuick(100)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹100</button>
+              <button onclick="setAmountQuick(200)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹200</button>
+              <button onclick="setAmountQuick(500)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹500</button>
+            </div>
+
+            <button onclick="generatePaymentQr()" class="w-full py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-emerald-400 font-bold text-xs flex items-center justify-center gap-1.5 transition shadow">
+              <span>⚡ Generate / Update Payment QR (QR 2)</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800/80">
+            <div id="qr-payment-render" class="bg-white p-2.5 rounded-2xl shadow shrink-0"></div>
+            <div class="space-y-1.5 text-center sm:text-left flex-1">
+              <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Dynamic Payment Payload</div>
+              <div class="text-sm font-extrabold text-white">Amount: <span id="label-payment-amt" class="text-emerald-400 font-mono">₹150.00</span></div>
+              <div class="text-xs font-mono text-zinc-400">Payee: merchant@okhdfcbank</div>
+              <p class="text-[11px] text-zinc-500 pt-1">
+                Customer camera scanner se scan karke bina internet ke direct pay karega.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Bank Withdrawal Hub -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs font-mono font-bold">3</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-white">Bank Withdrawal (When Online)</h4>
+            </div>
+            <span class="text-[10px] font-mono text-amber-400 font-bold px-2 py-0.5 bg-amber-500/10 rounded-full border border-amber-500/20">
+              IMPS Ready
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-withdraw-bank" onclick="selectWithdrawMode('BANK_ACCOUNT')" class="p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition">
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>🏛️</span> Bank A/C + IFSC
+              </div>
+              <div class="text-[10px] text-zinc-400 font-mono">IMPS Payout</div>
+            </button>
+            <button id="btn-withdraw-upi" onclick="selectWithdrawMode('UPI_ID')" class="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition">
+              <div class="text-xs font-bold text-zinc-400 flex items-center gap-1.5">
+                <span>📱</span> Bank UPI ID
+              </div>
+              <div class="text-[10px] text-zinc-500 font-mono">Instant UPI</div>
+            </button>
+          </div>
+
+          <div id="form-withdraw-bank" class="space-y-2 pt-1">
+            <input type="text" id="input-acc-num" placeholder="Bank Account Number (e.g. 50100456789123)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
+            <input type="text" id="input-ifsc-code" placeholder="11-digit IFSC (e.g. HDFC0001234)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase outline-none focus:border-emerald-500">
+          </div>
+
+          <div id="form-withdraw-upi" class="space-y-2 pt-1 hidden">
+            <input type="text" id="input-target-upi" placeholder="Destination Bank UPI ID (e.g. merchant@okhdfcbank)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 flex-1">
+              <span class="text-zinc-500 font-bold mr-1">₹</span>
+              <input type="number" id="input-withdraw-val" value="200" class="w-full bg-transparent text-xs text-white font-mono outline-none">
+            </div>
+            <button onclick="executeBankWithdrawal()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-extrabold text-xs shadow transition whitespace-nowrap">
+              Withdraw to Bank 🏦
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- PANE 2: DEVICE B - PAYER / CUSTOMER -->
+      <!-- =================================================================== -->
+      <div id="pane-payer" class="space-y-5">
+
+        <!-- Header: Device B -->
+        <div class="glass-card-elevated rounded-3xl p-5 border-l-4 border-l-teal-400 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-teal-500/20 text-teal-300 flex items-center justify-center text-xl font-bold">
+                📱
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-extrabold text-white">Device B (Customer / Payer)</h3>
+                  <span class="text-[9px] font-mono bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">
+                    CLIENT
+                  </span>
+                </div>
+                <p class="text-xs text-zinc-400">Sagar Sharma • <span class="font-mono text-teal-300">sagar@okhdfcbank</span></p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] font-mono text-zinc-500 uppercase">Customer Balance</div>
+              <div class="text-xl font-extrabold text-white font-mono">₹<span id="bal-payer">2000.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. Scanner 1: Connect to Hotspot -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center text-xs font-mono font-bold">1</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-white">Connect Device to Hotspot (Scanner 1)</h4>
+            </div>
+            <span id="badge-link-state" class="text-[10px] font-mono text-emerald-400 font-bold px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+              LAN Ready
+            </span>
+          </div>
+
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Merchant ke screen par dikh rahe Hotspot QR (QR 1) ko camera scanner se scan karke local Wi-Fi link join karein:
+          </p>
+
+          <button onclick="openCameraScanner('HOTSPOT')" class="w-full py-3.5 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow">
+            <span>📷 Open Camera Scanner 1 (Scan Hotspot QR)</span>
+          </button>
+
+          <div class="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/80 flex items-center justify-between text-xs">
+            <span class="text-zinc-400">Quick Test Pair on Same Subnet:</span>
+            <button onclick="confirmHotspotPairing()" class="px-3 py-1.5 rounded-xl bg-teal-500/10 text-teal-300 hover:bg-teal-500/20 font-bold border border-teal-500/20 transition">
+              Verify Link ✓
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Scanner 2: Scan & Pay Offline -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-mono font-bold">2</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-white">Scan Payment QR (Scanner 2) & Pay</h4>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400 font-bold">Offline Instant</span>
+          </div>
+
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Merchant ka Payment QR (QR 2) camera se scan karein. Amount aur recipient auto-fill hokar direct offline transfer hoga:
+          </p>
+
+          <button onclick="openCameraScanner('PAYMENT')" class="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 active:scale-95 transition">
+            <span>📷 Open Camera Scanner 2 (Scan & Pay Offline)</span>
+          </button>
+
+          <!-- 1-Click Fast Transfer Sandbox Action -->
+          <div class="p-4 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-2.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-zinc-400">Direct Socket Transfer:</span>
+              <span class="font-mono text-emerald-300 font-bold">To: merchant@okhdfcbank</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="text-xs text-zinc-400">Amount: <strong class="text-white font-mono text-sm">₹150.00</strong></div>
+              <button onclick="executeQuickTransfer()" class="py-2 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition">
+                Pay ₹150 Offline ⚡
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Recent Double-Entry Passbook -->
+        <div class="glass-card rounded-3xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-300">Double-Entry Audit Passbook</h4>
+            <span id="label-tx-count" class="text-[10px] font-mono text-zinc-500">0 records</span>
+          </div>
+
+          <div id="list-tx-ledger" class="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+            <div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 text-center text-xs text-zinc-500">
+              No offline transfers yet. Make your first transfer above!
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CAMERA QR SCANNER -->
+  <!-- ========================================================================= -->
+  <div id="modal-scanner" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card-elevated max-w-sm w-full rounded-3xl p-5 space-y-4 border border-zinc-700 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📷</span>
+          <h3 id="scanner-title" class="text-sm font-bold text-white">Scan QR Code</h3>
+        </div>
+        <button onclick="closeCameraScanner()" class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+
+      <div id="reader" class="w-full rounded-2xl overflow-hidden bg-black aspect-square border border-zinc-800"></div>
+
+      <div class="text-center text-[11px] text-zinc-400">
+        QR code ko viewfinder ke andar align karein. Instant auto-detect hoga!
+      </div>
+
+      <div class="pt-2 border-t border-zinc-800 flex items-center justify-between">
+        <label for="scanner-file-picker" class="text-xs text-emerald-400 hover:underline cursor-pointer">
+          📁 Scan from photo / screenshot
+        </label>
+        <input type="file" id="scanner-file-picker" accept="image/*" class="hidden" onchange="handleFileQr(event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: APP INSTALLATION HUB -->
+  <!-- ========================================================================= -->
+  <div id="modal-install" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card-elevated max-w-md w-full rounded-3xl p-6 text-center space-y-5 border border-emerald-500/30 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+        <div class="flex items-center gap-2 text-left">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-xl font-bold shadow-md">
+            📲
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Install Mobile App (PWA)</h3>
+            <p class="text-[11px] text-zinc-400">Zero Internet Standalone Access</p>
+          </div>
+        </div>
+        <button onclick="closeInstallModal()" class="w-7 h-7 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 flex flex-col sm:flex-row items-center gap-4 text-left">
+        <div id="modal-handover-qr" class="bg-white p-2 rounded-xl shadow shrink-0"></div>
+        <div class="space-y-1">
+          <div class="text-xs font-bold text-white">Scan from Phone Camera</div>
+          <p class="text-[11px] text-zinc-400 leading-relaxed">
+            Scan using your phone's camera to load and install this Offline UPI App directly on your mobile device!
+          </p>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-zinc-950 text-left text-xs space-y-2 border border-zinc-800">
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold shrink-0">Android:</span>
+          <span class="text-zinc-300">Open in Chrome → Tap menu <strong class="text-white">⋮</strong> → Select <strong class="text-white">"Install app"</strong> or <strong class="text-white">"Add to Home screen"</strong>.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold shrink-0">iOS:</span>
+          <span class="text-zinc-300">Open in Safari → Tap Share <strong class="text-white">⎋</strong> at bottom → Tap <strong class="text-white">"Add to Home Screen ⊞"</strong>.</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="triggerPwaPrompt()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs shadow-lg transition">
+          1-Tap Install on this Device
+        </button>
+        <button onclick="closeInstallModal()" class="py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element -->
+  <audio id="sound-success" preload="auto">
+    <source src="https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    let singleRole = 'phone_a';
+    let deferredInstallPrompt = null;
+    let html5QrScanner = null;
+    let scanTarget = 'HOTSPOT';
+    let withdrawMode = 'BANK_ACCOUNT';
+
+    const profiles = {
+      phone_a: {
+        vpa: "sagar@okhdfcbank",
+        holder: "Sagar Sharma",
+        balance: 2000.0,
+      },
+      phone_b: {
+        vpa: "merchant@okhdfcbank",
+        holder: "Metro Cafe Store",
+        balance: 500.0,
+      }
+    };
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadHotspotQr();
+      generatePaymentQr();
+      renderModalHandoverQr();
+      await syncBalances();
+      startLedgerPoller();
+    });
+
+    // Layout Switcher
+    function switchConsoleLayout(layout) {
+      const btnSplit = document.getElementById('btn-layout-split');
+      const btnSingle = document.getElementById('btn-layout-single');
+      const grid = document.getElementById('dual-console-grid');
+      const singleBar = document.getElementById('single-role-bar');
+
+      if (layout === 'split') {
+        btnSplit.className = 'px-3 py-1.5 rounded-lg font-bold bg-zinc-800 text-white shadow transition text-[11px] sm:text-xs';
+        btnSingle.className = 'px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition text-[11px] sm:text-xs';
+        grid.className = 'grid grid-cols-1 lg:grid-cols-2 gap-6 items-start';
+        document.getElementById('pane-receiver').classList.remove('hidden');
+        document.getElementById('pane-payer').classList.remove('hidden');
+        singleBar.classList.add('hidden');
+      } else {
+        btnSingle.className = 'px-3 py-1.5 rounded-lg font-bold bg-zinc-800 text-white shadow transition text-[11px] sm:text-xs';
+        btnSplit.className = 'px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition text-[11px] sm:text-xs';
+        grid.className = 'grid grid-cols-1 gap-6 items-start max-w-xl mx-auto';
+        singleBar.classList.remove('hidden');
+        applySingleRoleView();
+      }
+    }
+
+    function switchSingleRole(role) {
+      singleRole = role;
+      const btnA = document.getElementById('sbtn-phone-a');
+      const btnB = document.getElementById('sbtn-phone-b');
+      const lbl = document.getElementById('label-active-view');
+
+      if (role === 'phone_a') {
+        btnA.className = 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white shadow transition';
+        btnB.className = 'px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition';
+        lbl.innerText = 'Payer (Phone A)';
+      } else {
+        btnB.className = 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white shadow transition';
+        btnA.className = 'px-3 py-1.5 rounded-lg font-bold text-zinc-400 hover:text-white transition';
+        lbl.innerText = 'Receiver (Phone B)';
+      }
+      applySingleRoleView();
+    }
+
+    function applySingleRoleView() {
+      const paneRecv = document.getElementById('pane-receiver');
+      const panePayer = document.getElementById('pane-payer');
+      if (singleRole === 'phone_a') {
+        paneRecv.classList.add('hidden');
+        panePayer.classList.remove('hidden');
+      } else {
+        panePayer.classList.add('hidden');
+        paneRecv.classList.remove('hidden');
+      }
+    }
+
+    // Load Hotspot QR 1
+    async function loadHotspotQr() {
+      try {
+        const res = await fetch('/api/hotspot/qr?vpa=merchant@okhdfcbank');
+        const data = await res.json();
+        if (data.success && data.qr) {
+          document.getElementById('hotspot-ssid-text').innerText = data.qr.ssid;
+          document.getElementById('hotspot-psk-text').innerText = data.qr.psk;
+
+          const cont = document.getElementById('qr-hotspot-render');
+          cont.innerHTML = '';
+          new QRCode(cont, {
+            text: data.wifiString || `WIFI:S:${data.qr.ssid};T:WPA;P:${data.qr.psk};;`,
+            width: 105,
+            height: 105,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Generate Payment QR 2
+    async function generatePaymentQr() {
+      const amt = parseFloat(document.getElementById('input-payment-amt').value || 150);
+      try {
+        const res = await fetch('/api/hotspot/payment-qr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ receiverVpa: profiles.phone_b.vpa, amount: amt })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('label-payment-amt').innerText = `₹${amt.toFixed(2)}`;
+
+          const cont = document.getElementById('qr-payment-render');
+          cont.innerHTML = '';
+          new QRCode(cont, {
+            text: data.qrString,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      } catch (e) {}
+    }
+
+    function setAmountQuick(val) {
+      document.getElementById('input-payment-amt').value = val;
+      generatePaymentQr();
+    }
+
+    function renderModalHandoverQr() {
+      const elModal = document.getElementById('modal-handover-qr');
+      const url = window.location.origin + '/app';
+      if (elModal) {
+        elModal.innerHTML = '';
+        new QRCode(elModal, { text: url, width: 90, height: 90, colorDark: "#000000", colorLight: "#ffffff" });
+      }
+    }
+
+    // Camera Scanner
+    function openCameraScanner(target) {
+      scanTarget = target;
+      document.getElementById('modal-scanner').classList.remove('hidden');
+      document.getElementById('scanner-title').innerText = target === 'HOTSPOT' ? 'Scan Hotspot Wi-Fi (QR 1)' : 'Scan Payment (QR 2)';
+
+      if (html5QrScanner) html5QrScanner.clear();
+
+      html5QrScanner = new Html5Qrcode("reader");
+      html5QrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          handleScanSuccess(decodedText);
+          closeCameraScanner();
+        },
+        () => {}
+      ).catch(() => {});
+    }
+
+    function closeCameraScanner() {
+      if (html5QrScanner) {
+        html5QrScanner.stop().then(() => html5QrScanner.clear()).catch(() => {});
+        html5QrScanner = null;
+      }
+      document.getElementById('modal-scanner').classList.add('hidden');
+    }
+
+    function handleScanSuccess(text) {
+      if (scanTarget === 'HOTSPOT') {
+        document.getElementById('badge-link-state').innerText = 'Connected ✓';
+        alert(`✓ Hotspot Link Confirmed!\n\n${text.substring(0, 35)}...\nProceeding to Step 2 (Scan & Pay Offline)!`);
+      } else {
+        let amt = 150.0;
+        let vpa = profiles.phone_b.vpa;
+        if (text.includes('am=')) {
+          const m = text.match(/am=([0-9.]+)/);
+          if (m) amt = parseFloat(m[1]);
+        }
+        if (text.includes('pa=')) {
+          const mv = text.match(/pa=([^&]+)/);
+          if (mv) vpa = decodeURIComponent(mv[1]);
+        }
+
+        const proceed = confirm(`Confirm Offline Transfer?\n\nRecipient: ${vpa}\nAmount: ₹${amt.toFixed(2)}\nNetwork: Direct Wi-Fi Hotspot LAN`);
+        if (proceed) executeTransfer(vpa, amt);
+      }
+    }
+
+    function handleFileQr(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const html5Qr = new Html5Qrcode("reader");
+      html5Qr.scanFile(file, true)
+        .then(t => { handleScanSuccess(t); closeCameraScanner(); })
+        .catch(() => alert("No readable QR found in uploaded image."));
+    }
+
+    function confirmHotspotPairing() {
+      document.getElementById('badge-link-state').innerText = 'Connected ✓';
+      alert('✓ Connected over Wi-Fi Hotspot LAN (Latency: 1ms)!');
+    }
+
+    // Execute Transfer
+    async function executeTransfer(receiverVpa, amount) {
+      const senderVpa = profiles.phone_a.vpa;
+      try {
+        const res = await fetch('/api/hotspot/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderVpa: senderVpa,
+            receiverVpa: receiverVpa,
+            amount: amount,
+            clientBalance: profiles.phone_a.balance
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (window.confetti) confetti({ particleCount: 75, spread: 60 });
+          playVoice(amount);
+          alert(`✓ Transfer Successful!\n\nDebited: ₹${amount.toFixed(2)} from ${senderVpa}\nCredited: ₹${amount.toFixed(2)} to ${receiverVpa}\nUTR: ${data.transactionId}`);
+          await syncBalances();
+        } else {
+          alert('Transfer Error: ' + (data.error || 'Server error'));
+        }
+      } catch (e) {
+        alert('Network error: ' + e.message);
+      }
+    }
+
+    function executeQuickTransfer() {
+      const amt = parseFloat(document.getElementById('input-payment-amt').value || 150);
+      executeTransfer(profiles.phone_b.vpa, amt);
+    }
+
+    function playVoice(amount) {
+      try {
+        const snd = document.getElementById('sound-success');
+        if (snd) { snd.currentTime = 0; snd.play().catch(() => {}); }
+        if ('speechSynthesis' in window) {
+          const utter = new SpeechSynthesisUtterance(`Payment of ${amount} rupees received offline on UPI`);
+          utter.rate = 1.05;
+          speechSynthesis.speak(utter);
+        }
+      } catch (e) {}
+    }
+
+    // Sync Balances
+    async function syncBalances() {
+      try {
+        const resA = await fetch(`/api/hotspot/account?vpa=${encodeURIComponent(profiles.phone_a.vpa)}`);
+        const dataA = await resA.json();
+        if (dataA.success && dataA.account) {
+          profiles.phone_a.balance = parseFloat(dataA.account.balance) || 0.0;
+          document.getElementById('bal-payer').innerText = profiles.phone_a.balance.toFixed(2);
+        }
+
+        const resB = await fetch(`/api/hotspot/account?vpa=${encodeURIComponent(profiles.phone_b.vpa)}`);
+        const dataB = await resB.json();
+        if (dataB.success && dataB.account) {
+          profiles.phone_b.balance = parseFloat(dataB.account.balance) || 0.0;
+          document.getElementById('bal-receiver').innerText = profiles.phone_b.balance.toFixed(2);
+          renderLedger(dataB.transactions || []);
+        }
+      } catch (e) {}
+    }
+
+    function renderLedger(txns) {
+      const el = document.getElementById('list-tx-ledger');
+      const countEl = document.getElementById('label-tx-count');
+      countEl.innerText = `${txns.length} records`;
+
+      if (!txns || txns.length === 0) {
+        el.innerHTML = `<div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 text-center text-xs text-zinc-500">No offline transfers yet.</div>`;
+        return;
+      }
+
+      el.innerHTML = txns.map(t => {
+        const isRecv = t.receiver_vpa.toLowerCase().includes('merchant');
+        const sign = isRecv ? '+' : '-';
+        const color = isRecv ? 'text-emerald-400 font-bold' : 'text-zinc-300';
+        const badge = isRecv ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400';
+        const counterpart = isRecv ? `From: ${t.sender_vpa}` : `To: ${t.receiver_vpa}`;
+        return `
+          <div class="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg flex items-center justify-center font-mono text-xs font-bold ${badge}">${sign}</span>
+              <div>
+                <div class="font-bold text-white truncate max-w-[160px]">${counterpart}</div>
+                <div class="text-[10px] font-mono text-zinc-500">${t.bank_utr || 'OFFLINE'}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-xs ${color}">${sign}₹${t.amount.toFixed(2)}</div>
+              <div class="text-[9px] font-mono text-zinc-500">HOTSPOT LAN</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Bank Withdrawal
+    function selectWithdrawMode(m) {
+      withdrawMode = m;
+      const bBank = document.getElementById('btn-withdraw-bank');
+      const bUpi = document.getElementById('btn-withdraw-upi');
+      const fBank = document.getElementById('form-withdraw-bank');
+      const fUpi = document.getElementById('form-withdraw-upi');
+
+      if (m === 'BANK_ACCOUNT') {
+        bBank.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        fBank.classList.remove('hidden');
+        fUpi.classList.add('hidden');
+      } else {
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bBank.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        fUpi.classList.remove('hidden');
+        fBank.classList.add('hidden');
+      }
+    }
+
+    async function executeBankWithdrawal() {
+      const amt = parseFloat(document.getElementById('input-withdraw-val').value || 0);
+      if (amt <= 0) { alert("Enter valid withdrawal amount."); return; }
+
+      const payload = { vpa: profiles.phone_b.vpa, amount: amt, method: withdrawMode };
+      if (withdrawMode === 'BANK_ACCOUNT') {
+        const acc = (document.getElementById('input-acc-num').value || '').trim();
+        const ifsc = (document.getElementById('input-ifsc-code').value || '').trim().toUpperCase();
+        if (!acc || acc.length < 8) { alert("Enter valid Bank Account Number."); return; }
+        if (!ifsc || ifsc.length !== 11) { alert("Enter 11-digit IFSC code."); return; }
+        payload.accountNumber = acc;
+        payload.ifsc = ifsc;
+      } else {
+        const upi = (document.getElementById('input-target-upi').value || '').trim();
+        if (!upi || !upi.includes('@')) { alert("Enter valid destination UPI ID."); return; }
+        payload.bankUpiId = upi;
+      }
+
+      try {
+        const res = await fetch('/api/wallet/withdraw-bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✓ Bank Withdrawal Complete!\n\nDisbursed: ₹${data.amount.toFixed(2)}\nTo: ${data.targetDescription}\nBank UTR: ${data.bankUtr}\nNew Balance: ₹${data.newBalance.toFixed(2)}`);
+          await syncBalances();
+        } else {
+          alert('Withdrawal error: ' + (data.error || 'Server error'));
+        }
+      } catch (e) {
+        alert('Communication error: ' + e.message);
+      }
+    }
+
+    // Modal Handlers
+    function openInstallModal() { document.getElementById('modal-install').classList.remove('hidden'); }
+    function closeInstallModal() { document.getElementById('modal-install').classList.add('hidden'); }
+
+    function triggerPwaPrompt() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(() => {
+          deferredInstallPrompt = null;
+          closeInstallModal();
+        });
+      } else {
+        alert("PWA installer ready! In browser menu (⋮ or ⎋), select 'Add to Home screen' or 'Install App'.");
+      }
+    }
+
+    function startLedgerPoller() {
+      setInterval(async () => {
+        try {
+          const res = await fetch('/api/hotspot/recent?vpa=all');
+          const data = await res.json();
+          if (data.success && data.events && data.events.length > 0) {
+            syncBalances();
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

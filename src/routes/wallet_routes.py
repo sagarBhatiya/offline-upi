@@ -276,6 +276,80 @@ def wallet_withdraw():
         })
     return jsonify({"success": False, "error": res.get("error", "Withdrawal failed")}), 400
 
+@wallet_bp.route('/api/wallet/withdraw-bank', methods=['POST'])
+def withdraw_bank_funds():
+    """
+    Dual-mode online bank withdrawal:
+    Supports:
+    1. Direct Bank Account + IFSC (IMPS Payout)
+    2. Bank UPI ID (Instant UPI Payout)
+    Syncs pending offline vouchers to cloud ledger upon payout.
+    """
+    import uuid
+    data = request.json or {}
+    user_vpa = (data.get('vpa') or '').strip().lower()
+    method = (data.get('method') or 'UPI_ID').strip().upper()
+    try:
+        amount = float(data.get('amount', 0.0))
+    except (ValueError, TypeError):
+        amount = 0.0
+
+    if not user_vpa:
+        return jsonify({"success": False, "error": "User UPI ID is required."}), 400
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Withdrawal amount must be greater than ₹0."}), 400
+
+    target_desc = ""
+    target_destination = ""
+    if method == "BANK_ACCOUNT":
+        account_number = (data.get('accountNumber') or '').strip()
+        ifsc = (data.get('ifsc') or '').strip().upper()
+
+        if not account_number or len(account_number) < 8 or not account_number.isdigit():
+            return jsonify({"success": False, "error": "Please enter a valid Bank Account Number (8-18 digits)."}), 400
+        if not ifsc or len(ifsc) != 11:
+            return jsonify({"success": False, "error": "Please enter a valid 11-character IFSC Code (e.g. HDFC0001234)."}), 400
+
+        target_destination = f"{account_number}@{ifsc}"
+        target_desc = f"A/C ****{account_number[-4:]} ({ifsc})"
+    else:
+        bank_upi_id = (data.get('bankUpiId') or data.get('targetBankVpa') or '').strip().lower()
+        if not bank_upi_id or '@' not in bank_upi_id:
+            return jsonify({"success": False, "error": "Please enter a valid Bank UPI ID (e.g. name@okhdfcbank)."}), 400
+        target_destination = bank_upi_id
+        target_desc = f"UPI {bank_upi_id}"
+
+    random_digits = "".join([str(random.randint(0, 9)) for _ in range(8)])
+    bank_utr = f"IMPS{int(time.time()) % 100000}{random_digits}"
+    withdrawal_ref = f"WD-{uuid.uuid4().hex[:10].upper()}"
+
+    res = record_withdrawal(
+        vpa=user_vpa,
+        target_bank_vpa=target_destination,
+        amount=amount,
+        bank_utr=bank_utr,
+        withdrawal_ref=withdrawal_ref
+    )
+
+    if not res.get('success'):
+        return jsonify({"success": False, "error": res.get("error")}), 400
+
+    # Mark pending vouchers as synced
+    from src.core.hotspot_socket import OfflinePaymentService
+    OfflinePaymentService.sync_pending_vouchers_to_cloud()
+
+    return jsonify({
+        "success": True,
+        "amount": amount,
+        "method": method,
+        "targetDescription": target_desc,
+        "destination": target_destination,
+        "bankUtr": bank_utr,
+        "withdrawalRef": withdrawal_ref,
+        "newBalance": res["new_balance"],
+        "message": f"Rs.{amount:.2f} successfully withdrawn to {target_desc}! (UTR: {bank_utr})"
+    })
+
 @wallet_bp.route('/api/cashfree/order/create', methods=['POST'])
 def cashfree_order_create():
     """Generates Cashfree Payment Gateway order."""

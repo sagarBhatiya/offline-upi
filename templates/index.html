@@ -1,26 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Offline UPI - Hotspot & Wi-Fi Direct Payment</title>
+  <title>Offline UPI — Zero-Internet Digital Payments Over Wi-Fi Hotspot</title>
 
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#090a0f">
+  <meta name="theme-color" content="#07080d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
 
-  <!-- Tailwind CSS & Google Fonts -->
+  <!-- Tailwind CSS & Professional Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Minimal QR Code & Confetti Libraries -->
+  <!-- Core Libraries: QR Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -32,11 +31,10 @@
             mono: ['"JetBrains Mono"', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#ecfdf5',
-              400: '#34d399',
-              500: '#10b981',
-              600: '#059669',
+            slate: {
+              850: '#131622',
+              900: '#0d1019',
+              950: '#07080d',
             }
           }
         }
@@ -46,868 +44,517 @@
 
   <style>
     body {
-      background-color: #090a0f;
+      background-color: #07080d;
       color: #f3f4f6;
       font-family: 'Plus Jakarta Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #27272a;
-      border-radius: 4px;
-    }
     .glass-card {
-      background: rgba(18, 20, 29, 0.75);
-      backdrop-filter: blur(12px);
+      background: rgba(19, 23, 35, 0.75);
+      backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
     .glass-card-elevated {
-      background: rgba(24, 27, 40, 0.85);
-      backdrop-filter: blur(16px);
+      background: rgba(24, 29, 45, 0.88);
+      backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-6 selection:bg-emerald-500 selection:text-black">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
 
-  <!-- Main Container -->
-  <div class="w-full max-w-xl flex flex-col gap-5">
-
-    <!-- Top App Header -->
-    <header class="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">
-          ⚡
+  <!-- ========================================================================= -->
+  <!-- 1. STICKY TOP NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <header class="w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <!-- Brand Logo -->
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
+        ⚡
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-base font-extrabold tracking-tight text-white">Offline UPI</span>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            ZERO INTERNET
+          </span>
         </div>
-        <div>
-          <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
-            Offline UPI
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-              NO INTERNET
-            </span>
-          </h1>
-          <p class="text-xs text-zinc-400">Wi-Fi Hotspot P2P Payment</p>
+        <p class="text-[11px] text-zinc-400">Wi-Fi Hotspot P2P & Banking Bridge</p>
+      </div>
+    </a>
+
+    <!-- Center Navigation Links (Desktop) -->
+    <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-400">
+      <a href="#how-it-works" class="hover:text-emerald-400 transition">How It Works</a>
+      <a href="#features" class="hover:text-emerald-400 transition">Features</a>
+      <a href="#security" class="hover:text-emerald-400 transition">Security</a>
+      <a href="#install" class="hover:text-emerald-400 transition">Install App</a>
+      <a href="#faq" class="hover:text-emerald-400 transition">FAQ</a>
+    </nav>
+
+    <!-- Right Action CTAs -->
+    <div class="flex items-center gap-3">
+      <button onclick="openInstallModal()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-bold text-zinc-300 transition">
+        <span>📲</span>
+        <span>Install PWA</span>
+      </button>
+
+      <a href="/app" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 active:scale-95 transition">
+        <span>Launch App</span>
+        <span>⚡</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. HERO SECTION -->
+  <!-- ========================================================================= -->
+  <section class="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-8 max-w-6xl mx-auto flex flex-col items-center text-center space-y-6">
+    <!-- Ambient Background Glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none"></div>
+
+    <!-- Announcement Pill -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-300">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>Next-Gen Offline UPI Hotspot Architecture</span>
+    </div>
+
+    <!-- Main Headline -->
+    <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white max-w-4xl leading-tight">
+      Digital UPI Payments <br class="hidden sm:block"/>
+      <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+        Without Internet or Mobile Data.
+      </span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl leading-relaxed">
+      Transfer digital cash securely between two mobile devices using a peer-to-peer <strong>Wi-Fi Hotspot LAN</strong>. Zero signal, zero telecom dependencies, and instant on-device ECDSA digital signature verification.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+      <a href="/app" class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 transition">
+        <span>Launch Offline UPI App</span>
+        <span>⚡</span>
+      </a>
+
+      <button onclick="openInstallModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition">
+        <span>📲 Scan to Install on Phone</span>
+      </button>
+    </div>
+
+    <!-- Live Telemetry Badges -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-6 w-full max-w-3xl">
+      <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
+        <div class="text-[10px] font-mono text-zinc-500 uppercase">Network Mode</div>
+        <div class="text-xs font-bold text-emerald-300 font-mono flex items-center gap-1.5 pt-0.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 100% Offline Wi-Fi LAN
+        </div>
+      </div>
+      <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
+        <div class="text-[10px] font-mono text-zinc-500 uppercase">Cryptography</div>
+        <div class="text-xs font-bold text-white font-mono pt-0.5">ECDSA SECP256R1</div>
+      </div>
+      <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
+        <div class="text-[10px] font-mono text-zinc-500 uppercase">Transfer Speed</div>
+        <div class="text-xs font-bold text-white font-mono pt-0.5">0.1s Direct Socket</div>
+      </div>
+      <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
+        <div class="text-[10px] font-mono text-zinc-500 uppercase">Settlement</div>
+        <div class="text-xs font-bold text-amber-300 font-mono pt-0.5">Real Bank IMPS / UPI</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. HOW IT WORKS: THE 3-STEP ARCHITECTURE -->
+  <!-- ========================================================================= -->
+  <section id="how-it-works" class="py-16 px-4 sm:px-8 max-w-6xl mx-auto space-y-12 border-t border-zinc-900">
+    <div class="text-center space-y-2">
+      <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Simple 3-Step Protocol</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">How Offline UPI Works</h2>
+      <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
+        Designed to emulate the frictionless convenience of UPI while removing the requirement for internet connectivity during transfer.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Step 1 Card -->
+      <div class="glass-card rounded-3xl p-6 space-y-4 relative border-t-2 border-t-teal-400">
+        <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center text-2xl font-bold font-mono">
+          1
+        </div>
+        <div class="space-y-1.5">
+          <h3 class="text-base font-bold text-white">Hotspot Pairing (QR 1)</h3>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Merchant turns on Personal Hotspot. Screen shows <strong>Hotspot QR 1</strong> (<code class="text-[10px] bg-zinc-900 px-1 py-0.5 rounded text-emerald-300">WIFI:S:...</code>). Payer scans with in-app camera to connect to the local Wi-Fi subnet automatically without entering passwords.
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+          Result: Zero-latency peer socket ready at <span class="text-emerald-300">192.168.43.1</span>
         </div>
       </div>
 
-      <!-- Network LAN Status Indicator -->
-      <div id="lan-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span id="lan-status-text" class="text-zinc-300">Hotspot Active</span>
+      <!-- Step 2 Card -->
+      <div class="glass-card rounded-3xl p-6 space-y-4 relative border-t-2 border-t-emerald-400">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl font-bold font-mono">
+          2
+        </div>
+        <div class="space-y-1.5">
+          <h3 class="text-base font-bold text-white">Offline Payment (QR 2)</h3>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Merchant locks amount and displays <strong>Dynamic Payment QR 2</strong>. Payer scans with camera, confirms, and money is debited from Payer and credited to Merchant offline with a live voice announcement!
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+          Result: Instant balance transfer + Monotonic Nonce audit
+        </div>
       </div>
-    </header>
 
-    <!-- Quick Device Perspective Switcher (For testing on single screen or setting role) -->
-    <div class="glass-card rounded-2xl p-2 flex items-center justify-between text-xs">
-      <span class="text-zinc-400 pl-2 font-medium">This Device:</span>
-      <div class="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
-        <button id="btn-role-phone-a" onclick="switchDeviceRole('phone_a')" class="px-3 py-1.5 rounded-lg font-bold transition bg-emerald-600 text-white shadow">
-          📱 Device A (Payer)
-        </button>
-        <button id="btn-role-phone-b" onclick="switchDeviceRole('phone_b')" class="px-3 py-1.5 rounded-lg font-bold transition text-zinc-400 hover:text-white">
-          📱 Device B (Receiver)
+      <!-- Step 3 Card -->
+      <div class="glass-card rounded-3xl p-6 space-y-4 relative border-t-2 border-t-amber-400">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl font-bold font-mono">
+          3
+        </div>
+        <div class="space-y-1.5">
+          <h3 class="text-base font-bold text-white">Bank Withdrawal</h3>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Merchant stores offline earnings in their local vault. Whenever the device reconnects to internet, the merchant initiates a 1-tap withdrawal to their <strong>Bank Account + IFSC</strong> or <strong>Real Bank UPI ID</strong> via IMPS.
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+          Result: Direct settlement to real bank account with Bank UTR
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 4. APP LAUNCH CALL-TO-ACTION BANNER -->
+  <!-- ========================================================================= -->
+  <section class="py-12 px-4 sm:px-8 max-w-6xl mx-auto">
+    <div class="glass-card-elevated rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-emerald-500/20 text-center space-y-6">
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none"></div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
+        <span>⚡ Dedicated Peer-to-Peer Console</span>
+      </div>
+      <h2 class="text-2xl sm:text-4xl font-extrabold text-white max-w-2xl mx-auto">
+        Ready to Experience Zero-Internet Payments?
+      </h2>
+      <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
+        Launch the dedicated app console to test Hotspot pairing, offline dynamic QR payments, and real-time bank withdrawals.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <a href="/app" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 transition">
+          <span>Launch App Console</span>
+          <span>⚡</span>
+        </a>
+        <button onclick="openInstallModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition">
+          <span>📲 Install on Phone</span>
         </button>
       </div>
     </div>
+  </section>
 
-    <!-- Active Step Navigation Tabs (The 2 Options Requested) -->
-    <div class="grid grid-cols-2 gap-2 p-1.5 bg-zinc-900/90 rounded-2xl border border-zinc-800">
-      <button id="tab-btn-step1" onclick="switchTab('step1')" class="py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-zinc-800 text-white shadow-md">
-        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-mono">1</span>
-        <span>Connect Devices</span>
-      </button>
-      <button id="tab-btn-step2" onclick="switchTab('step2')" class="py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition text-zinc-400 hover:text-white">
-        <span class="w-5 h-5 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-[10px] font-mono">2</span>
-        <span>Send Payment</span>
-      </button>
+  <!-- ========================================================================= -->
+  <!-- 5. FEATURES & USE CASES SECTION -->
+  <!-- ========================================================================= -->
+  <section id="features" class="py-16 px-4 sm:px-8 max-w-6xl mx-auto space-y-12 border-t border-zinc-900">
+    <div class="text-center space-y-2">
+      <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Unstoppable Infrastructure</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Built for Extreme Environments</h2>
+      <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
+        When internet cables are severed or mobile towers are congested, Offline UPI keeps local commerce moving.
+      </p>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- STEP 1: DEVICE CONNECTION & REAL UPI AUTHENTICATION (Option 1) -->
-    <!-- ========================================================================= -->
-    <main id="step1-container" class="space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="glass-card rounded-2xl p-5 space-y-2.5">
+        <div class="text-2xl">✈️</div>
+        <h4 class="text-sm font-bold text-white">In-Flight & Transit</h4>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Enable passenger-to-crew inflight purchases at 35,000 feet with zero satellite data needed.
+        </p>
+      </div>
 
-      <!-- Device Connection Card -->
-      <section class="glass-card-elevated rounded-3xl p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="p-2 rounded-xl bg-teal-500/10 text-teal-400 text-lg">📡</span>
-            <div>
-              <h2 class="text-sm font-bold text-white">Hotspot & Wi-Fi Connection</h2>
-              <p class="text-xs text-zinc-400">Direct peer link over local Wi-Fi subnet</p>
-            </div>
-          </div>
-          <span id="step1-conn-pill" class="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            LAN Ready
-          </span>
+      <div class="glass-card rounded-2xl p-5 space-y-2.5">
+        <div class="text-2xl">🚇</div>
+        <h4 class="text-sm font-bold text-white">Metro & Basements</h4>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Underground parking garages and deep subway stations with dead cellular zones.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 space-y-2.5">
+        <div class="text-2xl">🌾</div>
+        <h4 class="text-sm font-bold text-white">Rural & Remote Markets</h4>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Continuous trade in remote rural bazaars without waiting for erratic 2G/4G connectivity.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 space-y-2.5">
+        <div class="text-2xl">🌪️</div>
+        <h4 class="text-sm font-bold text-white">Disaster Resilience</h4>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Emergency food and supply transactions during flood or storm telecom grid blackouts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 6. SECURITY & REGULATORY SPECIFICATIONS -->
+  <!-- ========================================================================= -->
+  <section id="security" class="py-16 px-4 sm:px-8 max-w-6xl mx-auto space-y-10 border-t border-zinc-900">
+    <div class="text-center space-y-2">
+      <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Cryptographic Safeguards</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Bank-Grade On-Device Security</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="p-6 rounded-3xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <h4 class="text-sm font-bold text-white">Hardware KeyStore SECP256R1 Signatures</h4>
         </div>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Every offline voucher payload is signed with the user's private key stored inside the Android KeyStore Hardware Security Module (HSM). The merchant validates the signature against the payer's public key offline.
+        </p>
+      </div>
 
-        <!-- Connection Details & QR Box -->
-        <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex flex-col sm:flex-row items-center gap-4">
-          <div id="host-qrcode" class="bg-white p-2.5 rounded-xl shadow shrink-0"></div>
-          <div class="space-y-1.5 text-center sm:text-left flex-1">
-            <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Host Network Address</div>
-            <div id="host-ip-display" class="text-sm font-mono font-bold text-emerald-300 break-all">http://192.168.43.1:5000</div>
-            <p class="text-xs text-zinc-400 leading-relaxed pt-1">
-              Connect second phone to this phone's Personal Hotspot, then scan QR or open the link in browser. Zero data/internet required!
-            </p>
-          </div>
+      <div class="p-6 rounded-3xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+          <h4 class="text-sm font-bold text-white">Monotonic Sequence Anti-Replay Guard</h4>
         </div>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Each voucher carries an atomic monotonically increasing counter. If a malicious client tries to retransmit a previously used voucher, the receiver immediately quarantines the payload and rejects the payment.
+        </p>
+      </div>
 
-        <!-- Connected Peer Status -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs font-semibold text-zinc-300">
-            <span>Discovered Peer Device</span>
-            <button onclick="refreshPeers()" class="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono text-[11px]">
-              🔄 Refresh
-            </button>
-          </div>
-
-          <div id="peer-status-box" class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                📲
-              </div>
-              <div>
-                <div id="peer-device-name" class="text-xs font-bold text-white">Device B (Receiver)</div>
-                <div id="peer-vpa-display" class="text-[11px] font-mono text-zinc-400">merchant@okhdfcbank</div>
-              </div>
-            </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              ✓ Connected
-            </span>
-          </div>
+      <div class="p-6 rounded-3xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <h4 class="text-sm font-bold text-white">₹500 Offline Transaction Cap</h4>
         </div>
-      </section>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Strictly enforces RBI/NPCI guidelines for offline micro-payments. Single offline transactions are limited to ₹500 to minimize exposure while allowing everyday essential commerce.
+        </p>
+      </div>
 
-      <!-- Real UPI Authentication Card -->
-      <section class="glass-card-elevated rounded-3xl p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-lg">🛡️</span>
-            <div>
-              <h2 class="text-sm font-bold text-white">Real Device UPI Authentication</h2>
-              <p class="text-xs text-zinc-400">Verify your authentic installed UPI handle</p>
-            </div>
-          </div>
-          <span id="auth-status-pill" class="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            Verified
-          </span>
+      <div class="p-6 rounded-3xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+          <h4 class="text-sm font-bold text-white">ACID Double-Entry Accounting Invariant</h4>
         </div>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Both sender and receiver state changes are recorded as complementary debit and credit entries in SQLite. Mathematical audit guarantees <code class="text-emerald-300">Sum(DR) == Sum(CR)</code> across all offline transactions.
+        </p>
+      </div>
+    </div>
+  </section>
 
-        <!-- Verified Real UPI Card -->
-        <div id="verified-upi-card" class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-zinc-900 to-zinc-950 border border-emerald-500/30 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">✓</span>
-              <span id="auth-app-name" class="text-xs font-bold text-zinc-200">Google Pay (HDFC Bank)</span>
-            </div>
-            <span id="auth-seal-code" class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">SEAL-SECURE</span>
+  <!-- ========================================================================= -->
+  <!-- 7. INSTALLATION & MOBILE ACCESS HUB -->
+  <!-- ========================================================================= -->
+  <section id="install" class="py-16 px-4 sm:px-8 max-w-4xl mx-auto space-y-8 border-t border-zinc-900 text-center">
+    <div class="space-y-2">
+      <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Mobile Handover Hub</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Install App On Your Mobile Device</h2>
+      <p class="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
+        Scan the QR code below using your phone's camera to open and install the app as a standalone PWA on your home screen.
+      </p>
+    </div>
+
+    <div class="glass-card-elevated rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-8 max-w-xl mx-auto">
+      <div id="section-handover-qr" class="bg-white p-3 rounded-2xl shadow-xl shrink-0"></div>
+      <div class="space-y-3 text-left">
+        <div class="space-y-1">
+          <div class="text-sm font-bold text-white">Scan with Mobile Camera</div>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Opens app directly in mobile browser with full offline cache storage.
+          </p>
+        </div>
+        <button onclick="triggerPwaPrompt()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-xs shadow-md transition">
+          1-Tap Install on this Device 📲
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 8. FREQUENTLY ASKED QUESTIONS (FAQ) -->
+  <!-- ========================================================================= -->
+  <section id="faq" class="py-16 px-4 sm:px-8 max-w-4xl mx-auto space-y-8 border-t border-zinc-900">
+    <div class="text-center space-y-2">
+      <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Got Questions?</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="glass-card rounded-2xl p-4 text-xs group cursor-pointer">
+        <summary class="font-bold text-white flex items-center justify-between">
+          <span>Do devices need active cellular data or SIM balance?</span>
+          <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="text-zinc-400 pt-2.5 leading-relaxed">
+          No! Both devices connect strictly over a local Wi-Fi Hotspot created by the receiver. Zero cellular data, SIM network, or internet is required during payment.
+        </p>
+      </details>
+
+      <details class="glass-card rounded-2xl p-4 text-xs group cursor-pointer">
+        <summary class="font-bold text-white flex items-center justify-between">
+          <span>What prevents a user from spending the same offline money twice?</span>
+          <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="text-zinc-400 pt-2.5 leading-relaxed">
+          Every transaction voucher contains an atomic monotonic sequence nonce signed cryptographically with ECDSA SECP256R1. The receiver verifies that the nonce is strictly greater than the sender's last known nonce; duplicate or replayed nonces are instantly quarantined.
+        </p>
+      </details>
+
+      <details class="glass-card rounded-2xl p-4 text-xs group cursor-pointer">
+        <summary class="font-bold text-white flex items-center justify-between">
+          <span>How does the merchant convert offline money into real bank funds?</span>
+          <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="text-zinc-400 pt-2.5 leading-relaxed">
+          Whenever the merchant reconnects to internet (at home or via Wi-Fi), they go to the "Bank Withdrawal" section in the app and tap "Withdraw to Bank". Funds are disbursed via IMPS to their Bank Account or Bank UPI ID.
+        </p>
+      </details>
+
+      <details class="glass-card rounded-2xl p-4 text-xs group cursor-pointer">
+        <summary class="font-bold text-white flex items-center justify-between">
+          <span>What is the maximum limit for offline payments?</span>
+          <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="text-zinc-400 pt-2.5 leading-relaxed">
+          In compliance with offline payment frameworks, individual transactions are capped at ₹500 to minimize risk.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 9. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="w-full border-t border-zinc-900 bg-zinc-950 py-10 px-4 sm:px-8 text-center text-xs text-zinc-500 space-y-3">
+    <div class="flex items-center justify-center gap-2 font-bold text-white">
+      <span>⚡ Offline UPI Protocol</span>
+      <span>•</span>
+      <span class="text-emerald-400">Hotspot Wi-Fi 2-Stage Architecture</span>
+    </div>
+    <p>Zero-Internet Peer-to-Peer Payments • Built for Extreme Reliability</p>
+    <div class="pt-2 text-[11px] text-zinc-600">
+      Open Source Implementation • Compatible with Android 10+ (API 29+) & Modern Mobile Browsers
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: APP INSTALLATION HUB -->
+  <!-- ========================================================================= -->
+  <div id="modal-install" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card-elevated max-w-md w-full rounded-3xl p-6 text-center space-y-5 border border-emerald-500/30 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+        <div class="flex items-center gap-2 text-left">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-xl font-bold shadow-md">
+            📲
           </div>
           <div>
-            <div id="auth-holder-name" class="text-sm font-extrabold text-white">Sagar Sharma</div>
-            <div id="auth-vpa-text" class="text-xs font-mono font-bold text-emerald-300">sagar@okhdfcbank</div>
+            <h3 class="text-sm font-extrabold text-white">Install Mobile App (PWA)</h3>
+            <p class="text-[11px] text-zinc-400">Zero Internet Standalone Access</p>
           </div>
         </div>
-
-        <!-- Connect / Switch Real UPI Drawer -->
-        <div class="space-y-3">
-          <button onclick="toggleUpiModal(true)" class="w-full py-3 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow">
-            <span>🔗 Connect / Switch UPI App from Phone</span>
-          </button>
-
-          <!-- Deep-Link Intent trigger (invokes Android UPI chooser directly on phone) -->
-          <div class="flex items-center justify-between p-3 rounded-xl bg-zinc-950 border border-zinc-800/80 text-xs text-zinc-400">
-            <span class="truncate">Auto-detect installed UPI apps:</span>
-            <a href="upi://pay?pa=verify.offline@npci&pn=OfflineUPI&cu=INR" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 font-bold font-mono text-[11px] transition">
-              Open App Chooser ↗
-            </a>
-          </div>
-        </div>
-
-        <!-- Proceed to Step 2 Button -->
-        <button onclick="switchTab('step2')" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition">
-          <span>Continue to Send Payment (Option 2) →</span>
-        </button>
-      </section>
-
-    </main>
-
-    <!-- ========================================================================= -->
-    <!-- STEP 2: OFFLINE PAYMENT TRANSFER (Option 2) -->
-    <!-- ========================================================================= -->
-    <main id="step2-container" class="space-y-4 hidden">
-
-      <!-- Balance Vault Card -->
-      <section class="glass-card-elevated rounded-3xl p-5 space-y-4">
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-zinc-400 font-medium">Offline Wallet Balance</span>
-          <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-bold text-[10px]">
-            VAULT ACTIVE
-          </span>
-        </div>
-
-        <div class="flex items-baseline justify-between">
-          <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold text-zinc-400">₹</span>
-            <span id="display-wallet-balance" class="text-4xl sm:text-5xl font-extrabold text-white font-mono tracking-tight">2000.00</span>
-          </div>
-          <button onclick="addDemoFunds()" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-xl border border-emerald-500/20">
-            + ₹500 Topup
-          </button>
-        </div>
-
-        <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs">
-          <span class="text-zinc-400">Linked UPI ID:</span>
-          <span id="active-user-vpa" class="font-mono text-emerald-300 font-bold truncate max-w-[200px]">user@okhdfcbank</span>
-        </div>
-      </section>
-
-      <!-- Payment Transfer Box -->
-      <section class="glass-card-elevated rounded-3xl p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>💸</span> Send Money Offline
-          </h2>
-          <span class="text-[11px] font-mono text-zinc-400">Zero Internet</span>
-        </div>
-
-        <!-- Receiver VPA Input -->
-        <div class="space-y-1.5">
-          <label class="text-xs font-medium text-zinc-300">Recipient UPI ID (Receiver)</label>
-          <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-2.5 px-3 focus-within:border-emerald-500 transition">
-            <span class="text-zinc-500 mr-2 text-sm">@</span>
-            <input type="text" id="input-receiver-vpa" placeholder="e.g. merchant@okhdfcbank" class="bg-transparent text-white font-mono text-xs sm:text-sm flex-1 outline-none placeholder:text-zinc-600">
-            <button onclick="fillPairedReceiver()" class="px-2.5 py-1 rounded-xl bg-zinc-800 text-[10px] text-emerald-300 font-bold hover:bg-zinc-700">
-              Paired Peer
-            </button>
-          </div>
-        </div>
-
-        <!-- Amount Input & Preset Chips -->
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-zinc-300">Amount to Transfer</label>
-          <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-3 px-4 focus-within:border-emerald-500 transition">
-            <span class="text-xl font-bold text-zinc-400 mr-2">₹</span>
-            <input type="number" id="input-amount" min="1" max="5000" placeholder="0.00" class="bg-transparent text-white font-mono text-2xl font-extrabold flex-1 outline-none placeholder:text-zinc-700">
-          </div>
-
-          <!-- Fast Amount Chips -->
-          <div class="grid grid-cols-4 gap-2 pt-1">
-            <button onclick="setAmount(50)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹50</button>
-            <button onclick="setAmount(100)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹100</button>
-            <button onclick="setAmount(200)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹200</button>
-            <button onclick="setAmount(500)" class="py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">₹500</button>
-          </div>
-        </div>
-
-        <!-- Transfer Button -->
-        <button id="btn-pay-now" onclick="executeOfflinePayment()" class="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 active:scale-[0.98] transition">
-          <span id="btn-pay-text">Pay Offline Now</span>
-          <span class="text-lg">⚡</span>
-        </button>
-
-        <!-- Offline Guarantee Notice -->
-        <p class="text-[11px] text-zinc-500 text-center flex items-center justify-center gap-1.5">
-          <span>🔒</span> Cryptographically debited & credited offline over Wi-Fi Hotspot.
-        </p>
-      </section>
-
-      <!-- Recent Offline Transactions Passbook -->
-      <section class="glass-card-elevated rounded-3xl p-5 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Recent Offline Transfers</h3>
-          <span id="tx-count-pill" class="text-[10px] font-mono text-zinc-500">0 records</span>
-        </div>
-
-        <div id="recent-tx-list" class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-          <div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 text-center text-xs text-zinc-500">
-            No offline transfers yet. Make your first transfer above!
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL: LINK REAL UPI FROM PHONE -->
-  <!-- ========================================================================= -->
-  <div id="modal-upi-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-card-elevated max-w-sm w-full rounded-3xl p-5 space-y-4 border border-zinc-700 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">📱</span>
-          <h3 class="text-sm font-bold text-white">Connect Device's UPI App</h3>
-        </div>
-        <button onclick="toggleUpiModal(false)" class="w-7 h-7 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-xs font-bold">✕</button>
+        <button onclick="closeInstallModal()" class="w-7 h-7 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-xs font-bold">✕</button>
       </div>
 
-      <p class="text-xs text-zinc-400">
-        Choose your installed UPI application to link and authenticate your authentic VPA:
-      </p>
-
-      <!-- App Picker Chips -->
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="selectUpiApp('Google Pay', 'okhdfcbank')" class="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left space-y-1 transition group">
-          <div class="text-xs font-bold text-white group-hover:text-emerald-300">Google Pay</div>
-          <div class="text-[10px] font-mono text-zinc-500">@okhdfcbank / @oksbi</div>
-        </button>
-        <button onclick="selectUpiApp('PhonePe', 'ybl')" class="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left space-y-1 transition group">
-          <div class="text-xs font-bold text-white group-hover:text-emerald-300">PhonePe</div>
-          <div class="text-[10px] font-mono text-zinc-500">@ybl / @ibl</div>
-        </button>
-        <button onclick="selectUpiApp('Paytm', 'paytm')" class="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left space-y-1 transition group">
-          <div class="text-xs font-bold text-white group-hover:text-emerald-300">Paytm</div>
-          <div class="text-[10px] font-mono text-zinc-500">@paytm</div>
-        </button>
-        <button onclick="selectUpiApp('BHIM', 'upi')" class="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left space-y-1 transition group">
-          <div class="text-xs font-bold text-white group-hover:text-emerald-300">BHIM UPI</div>
-          <div class="text-[10px] font-mono text-zinc-500">@upi (NPCI)</div>
-        </button>
-      </div>
-
-      <!-- VPA Input Form -->
-      <div class="space-y-1.5 pt-1">
-        <label class="text-xs font-medium text-zinc-300">Enter Your Real UPI ID</label>
-        <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-2.5 px-3 focus-within:border-emerald-500 transition">
-          <span class="text-zinc-500 mr-2 text-sm">@</span>
-          <input type="text" id="modal-upi-input" placeholder="e.g. yourname@okhdfcbank" class="bg-transparent text-white font-mono text-xs flex-1 outline-none">
+      <div class="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 flex flex-col sm:flex-row items-center gap-4 text-left">
+        <div id="modal-handover-qr" class="bg-white p-2 rounded-xl shadow shrink-0"></div>
+        <div class="space-y-1">
+          <div class="text-xs font-bold text-white">Scan from Phone Camera</div>
+          <p class="text-[11px] text-zinc-400 leading-relaxed">
+            Scan using your phone's camera to load and install this Offline UPI App directly on your mobile device!
+          </p>
         </div>
       </div>
 
-      <!-- Verify Button -->
-      <button onclick="submitUpiAuthentication()" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 transition">
-        <span>Verify & Bind to Device Vault</span>
-        <span>✓</span>
-      </button>
+      <div class="p-3.5 rounded-2xl bg-zinc-950 text-left text-xs space-y-2 border border-zinc-800">
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold shrink-0">Android:</span>
+          <span class="text-zinc-300">Open in Chrome → Tap menu <strong class="text-white">⋮</strong> → Select <strong class="text-white">"Install app"</strong> or <strong class="text-white">"Add to Home screen"</strong>.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold shrink-0">iOS:</span>
+          <span class="text-zinc-300">Open in Safari → Tap Share <strong class="text-white">⎋</strong> at bottom → Tap <strong class="text-white">"Add to Home Screen ⊞"</strong>.</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="triggerPwaPrompt()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs shadow-lg transition">
+          1-Tap Install on this Device
+        </button>
+        <button onclick="closeInstallModal()" class="py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition">
+          Done
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: PAYMENT SUCCESS RECEIPT -->
-  <!-- ========================================================================= -->
-  <div id="modal-success" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-card-elevated max-w-sm w-full rounded-3xl p-6 text-center space-y-4 border border-emerald-500/30 shadow-2xl">
-      <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-emerald-500/20">
-        ✓
-      </div>
-
-      <div>
-        <div class="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">Payment Successful</div>
-        <div class="text-3xl font-extrabold text-white font-mono pt-1">
-          ₹<span id="receipt-amount">0.00</span>
-        </div>
-        <div class="text-xs text-zinc-400 pt-1">Transferred Offline via Wi-Fi Hotspot</div>
-      </div>
-
-      <div class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 text-left text-xs space-y-2 font-mono">
-        <div class="flex justify-between">
-          <span class="text-zinc-500">Sender:</span>
-          <span id="receipt-sender" class="text-white truncate max-w-[170px]">user@okhdfcbank</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-zinc-500">Receiver:</span>
-          <span id="receipt-receiver" class="text-white truncate max-w-[170px]">merchant@okhdfcbank</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-zinc-500">Txn ID / UTR:</span>
-          <span id="receipt-utr" class="text-emerald-400 truncate max-w-[170px]">OFFLINE-12345</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-zinc-500">New Balance:</span>
-          <span class="text-white font-bold">₹<span id="receipt-new-bal">0.00</span></span>
-        </div>
-      </div>
-
-      <button onclick="toggleSuccessModal(false)" class="w-full py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition">
-        Done
-      </button>
-    </div>
-  </div>
-
-  <!-- Audio Chime Element -->
-  <audio id="audio-success" preload="auto">
-    <source src="https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3" type="audio/mp3">
-  </audio>
-
-  <!-- ========================================================================= -->
-  <!-- APPLICATION LOGIC JAVASCRIPT -->
+  <!-- JAVASCRIPT LOGIC (Landing Page Only) -->
   <!-- ========================================================================= -->
   <script>
-    // State Management
-    let currentRole = 'phone_a'; // 'phone_a' or 'phone_b'
-    let activeTab = 'step1';
-    let deviceId = localStorage.getItem('offline_upi_device_id') || ('dev_' + Math.random().toString(36).substring(2, 9));
-    localStorage.setItem('offline_upi_device_id', deviceId);
+    let deferredInstallPrompt = null;
 
-    // Default profiles for Phone A & Phone B
-    const profiles = {
-      phone_a: {
-        deviceName: "Device A (Customer Phone)",
-        vpa: localStorage.getItem('offline_vpa_phone_a') || "sagar@okhdfcbank",
-        holderName: "Sagar Sharma",
-        bank: "HDFC Bank",
-        appName: "Google Pay",
-        balance: 2000.0,
-        seal: "SEAL-A83F19"
-      },
-      phone_b: {
-        deviceName: "Device B (Merchant / Receiver)",
-        vpa: localStorage.getItem('offline_vpa_phone_b') || "merchant@okhdfcbank",
-        holderName: "Metro Cafe Store",
-        bank: "HDFC Bank",
-        appName: "PhonePe",
-        balance: 500.0,
-        seal: "SEAL-B92E41"
-      }
-    };
-
-    let selectedAppChoice = "Google Pay";
-    let lastPollTimestamp = 0;
-
-    // Initialization
-    window.addEventListener('DOMContentLoaded', async () => {
-      initQrCode();
-      await fetchNetworkInfo();
-      await syncAccountBalance();
-      await registerDevicePeer();
-      startPollingRecentTransactions();
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
     });
 
-    // Switch Tab (Step 1 vs Step 2)
-    function switchTab(tab) {
-      activeTab = tab;
-      const step1El = document.getElementById('step1-container');
-      const step2El = document.getElementById('step2-container');
-      const btn1 = document.getElementById('tab-btn-step1');
-      const btn2 = document.getElementById('tab-btn-step2');
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHandoverQrs();
+    });
 
-      if (tab === 'step1') {
-        step1El.classList.remove('hidden');
-        step2El.classList.add('hidden');
-        btn1.className = 'py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-zinc-800 text-white shadow-md';
-        btn2.className = 'py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition text-zinc-400 hover:text-white';
+    function renderHandoverQrs() {
+      const elSection = document.getElementById('section-handover-qr');
+      const elModal = document.getElementById('modal-handover-qr');
+      const targetAppUrl = window.location.origin + '/app';
+
+      [elSection, elModal].forEach(el => {
+        if (el) {
+          el.innerHTML = '';
+          new QRCode(el, {
+            text: targetAppUrl,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      });
+    }
+
+    function openInstallModal() {
+      document.getElementById('modal-install').classList.remove('hidden');
+    }
+
+    function closeInstallModal() {
+      document.getElementById('modal-install').classList.add('hidden');
+    }
+
+    function triggerPwaPrompt() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(() => {
+          deferredInstallPrompt = null;
+          closeInstallModal();
+        });
       } else {
-        step1El.classList.add('hidden');
-        step2El.classList.remove('hidden');
-        btn2.className = 'py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-zinc-800 text-white shadow-md';
-        btn1.className = 'py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition text-zinc-400 hover:text-white';
-        fillPairedReceiver();
-      }
-    }
-
-    // Switch Device Role (Phone A ⇄ Phone B)
-    async function switchDeviceRole(role) {
-      currentRole = role;
-      const btnA = document.getElementById('btn-role-phone-a');
-      const btnB = document.getElementById('btn-role-phone-b');
-
-      if (role === 'phone_a') {
-        btnA.className = 'px-3 py-1.5 rounded-lg font-bold transition bg-emerald-600 text-white shadow';
-        btnB.className = 'px-3 py-1.5 rounded-lg font-bold transition text-zinc-400 hover:text-white';
-      } else {
-        btnB.className = 'px-3 py-1.5 rounded-lg font-bold transition bg-emerald-600 text-white shadow';
-        btnA.className = 'px-3 py-1.5 rounded-lg font-bold transition text-zinc-400 hover:text-white';
-      }
-
-      updateUiProfile();
-      await syncAccountBalance();
-      await registerDevicePeer();
-      fillPairedReceiver();
-    }
-
-    // Update UI Elements with Current Profile
-    function updateUiProfile() {
-      const p = profiles[currentRole];
-      const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
-      const partner = profiles[partnerRole];
-
-      // Step 1 Profile Card
-      document.getElementById('auth-app-name').innerText = `${p.appName} (${p.bank})`;
-      document.getElementById('auth-seal-code').innerText = p.seal;
-      document.getElementById('auth-holder-name').innerText = p.holderName;
-      document.getElementById('auth-vpa-text').innerText = p.vpa;
-
-      // Discovered Peer box
-      document.getElementById('peer-device-name').innerText = partner.deviceName;
-      document.getElementById('peer-vpa-display').innerText = partner.vpa;
-
-      // Step 2 Profile
-      document.getElementById('active-user-vpa').innerText = p.vpa;
-      document.getElementById('display-wallet-balance').innerText = p.balance.toFixed(2);
-    }
-
-    // Fill Paired Recipient automatically
-    function fillPairedReceiver() {
-      const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
-      document.getElementById('input-receiver-vpa').value = profiles[partnerRole].vpa;
-    }
-
-    // Generate Host Connection QR Code
-    async function initQrCode() {
-      const qrEl = document.getElementById('host-qrcode');
-      qrEl.innerHTML = '';
-      try {
-        const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
-        const partnerVpa = profiles[partnerRole].vpa;
-        const res = await fetch(`/api/hotspot/qr?vpa=${encodeURIComponent(partnerVpa)}`);
-        const data = await res.json();
-        const qrString = data.qrString || JSON.stringify(data.qr);
-        new QRCode(qrEl, {
-          text: qrString,
-          width: 90,
-          height: 90,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-        if (data.qr && data.qr.ssid) {
-          document.getElementById('host-ip-display').innerText = `${data.qr.ssid} (${data.qr.host}:${data.qr.port})`;
-        }
-      } catch (err) {
-        new QRCode(qrEl, {
-          text: window.location.href,
-          width: 90,
-          height: 90,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-    }
-
-    // Fetch Network & Gateway Information
-    async function fetchNetworkInfo() {
-      try {
-        const res = await fetch('/api/hotspot/info');
-        const data = await res.json();
-        if (data.success) {
-          const ips = data.detectedIps || [];
-          const bestIp = ips[0] || window.location.hostname || "192.168.43.1";
-          const port = data.defaultPort || 5000;
-          document.getElementById('host-ip-display').innerText = `http://${bestIp}:${port}`;
-          document.getElementById('lan-status-text').innerText = `Hotspot Active (${bestIp})`;
-        }
-      } catch (err) {
-        document.getElementById('lan-status-text').innerText = "Hotspot LAN Connected";
-      }
-    }
-
-    // Sync Wallet Balance with Backend SQLite
-    async function syncAccountBalance() {
-      const p = profiles[currentRole];
-      try {
-        const res = await fetch(`/api/hotspot/account?vpa=${encodeURIComponent(p.vpa)}`);
-        const data = await res.json();
-        if (data.success && data.account) {
-          p.balance = parseFloat(data.account.balance) || 0.0;
-          p.holderName = data.account.holder_name || p.holderName;
-          document.getElementById('display-wallet-balance').innerText = p.balance.toFixed(2);
-          renderTransactions(data.transactions || []);
-        }
-      } catch (err) {
-        console.warn('Sync balance offline fallback', err);
-      }
-      updateUiProfile();
-    }
-
-    // Register this device with the Local Hotspot subnet
-    async function registerDevicePeer() {
-      const p = profiles[currentRole];
-      try {
-        const res = await fetch('/api/hotspot/peers/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            deviceId: deviceId + '_' + currentRole,
-            deviceName: p.deviceName,
-            vpa: p.vpa,
-            holderName: p.holderName,
-            bank: p.bank,
-            role: currentRole
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.peers && data.peers.length > 0) {
-          const peer = data.peers[0];
-          const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
-          if (peer.vpa) {
-            profiles[partnerRole].vpa = peer.vpa;
-            profiles[partnerRole].deviceName = peer.deviceName;
-            profiles[partnerRole].holderName = peer.holderName;
-            updateUiProfile();
-          }
-        }
-      } catch (e) {
-        console.warn('Peer registration error', e);
-      }
-    }
-
-    // Refresh Peers manually
-    async function refreshPeers() {
-      await registerDevicePeer();
-      await syncAccountBalance();
-      const statusPill = document.getElementById('step1-conn-pill');
-      statusPill.innerText = 'Refreshed ✓';
-      setTimeout(() => statusPill.innerText = 'LAN Ready', 2000);
-    }
-
-    // Set preset amount
-    function setAmount(val) {
-      document.getElementById('input-amount').value = val;
-    }
-
-    // Add Demo Funds to current wallet
-    async function addDemoFunds() {
-      const p = profiles[currentRole];
-      try {
-        const res = await fetch('/api/wallet/deposit-instant', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            payerVpa: p.vpa,
-            amount: 500.0,
-            accountHolderName: p.holderName
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          await syncAccountBalance();
-        }
-      } catch (e) {
-        p.balance += 500;
-        document.getElementById('display-wallet-balance').innerText = p.balance.toFixed(2);
-      }
-    }
-
-    // Execute Offline Payment (Option 2)
-    async function executeOfflinePayment() {
-      const p = profiles[currentRole];
-      const receiverVpa = (document.getElementById('input-receiver-vpa').value || '').trim().toLowerCase();
-      const amountVal = parseFloat(document.getElementById('input-amount').value || 0);
-
-      if (!receiverVpa) {
-        alert("Please enter recipient UPI ID.");
-        return;
-      }
-      if (receiverVpa === p.vpa.toLowerCase()) {
-        alert("Sender and recipient UPI IDs cannot be the same.");
-        return;
-      }
-      if (amountVal <= 0) {
-        alert("Please enter a valid transfer amount.");
-        return;
-      }
-      if (amountVal > 500) {
-        alert("Maximum offline limit is ₹500.00 per transaction.");
-        return;
-      }
-      if (p.balance < amountVal) {
-        alert(`Insufficient offline balance! You have ₹${p.balance.toFixed(2)}, required ₹${amountVal.toFixed(2)}.`);
-        return;
-      }
-
-      const btn = document.getElementById('btn-pay-now');
-      const btnText = document.getElementById('btn-pay-text');
-      btn.disabled = true;
-      btnText.innerText = "Transacting Offline...";
-
-      try {
-        const res = await fetch('/api/hotspot/transfer', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            senderVpa: p.vpa,
-            receiverVpa: receiverVpa,
-            amount: amountVal,
-            clientBalance: p.balance
-          })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-          // Play confetti
-          if (window.confetti) {
-            confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
-          }
-
-          // Play Audio chime & Voice announcement
-          playSuccessAudio(amountVal);
-
-          // Update local balance
-          p.balance = data.senderBalance !== undefined ? data.senderBalance : (p.balance - amountVal);
-          document.getElementById('display-wallet-balance').innerText = p.balance.toFixed(2);
-
-          // Also update partner's balance in state if in simulation
-          const partnerRole = currentRole === 'phone_a' ? 'phone_b' : 'phone_a';
-          if (profiles[partnerRole].vpa.toLowerCase() === receiverVpa) {
-            profiles[partnerRole].balance = data.receiverBalance !== undefined ? data.receiverBalance : (profiles[partnerRole].balance + amountVal);
-          }
-
-          // Show Receipt Modal
-          document.getElementById('receipt-amount').innerText = amountVal.toFixed(2);
-          document.getElementById('receipt-sender').innerText = p.vpa;
-          document.getElementById('receipt-receiver').innerText = receiverVpa;
-          document.getElementById('receipt-utr').innerText = data.transactionId || ('OFFLINE-' + Math.random().toString(36).substring(2, 9).toUpperCase());
-          document.getElementById('receipt-new-bal').innerText = p.balance.toFixed(2);
-          toggleSuccessModal(true);
-
-          // Reset input
-          document.getElementById('input-amount').value = '';
-
-          // Re-sync transactions list
-          await syncAccountBalance();
-        } else {
-          alert("Payment Failed: " + (data.error || "Unable to process offline transfer"));
-        }
-      } catch (err) {
-        alert("Offline transfer communication error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btnText.innerText = "Pay Offline Now";
-      }
-    }
-
-    // Play Success Voice & Audio
-    function playSuccessAudio(amount) {
-      try {
-        const audio = document.getElementById('audio-success');
-        if (audio) {
-          audio.currentTime = 0;
-          audio.play().catch(() => {});
-        }
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(`Payment of ${amount} rupees completed offline`);
-          utterance.rate = 1.05;
-          speechSynthesis.speak(utterance);
-        }
-      } catch (e) {}
-    }
-
-    // Render Recent Transactions
-    function renderTransactions(txns) {
-      const listEl = document.getElementById('recent-tx-list');
-      const countEl = document.getElementById('tx-count-pill');
-      countEl.innerText = `${txns.length} records`;
-
-      if (!txns || txns.length === 0) {
-        listEl.innerHTML = `<div class="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 text-center text-xs text-zinc-500">No offline transfers yet. Make your first transfer above!</div>`;
-        return;
-      }
-
-      const p = profiles[currentRole];
-      listEl.innerHTML = txns.map(t => {
-        const isDebit = t.sender_vpa.toLowerCase() === p.vpa.toLowerCase();
-        const sign = isDebit ? '-' : '+';
-        const color = isDebit ? 'text-zinc-300' : 'text-emerald-400 font-bold';
-        const badge = isDebit ? 'bg-zinc-800 text-zinc-400' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-        const counterpart = isDebit ? `To: ${t.receiver_vpa}` : `From: ${t.sender_vpa}`;
-        const timeStr = t.settled_at ? new Date(t.settled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Offline';
-
-        return `
-          <div class="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-mono font-bold ${badge}">
-                ${sign}
-              </span>
-              <div>
-                <div class="font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">${counterpart}</div>
-                <div class="text-[10px] font-mono text-zinc-500">${timeStr} • ${t.bank_utr || 'OFFLINE'}</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="font-mono text-xs sm:text-sm ${color}">${sign}₹${t.amount.toFixed(2)}</div>
-              <div class="text-[9px] font-mono text-zinc-500 uppercase">OFFLINE LAN</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Real-Time Background Event Poller (Instant notification for Receiver)
-    function startPollingRecentTransactions() {
-      setInterval(async () => {
-        try {
-          const p = profiles[currentRole];
-          const res = await fetch(`/api/hotspot/recent?vpa=${encodeURIComponent(p.vpa)}&since=${lastPollTimestamp}`);
-          const data = await res.json();
-          if (data.success && data.events && data.events.length > 0) {
-            lastPollTimestamp = Date.now();
-            // A new payment was received or sent!
-            for (const ev of data.events) {
-              if (ev.receiver.toLowerCase() === p.vpa.toLowerCase()) {
-                // We received money!
-                if (window.confetti) confetti({ particleCount: 50, spread: 50 });
-                playSuccessAudio(ev.amount);
-              }
-            }
-            await syncAccountBalance();
-          }
-        } catch (e) {}
-      }, 2500);
-    }
-
-    // Modal Handlers
-    function toggleUpiModal(show) {
-      document.getElementById('modal-upi-auth').classList.toggle('hidden', !show);
-    }
-
-    function toggleSuccessModal(show) {
-      document.getElementById('modal-success').classList.toggle('hidden', !show);
-    }
-
-    function selectUpiApp(appName, handle) {
-      selectedAppChoice = appName;
-      const username = profiles[currentRole].holderName.toLowerCase().replace(/\s+/g, '');
-      document.getElementById('modal-upi-input').value = `${username}@${handle}`;
-    }
-
-    // Authenticate & Bind Real UPI
-    async function submitUpiAuthentication() {
-      const vpa = (document.getElementById('modal-upi-input').value || '').trim().toLowerCase();
-      if (!vpa || !vpa.includes('@')) {
-        alert("Please enter a valid UPI format (e.g. yourname@okhdfcbank or 9876543210@paytm)");
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/upi/authenticate-device', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            vpa: vpa,
-            appName: selectedAppChoice,
-            deviceId: deviceId,
-            initialBalance: profiles[currentRole].balance
-          })
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          const p = profiles[currentRole];
-          p.vpa = data.vpa;
-          p.holderName = data.holderName;
-          p.bank = data.bankName;
-          p.appName = data.appName;
-          p.seal = data.deviceSeal;
-          p.balance = data.balance;
-
-          localStorage.setItem('offline_vpa_' + currentRole, data.vpa);
-
-          updateUiProfile();
-          toggleUpiModal(false);
-          await registerDevicePeer();
-          alert(`✓ Authenticated real UPI with ${data.appName} (${data.bankName})!`);
-        } else {
-          alert("Authentication Failed: " + (data.error || "Invalid UPI"));
-        }
-      } catch (err) {
-        alert("Offline verification error: " + err.message);
+        alert("PWA installer ready! In your mobile browser menu (⋮ or ⎋), select 'Add to Home screen' or 'Install App'.");
       }
     }
   </script>
