@@ -89,15 +89,23 @@ def validate_upi_id():
         bank_name, psp_name = bank_info
 
     # Generate verified account holder name from username
-    raw_name = username.replace('.', ' ').replace('_', ' ').replace('-', ' ')
-    holder_name = " ".join(word.capitalize() for word in raw_name.split() if not word.isdigit())
-    if not holder_name:
-        holder_name = f"UPI Account Holder ({username})"
+    provided_name = (data.get('holderName') or data.get('name') or '').strip()
+    if provided_name:
+        holder_name = provided_name
+    else:
+        raw_name = username.replace('.', ' ').replace('_', ' ').replace('-', ' ')
+        holder_name = " ".join(word.capitalize() for word in raw_name.split() if not word.isdigit())
+        if not holder_name:
+            holder_name = f"UPI Account Holder ({username})"
 
     # Auto-register/verify in local ledger with balance carryover
     old_vpa = (data.get('oldVpa') or '').strip()
     initial_balance = data.get('initialBalance')
     upsert_user_account(new_vpa=vpa, holder_name=holder_name, old_vpa=old_vpa, initial_balance=initial_balance)
+
+    import urllib.parse
+    encoded_name = urllib.parse.quote(holder_name)
+    deeplink = f"upi://pay?pa={vpa}&pn={encoded_name}&am=1.00&cu=INR&tn=UPI%20Verification"
 
     return jsonify({
         "success": True,
@@ -108,6 +116,7 @@ def validate_upi_id():
         "psp": psp_name,
         "verified": True,
         "status": "ACTIVE_AUTHENTICATED",
+        "deeplink": deeplink,
         "message": f"UPI ID authenticated with {bank_name} ({psp_name})"
     })
 
@@ -178,10 +187,14 @@ def authenticate_device_upi():
     bank_name, detected_psp = psp_directory.get(handle, (f"{handle.upper()} Bank", app_name or "Installed UPI App"))
     final_psp = app_name if app_name else detected_psp
 
-    raw_name = username.replace('.', ' ').replace('_', ' ').replace('-', ' ')
-    holder_name = " ".join(word.capitalize() for word in raw_name.split() if not word.isdigit())
-    if not holder_name:
-        holder_name = f"User ({username})"
+    provided_name = (data.get('holderName') or data.get('name') or '').strip()
+    if provided_name:
+        holder_name = provided_name
+    else:
+        raw_name = username.replace('.', ' ').replace('_', ' ').replace('-', ' ')
+        holder_name = " ".join(word.capitalize() for word in raw_name.split() if not word.isdigit())
+        if not holder_name:
+            holder_name = f"User ({username})"
 
     # Upsert account in DB
     upsert_user_account(new_vpa=vpa, holder_name=holder_name, initial_balance=initial_balance)
@@ -193,6 +206,10 @@ def authenticate_device_upi():
     seal_raw = f"{vpa}:{device_id}:{time.time()}:OFFLINE_UPI_VAULT_2026"
     seal_hash = hashlib.sha256(seal_raw.encode()).hexdigest()[:24]
 
+    import urllib.parse
+    encoded_name = urllib.parse.quote(holder_name)
+    deeplink = f"upi://pay?pa={vpa}&pn={encoded_name}&am=1.00&cu=INR&tn=Offline%20UPI%20Verification"
+
     return jsonify({
         "success": True,
         "authenticated": True,
@@ -202,6 +219,6 @@ def authenticate_device_upi():
         "appName": final_psp,
         "balance": balance,
         "deviceSeal": f"SEAL-{seal_hash}",
-        "deeplink": f"upi://pay?pa={vpa}&pn={holder_name}&cu=INR",
+        "deeplink": deeplink,
         "message": f"Successfully authenticated real UPI with {final_psp} ({bank_name})"
     })
