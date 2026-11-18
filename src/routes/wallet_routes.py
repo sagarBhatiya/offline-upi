@@ -150,6 +150,53 @@ def wallet_deposit_create():
         "message": f"Deposit intent for ₹{amount:.2f} created. Open UPI app or scan QR to complete payment."
     })
 
+@wallet_bp.route('/api/wallet/deposit/bank', methods=['POST'])
+def wallet_deposit_bank():
+    """
+    Adds money to user's offline wallet from a linked Bank Account or UPI handle.
+    Debits the bank account and atomically credits the user's offline wallet reserve.
+    """
+    data = request.json or {}
+    user_vpa = (data.get('vpa') or 'user@okhdfcbank').strip()
+    bank_name = (data.get('bankName') or 'HDFC Bank').strip()
+    account_number = (data.get('accountNumber') or '•••• 4892').strip()
+    method = (data.get('method') or 'DIRECT_BANK').strip()
+
+    try:
+        amount = float(data.get('amount', 500.0))
+    except (ValueError, TypeError):
+        amount = 500.0
+
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Amount must be greater than Rs. 0"}), 400
+
+    bank_utr = gateway_service.generate_bank_utr()
+    deposit_ref = f"BANK_LOAD_{int(time.time()*1000)}_{random.randint(100, 999)}"
+    deeplink_url = f"bank://transfer?src={bank_name}&am={amount:.2f}&utr={bank_utr}"
+
+    res = record_deposit(
+        vpa=user_vpa,
+        amount=amount,
+        bank_utr=bank_utr,
+        deposit_ref=deposit_ref,
+        deeplink_url=deeplink_url
+    )
+
+    if res.get('success'):
+        return jsonify({
+            "success": True,
+            "vpa": user_vpa,
+            "bankName": bank_name,
+            "accountNumber": account_number,
+            "method": method,
+            "depositedAmount": amount,
+            "newBalance": res["new_balance"],
+            "bankUtr": res["bank_utr"],
+            "transactionId": res["transaction_id"],
+            "message": f"Rs.{amount:.2f} successfully loaded into offline wallet from {bank_name}!"
+        })
+    return jsonify({"success": False, "error": res.get("error", "Failed to add money from bank")}), 400
+
 @wallet_bp.route('/api/wallet/deposit/instant', methods=['POST'])
 def wallet_deposit_instant():
     """Immediately tops up wallet balance (sandbox demo helper)."""

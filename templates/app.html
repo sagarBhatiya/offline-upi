@@ -205,6 +205,9 @@
           </div>
 
           <div class="flex items-center gap-2">
+            <button onclick="openAddMoneyModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs shadow-md transition flex items-center gap-1 active:scale-95">
+              <span>+ Add Money</span>
+            </button>
             <button onclick="navigateTo('bank')" class="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-amber-300 border border-zinc-700 transition">
               Withdraw
             </button>
@@ -569,69 +572,154 @@
         <button onclick="navigateTo('home')" class="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition">
           <span>←</span> <span>Back</span>
         </button>
-        <h2 class="text-xs font-bold text-white uppercase tracking-wider">Bank Accounts & IMPS</h2>
+        <h2 class="text-xs font-bold text-white uppercase tracking-wider">Bank & Wallet Reserve</h2>
         <div class="w-8"></div>
       </div>
 
-      <!-- Withdrawable Earnings Vault -->
-      <div class="glass-card-elevated rounded-3xl p-5 space-y-3 border-l-4 border-l-amber-400">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Withdrawable Vault Earnings</div>
-            <div class="text-2xl font-extrabold text-amber-300 font-mono tracking-tight pt-0.5">
-              ₹<span id="bank-vault-display">500.00</span>
-            </div>
-          </div>
-          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl font-bold">
-            🏦
-          </div>
-        </div>
-        <p class="text-[11px] text-zinc-400 leading-tight">
-          Payments collected offline can be withdrawn to your real bank account whenever your phone reconnects to internet.
-        </p>
+      <!-- 2-Way Banking Operation Toggle -->
+      <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-2xl border border-zinc-800 text-xs">
+        <button id="tab-bank-deposit" onclick="switchBankActionTab('deposit')" class="py-2.5 rounded-xl font-bold bg-zinc-800 text-emerald-400 shadow transition flex items-center justify-center gap-1.5">
+          <span>📥 Add Money from Bank</span>
+        </button>
+        <button id="tab-bank-withdraw" onclick="switchBankActionTab('withdraw')" class="py-2.5 rounded-xl font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>📤 Withdraw to Bank</span>
+        </button>
       </div>
 
-      <!-- Withdrawal Hub Form -->
-      <div class="glass-card rounded-3xl p-5 space-y-4">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Withdraw to Real Bank</h3>
-
-        <!-- Payout Mode Tabs -->
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <button id="btn-wmode-acc" onclick="selectWithdrawTab('BANK_ACCOUNT')" class="p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition">
-            <div class="font-bold text-white flex items-center gap-1.5">
-              <span>🏛️</span> Bank A/C + IFSC
+      <!-- PANE 1: ADD MONEY FROM BANK (#pane-bank-deposit) -->
+      <div id="pane-bank-deposit" class="space-y-4">
+        <!-- Linked Bank Account Overview Card -->
+        <div class="glass-card-elevated rounded-3xl p-5 space-y-3 border-l-4 border-l-emerald-400">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-xl font-bold">
+                🏛️
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span id="bank-deposit-source-name">HDFC Bank</span>
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">•••• 4892</span>
+                </div>
+                <p class="text-[10px] text-zinc-400">Primary Linked Bank Account</p>
+              </div>
             </div>
-            <div class="text-[10px] text-zinc-400 font-mono">IMPS Direct Payout</div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
+              Active ✓
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400 leading-tight">
+            Top up your offline wallet reserve from your bank account so you can pay merchant terminals even without internet!
+          </p>
+        </div>
+
+        <!-- Add Money Form -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-white">Select Top-Up Amount</h3>
+
+          <div class="space-y-2">
+            <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-2.5 px-4 focus-within:border-emerald-500 transition">
+              <span class="text-2xl font-bold text-zinc-400 mr-2">₹</span>
+              <input type="number" id="bank-deposit-amount-input" min="1" max="10000" value="500" oninput="setBankDepositAmount(this.value)" class="bg-transparent text-white font-mono text-2xl font-extrabold flex-1 outline-none">
+            </div>
+
+            <!-- Quick Amount Chips -->
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" onclick="setBankDepositAmount(200)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹200</button>
+              <button type="button" onclick="setBankDepositAmount(500)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹500</button>
+              <button type="button" onclick="setBankDepositAmount(1000)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹1000</button>
+              <button type="button" onclick="setBankDepositAmount(2000)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹2000</button>
+            </div>
+          </div>
+
+          <!-- Top-Up Method Selector -->
+          <div class="space-y-2 pt-2 border-t border-zinc-800/80">
+            <div class="text-[11px] font-mono text-zinc-400">Payment Funding Method:</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button type="button" id="btn-depmode-direct" onclick="selectBankDepositMode('DIRECT_BANK')" class="p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span>🏛️</span> Direct Bank A/C
+                </div>
+                <div class="text-[10px] text-zinc-400 font-mono">1-Tap Bank Transfer</div>
+              </button>
+              <button type="button" id="btn-depmode-upi" onclick="selectBankDepositMode('UPI_INTENT')" class="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition">
+                <div class="font-bold text-zinc-400 flex items-center gap-1.5">
+                  <span>📱</span> UPI App Intent
+                </div>
+                <div class="text-[10px] text-zinc-500 font-mono">GPay / PhonePe / Paytm</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Action -->
+          <button type="button" onclick="executeBankDeposit()" id="btn-submit-bank-deposit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 active:scale-95 transition">
+            <span>Add ₹<span id="label-bank-deposit-btn-amt">500.00</span> to Wallet from Bank</span>
+            <span>⚡</span>
           </button>
-          <button id="btn-wmode-upi" onclick="selectWithdrawTab('UPI_ID')" class="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition">
-            <div class="font-bold text-zinc-400 flex items-center gap-1.5">
-              <span>📱</span> Bank UPI ID
+        </div>
+      </div>
+
+      <!-- PANE 2: WITHDRAW TO REAL BANK (#pane-bank-withdraw) -->
+      <div id="pane-bank-withdraw" class="space-y-4 hidden">
+        <!-- Withdrawable Earnings Vault -->
+        <div class="glass-card-elevated rounded-3xl p-5 space-y-3 border-l-4 border-l-amber-400">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Withdrawable Vault Earnings</div>
+              <div class="text-2xl font-extrabold text-amber-300 font-mono tracking-tight pt-0.5">
+                ₹<span id="bank-vault-display">500.00</span>
+              </div>
             </div>
-            <div class="text-[10px] text-zinc-500 font-mono">Instant UPI Push</div>
-          </button>
-        </div>
-
-        <!-- Bank Account Fields -->
-        <div id="form-withdraw-acc-fields" class="space-y-2">
-          <input type="text" id="w-input-acc" value="50100456789123" placeholder="Bank Account Number" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
-          <input type="text" id="w-input-ifsc" value="HDFC0001234" placeholder="IFSC Code (11 digits)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase outline-none focus:border-emerald-500">
-        </div>
-
-        <!-- Bank UPI Fields -->
-        <div id="form-withdraw-upi-fields" class="space-y-2 hidden">
-          <input type="text" id="w-input-vpa" placeholder="Destination Real UPI ID (e.g. user@okhdfcbank)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
-        </div>
-
-        <div class="space-y-1.5">
-          <div class="text-xs text-zinc-400">Amount to Withdraw:</div>
-          <div class="flex items-center gap-2">
-            <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 flex-1">
-              <span class="text-zinc-500 font-bold mr-1">₹</span>
-              <input type="number" id="w-input-amount" value="200" class="w-full bg-transparent text-xs text-white font-mono outline-none">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl font-bold">
+              🏦
             </div>
-            <button onclick="executeBankPayout()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-extrabold text-xs shadow transition whitespace-nowrap">
-              Withdraw to Bank 🏦
+          </div>
+          <p class="text-[11px] text-zinc-400 leading-tight">
+            Payments collected offline can be withdrawn to your real bank account whenever your phone reconnects to internet.
+          </p>
+        </div>
+
+        <!-- Withdrawal Hub Form -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-white">Withdraw to Real Bank</h3>
+
+          <!-- Payout Mode Tabs -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button id="btn-wmode-acc" onclick="selectWithdrawTab('BANK_ACCOUNT')" class="p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition">
+              <div class="font-bold text-white flex items-center gap-1.5">
+                <span>🏛️</span> Bank A/C + IFSC
+              </div>
+              <div class="text-[10px] text-zinc-400 font-mono">IMPS Direct Payout</div>
             </button>
+            <button id="btn-wmode-upi" onclick="selectWithdrawTab('UPI_ID')" class="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition">
+              <div class="font-bold text-zinc-400 flex items-center gap-1.5">
+                <span>📱</span> Bank UPI ID
+              </div>
+              <div class="text-[10px] text-zinc-500 font-mono">Instant UPI Push</div>
+            </button>
+          </div>
+
+          <!-- Bank Account Fields -->
+          <div id="form-withdraw-acc-fields" class="space-y-2">
+            <input type="text" id="w-input-acc" value="50100456789123" placeholder="Bank Account Number" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
+            <input type="text" id="w-input-ifsc" value="HDFC0001234" placeholder="IFSC Code (11 digits)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase outline-none focus:border-emerald-500">
+          </div>
+
+          <!-- Bank UPI Fields -->
+          <div id="form-withdraw-upi-fields" class="space-y-2 hidden">
+            <input type="text" id="w-input-vpa" placeholder="Destination Real UPI ID (e.g. user@okhdfcbank)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="text-xs text-zinc-400">Amount to Withdraw:</div>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 flex-1">
+                <span class="text-zinc-500 font-bold mr-1">₹</span>
+                <input type="number" id="w-input-amount" value="200" class="w-full bg-transparent text-xs text-white font-mono outline-none">
+              </div>
+              <button onclick="executeBankPayout()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-extrabold text-xs shadow transition whitespace-nowrap">
+                Withdraw to Bank 🏦
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -826,6 +914,92 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADD MONEY TO WALLET -->
+  <!-- ========================================================================= -->
+  <div id="modal-add-money" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col justify-end p-0 hidden">
+    <div class="w-full max-w-md mx-auto bg-zinc-950 border-t border-zinc-800 rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📥</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Add Money to Offline Wallet</h3>
+            <p class="text-[10px] text-zinc-400">Transfer from your bank account to offline reserve</p>
+          </div>
+        </div>
+        <button onclick="closeAddMoneyModal()" class="w-7 h-7 rounded-full bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+
+      <!-- Source Bank Account Card -->
+      <div class="p-3.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-base font-bold">
+            🏛️
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+              <span id="modal-add-bank-name">HDFC Bank</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">•••• 4892</span>
+            </div>
+            <p class="text-[10px] text-zinc-400">Primary Linked Bank Account</p>
+          </div>
+        </div>
+        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold">Linked ✓</span>
+      </div>
+
+      <!-- Amount Input -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-xs text-zinc-400">
+          <span>Enter Amount to Add:</span>
+          <span class="text-[10px] font-mono text-emerald-400">Instant Credit</span>
+        </div>
+        <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-2xl p-2.5 px-4 focus-within:border-emerald-500 transition">
+          <span class="text-2xl font-bold text-zinc-400 mr-2">₹</span>
+          <input type="number" id="modal-add-amount-input" min="1" max="10000" value="500" oninput="setModalAddAmount(this.value)" class="bg-transparent text-white font-mono text-2xl font-extrabold flex-1 outline-none">
+        </div>
+      </div>
+
+      <!-- Quick Amount Chips -->
+      <div class="grid grid-cols-4 gap-2">
+        <button type="button" onclick="setModalAddAmount(200)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹200</button>
+        <button type="button" onclick="setModalAddAmount(500)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹500</button>
+        <button type="button" onclick="setModalAddAmount(1000)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹1000</button>
+        <button type="button" onclick="setModalAddAmount(2000)" class="py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 transition">+₹2000</button>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="space-y-1.5 pt-1">
+        <label class="text-[11px] font-mono text-zinc-400">Payment Funding Option:</label>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button type="button" id="modal-btn-dep-direct" onclick="selectModalDepMode('DIRECT_BANK')" class="p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition">
+            <div class="font-bold text-white flex items-center gap-1.5">
+              <span>🏛️</span> Direct Bank Debit
+            </div>
+            <div class="text-[10px] text-zinc-400 font-mono">1-Tap NetBanking Transfer</div>
+          </button>
+          <button type="button" id="modal-btn-dep-upi" onclick="selectModalDepMode('UPI_INTENT')" class="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition">
+            <div class="font-bold text-zinc-400 flex items-center gap-1.5">
+              <span>📱</span> UPI App Intent
+            </div>
+            <div class="text-[10px] text-zinc-500 font-mono">GPay / PhonePe / Paytm</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button type="button" onclick="executeModalAddMoney()" id="btn-modal-add-submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 active:scale-95 transition">
+        <span>Add ₹<span id="modal-add-btn-amt">500.00</span> to Wallet from Bank</span>
+        <span>⚡</span>
+      </button>
+
+      <p class="text-[10px] text-zinc-500 text-center">
+        Atomic double-entry ledger guarantee. Funds available immediately for zero-internet payments.
+      </p>
     </div>
   </div>
 
@@ -1039,6 +1213,10 @@
 
       document.getElementById('receive-name').innerText = currentName;
       document.getElementById('receive-vpa').innerText = currentVpa;
+      const bankSource = document.getElementById('bank-deposit-source-name');
+      if (bankSource) bankSource.innerText = currentBank;
+      const modalBank = document.getElementById('modal-add-bank-name');
+      if (modalBank) modalBank.innerText = currentBank;
       const withdrawVpaInput = document.getElementById('w-input-vpa');
       if (withdrawVpaInput && !withdrawVpaInput.value) {
         withdrawVpaInput.value = currentVpa;
@@ -1279,6 +1457,12 @@
       if (screenId === 'receive') {
         renderReceiveQr();
       }
+
+      if (screenId === 'bank') {
+        const bName = isRealVerified ? currentBank : 'HDFC Bank';
+        const bSrc = document.getElementById('bank-deposit-source-name');
+        if (bSrc) bSrc.innerText = bName;
+      }
     }
 
     // Toggle Balance Visibility
@@ -1336,11 +1520,13 @@
 
     function formatTxRow(t, isFull = false) {
       const isReceived = t.receiver_vpa.toLowerCase() === currentVpa.toLowerCase();
+      const isDeposit = t.auth_mode === 'REAL_UPI_DEPOSIT' || (t.sender_vpa && t.sender_vpa.toLowerCase().includes('bank'));
       const sign = isReceived ? '+' : '-';
       const color = isReceived ? 'text-emerald-400 font-bold' : 'text-zinc-200';
       const badgeClass = isReceived ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400';
-      const counterpart = isReceived ? t.sender_vpa : t.receiver_vpa;
-      const counterpartName = counterpart.split('@')[0].toUpperCase();
+      let counterpart = isReceived ? t.sender_vpa : t.receiver_vpa;
+      let counterpartName = isDeposit ? 'BANK TOP-UP' : counterpart.split('@')[0].toUpperCase();
+      if (isDeposit) counterpart = 'Linked Bank Account';
 
       return `
         <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex items-center justify-between text-xs hover:border-zinc-700 transition">
@@ -1760,6 +1946,142 @@
         }
       } catch (e) {
         el.innerText = 'Socket offline or unreachable.';
+      }
+    }
+
+    // =========================================================================
+    // BANK TOP-UP / ADD MONEY LOGIC
+    // =========================================================================
+    let bankDepositMode = 'DIRECT_BANK';
+    let modalDepMode = 'DIRECT_BANK';
+
+    function openAddMoneyModal(presetAmt) {
+      if (presetAmt) setModalAddAmount(presetAmt);
+      const bankName = isRealVerified ? currentBank : 'HDFC Bank';
+      const bEl = document.getElementById('modal-add-bank-name');
+      if (bEl) bEl.innerText = bankName;
+      document.getElementById('modal-add-money').classList.remove('hidden');
+    }
+
+    function closeAddMoneyModal() {
+      document.getElementById('modal-add-money').classList.add('hidden');
+    }
+
+    function setModalAddAmount(val) {
+      const inp = document.getElementById('modal-add-amount-input');
+      if (inp) inp.value = val;
+      const lbl = document.getElementById('modal-add-btn-amt');
+      const num = parseFloat(val);
+      if (lbl) lbl.innerText = isNaN(num) ? '0.00' : num.toFixed(2);
+    }
+
+    function selectModalDepMode(m) {
+      modalDepMode = m;
+      const bDir = document.getElementById('modal-btn-dep-direct');
+      const bUpi = document.getElementById('modal-btn-dep-upi');
+      if (!bDir || !bUpi) return;
+      if (m === 'DIRECT_BANK') {
+        bDir.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        const d1 = bDir.querySelector('div'); if (d1) d1.className = 'font-bold text-white flex items-center gap-1.5';
+        const d2 = bUpi.querySelector('div'); if (d2) d2.className = 'font-bold text-zinc-400 flex items-center gap-1.5';
+      } else {
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bDir.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        const d1 = bUpi.querySelector('div'); if (d1) d1.className = 'font-bold text-white flex items-center gap-1.5';
+        const d2 = bDir.querySelector('div'); if (d2) d2.className = 'font-bold text-zinc-400 flex items-center gap-1.5';
+      }
+    }
+
+    function switchBankActionTab(tab) {
+      const tDep = document.getElementById('tab-bank-deposit');
+      const tWdr = document.getElementById('tab-bank-withdraw');
+      const pDep = document.getElementById('pane-bank-deposit');
+      const pWdr = document.getElementById('pane-bank-withdraw');
+
+      if (tab === 'deposit') {
+        if (tDep) tDep.className = 'py-2.5 rounded-xl font-bold bg-zinc-800 text-emerald-400 shadow transition flex items-center justify-center gap-1.5';
+        if (tWdr) tWdr.className = 'py-2.5 rounded-xl font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5';
+        if (pDep) pDep.classList.remove('hidden');
+        if (pWdr) pWdr.classList.add('hidden');
+      } else {
+        if (tWdr) tWdr.className = 'py-2.5 rounded-xl font-bold bg-zinc-800 text-amber-400 shadow transition flex items-center justify-center gap-1.5';
+        if (tDep) tDep.className = 'py-2.5 rounded-xl font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5';
+        if (pWdr) pWdr.classList.remove('hidden');
+        if (pDep) pDep.classList.add('hidden');
+      }
+    }
+
+    function setBankDepositAmount(val) {
+      const inp = document.getElementById('bank-deposit-amount-input');
+      if (inp) inp.value = val;
+      const lbl = document.getElementById('label-bank-deposit-btn-amt');
+      const num = parseFloat(val);
+      if (lbl) lbl.innerText = isNaN(num) ? '0.00' : num.toFixed(2);
+    }
+
+    function selectBankDepositMode(m) {
+      bankDepositMode = m;
+      const bDir = document.getElementById('btn-depmode-direct');
+      const bUpi = document.getElementById('btn-depmode-upi');
+      if (!bDir || !bUpi) return;
+      if (m === 'DIRECT_BANK') {
+        bDir.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        const d1 = bDir.querySelector('div'); if (d1) d1.className = 'font-bold text-white flex items-center gap-1.5';
+        const d2 = bUpi.querySelector('div'); if (d2) d2.className = 'font-bold text-zinc-400 flex items-center gap-1.5';
+      } else {
+        bUpi.className = 'p-3 rounded-2xl bg-zinc-900 border border-emerald-500 text-left space-y-1 transition';
+        bDir.className = 'p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-left space-y-1 transition';
+        const d1 = bUpi.querySelector('div'); if (d1) d1.className = 'font-bold text-white flex items-center gap-1.5';
+        const d2 = bDir.querySelector('div'); if (d2) d2.className = 'font-bold text-zinc-400 flex items-center gap-1.5';
+      }
+    }
+
+    async function executeBankDeposit() {
+      const amt = parseFloat(document.getElementById('bank-deposit-amount-input').value || 0);
+      await performDeposit(amt, bankDepositMode);
+    }
+
+    async function executeModalAddMoney() {
+      const amt = parseFloat(document.getElementById('modal-add-amount-input').value || 0);
+      await performDeposit(amt, modalDepMode);
+      closeAddMoneyModal();
+    }
+
+    async function performDeposit(amt, method) {
+      if (!amt || isNaN(amt) || amt <= 0) {
+        alert('Please enter a valid amount greater than ₹0.');
+        return;
+      }
+      const bankName = isRealVerified ? currentBank : 'HDFC Bank';
+      try {
+        const res = await fetch('/api/wallet/deposit/bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vpa: currentVpa,
+            amount: amt,
+            bankName: bankName,
+            method: method
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (window.confetti) confetti({ particleCount: 80, spread: 70 });
+          playChime();
+          if ('speechSynthesis' in window && soundboxEnabled) {
+            const utter = new SpeechSynthesisUtterance(`₹${amt} added to offline wallet from bank account`);
+            utter.rate = 1.05;
+            speechSynthesis.speak(utter);
+          }
+          alert(`✓ ₹${amt.toFixed(2)} Loaded from Bank!\n\nBank: ${bankName}\nMethod: ${method === 'DIRECT_BANK' ? 'Direct Bank Debit' : 'UPI Intent App'}\nBank UTR: ${data.bankUtr}\nUpdated Balance: ₹${data.newBalance.toFixed(2)}`);
+          await fetchAccountData();
+        } else {
+          alert('Deposit failed: ' + (data.error || 'Server rejected deposit.'));
+        }
+      } catch (e) {
+        alert('Communication error: ' + e.message);
       }
     }
 

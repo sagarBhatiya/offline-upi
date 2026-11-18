@@ -167,6 +167,22 @@ class OfflineUPITestCase(unittest.TestCase):
         accounts = {a["vpa"]: a["balance"] for a in get_accounts()}
         self.assertEqual(accounts["sagar@upi"], 1000.0)
 
+    def test_5b_bank_account_deposit_flow(self):
+        """Verifies adding money to offline wallet directly from linked bank account."""
+        resp = self.client.post('/api/wallet/deposit/bank', json={
+            "vpa": "sagar@upi",
+            "amount": 500.0,
+            "bankName": "HDFC Bank",
+            "accountNumber": "•••• 4892",
+            "method": "DIRECT_BANK"
+        })
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["depositedAmount"], 500.0)
+        self.assertEqual(data["bankName"], "HDFC Bank")
+        self.assertTrue(len(data["bankUtr"]) >= 8)
+        self.assertEqual(data["newBalance"], 500.0) # 0.0 initial + 500.0
+
     def test_6_escrow_withdrawal_flow(self):
         """Verifies withdrawing money from the offline wallet to a real bank UPI ID."""
         # Pre-deposit funds
