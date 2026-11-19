@@ -8,6 +8,106 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 MAGIC_HEADER = 0xFA
 MAX_CHUNK_DATA_SIZE = 480  # Fits within standard negotiated BLE ATT MTU 512 bytes
+STANDARD_BLE_FINANCIAL_UUID = "0000FFF0-0000-1000-8000-00805F9B34FB"
+BLE_ADVERTISEMENT_SERVICE_DATA = "0000FFF1-0000-1000-8000-00805F9B34FB"
+
+import json
+import base64
+import time
+import uuid
+import hashlib
+
+class BlePaymentRadioManager:
+    """
+    Manages Bluetooth Low Energy (BLE) radio channels, discovery, and packet transmission.
+    Supports on-device zero-internet offline packet exchange.
+    """
+    @staticmethod
+    def create_ble_voucher_packet(sender_vpa: str, receiver_vpa: str, amount: float, pin_hash: str = "1234", nonce: int = 1) -> dict:
+        voucher_id = f"ble_vch_{uuid.uuid4().hex[:10]}"
+        timestamp = int(time.time() * 1000)
+        instruction = {
+            "voucherId": voucher_id,
+            "senderVpa": sender_vpa,
+            "receiverVpa": receiver_vpa,
+            "amount": float(amount),
+            "pinHash": pin_hash,
+            "nonce": nonce,
+            "timestamp": timestamp,
+            "protocol": "BLE_P2P_v5.2"
+        }
+        
+        # 256-bit ephemeral financial key
+        salt = f"{sender_vpa}:{receiver_vpa}:{nonce}".encode('utf-8')
+        raw_key = hashlib.sha256(salt + b"_OFFLINE_BLE_MASTER_KEY").digest()
+        
+        iv = os.urandom(12)
+        aesgcm = AESGCM(raw_key)
+        payload_bytes = json.dumps(instruction).encode('utf-8')
+        ciphertext = aesgcm.encrypt(iv, payload_bytes, None)
+        envelope = iv + ciphertext
+        
+        chunks = []
+        total = (len(envelope) + MAX_CHUNK_DATA_SIZE - 1) // MAX_CHUNK_DATA_SIZE
+        if total == 0: total = 1
+        
+        frames_info = []
+        for idx in range(total):
+            start = idx * MAX_CHUNK_DATA_SIZE
+            part = envelope[start : start + MAX_CHUNK_DATA_SIZE]
+            header = struct.pack(">BBHHHH", MAGIC_HEADER, 0x01, nonce & 0xFFFF, idx, total, len(part))
+            body = header + part
+            crc = zlib.crc32(body) & 0xFFFFFFFF
+            frame_bytes = body + struct.pack(">I", crc)
+            chunks.append(frame_bytes)
+            frames_info.append({
+                "frameIndex": idx,
+                "totalFrames": total,
+                "length": len(part),
+                "crc32": f"0x{crc:08X}",
+                "hex": frame_bytes.hex(),
+                "magic": "0xFA"
+            })
+            
+        return {
+            "voucherId": voucher_id,
+            "instruction": instruction,
+            "frames": [f.hex() for f in chunks],
+            "framesInfo": frames_info,
+            "totalFrames": total,
+            "saltHex": salt.hex(),
+            "timestamp": timestamp
+        }
+
+    @staticmethod
+    def verify_ble_voucher_packet(frames_hex: list, sender_vpa: str, receiver_vpa: str, nonce: int) -> dict:
+        salt = f"{sender_vpa}:{receiver_vpa}:{nonce}".encode('utf-8')
+        raw_key = hashlib.sha256(salt + b"_OFFLINE_BLE_MASTER_KEY").digest()
+        
+        ordered_parts = {}
+        total_expected = None
+        
+        for hx in frames_hex:
+            frame = bytes.fromhex(hx)
+            if len(frame) < 14:
+                raise ValueError("Frame too short")
+            magic, msg_type, session_id, seq, total, part_len = struct.unpack(">BBHHHH", frame[:10])
+            if magic != MAGIC_HEADER:
+                raise ValueError("Invalid magic header")
+            body = frame[:-4]
+            rcv_crc = struct.unpack(">I", frame[-4:])[0]
+            if (zlib.crc32(body) & 0xFFFFFFFF) != rcv_crc:
+                raise ValueError("CRC32 mismatch on BLE frame")
+            if total_expected is None:
+                total_expected = total
+            ordered_parts[seq] = frame[10:-4]
+            
+        assembled = b"".join([ordered_parts[i] for i in range(total_expected)])
+        iv = assembled[:12]
+        ciphertext = assembled[12:]
+        aesgcm = AESGCM(raw_key)
+        decrypted = aesgcm.decrypt(iv, ciphertext, None)
+        return json.loads(decrypted.decode('utf-8'))
 
 class BleSecureSessionChannel:
     """

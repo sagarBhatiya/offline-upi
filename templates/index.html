@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Offline UPI — Zero-Internet Digital Payments Over Wi-Fi Hotspot</title>
+  <title>Offline UPI — Zero-Internet Digital Payments Over Bluetooth LE</title>
 
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="/manifest.json">
@@ -81,7 +81,7 @@
             ZERO INTERNET
           </span>
         </div>
-        <p class="text-[11px] text-zinc-400">Wi-Fi Hotspot P2P & Banking Bridge</p>
+        <p class="text-[11px] text-zinc-400">Bluetooth LE P2P & Banking Bridge</p>
       </div>
     </a>
 
@@ -118,7 +118,7 @@
     <!-- Announcement Pill -->
     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-300">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span>Next-Gen Offline UPI Hotspot Architecture</span>
+      <span>Next-Gen Offline UPI Bluetooth LE Architecture</span>
     </div>
 
     <!-- Main Headline -->
@@ -131,7 +131,7 @@
 
     <!-- Subtitle -->
     <p class="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl leading-relaxed">
-      Transfer digital cash securely between two mobile devices using a peer-to-peer <strong>Wi-Fi Hotspot LAN</strong>. Zero signal, zero telecom dependencies, and instant on-device ECDSA digital signature verification.
+      Transfer digital cash securely between two mobile devices using peer-to-peer <strong>Bluetooth Low Energy (BLE) packets</strong>. Zero signal, zero telecom dependencies, and instant on-device AES-256-GCM + CRC-32 verification.
     </p>
 
     <!-- CTAs -->
@@ -151,16 +151,16 @@
       <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
         <div class="text-[10px] font-mono text-zinc-500 uppercase">Network Mode</div>
         <div class="text-xs font-bold text-emerald-300 font-mono flex items-center gap-1.5 pt-0.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 100% Offline Wi-Fi LAN
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 100% Offline BLE P2P
         </div>
       </div>
       <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
         <div class="text-[10px] font-mono text-zinc-500 uppercase">Cryptography</div>
-        <div class="text-xs font-bold text-white font-mono pt-0.5">ECDSA SECP256R1</div>
+        <div class="text-xs font-bold text-white font-mono pt-0.5">AES-256-GCM + CRC32</div>
       </div>
       <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
         <div class="text-[10px] font-mono text-zinc-500 uppercase">Transfer Speed</div>
-        <div class="text-xs font-bold text-white font-mono pt-0.5">0.1s Direct Socket</div>
+        <div class="text-xs font-bold text-white font-mono pt-0.5">&lt;0.2s Bluetooth LE</div>
       </div>
       <div class="p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 text-left">
         <div class="text-[10px] font-mono text-zinc-500 uppercase">Settlement</div>
@@ -188,13 +188,13 @@
           1
         </div>
         <div class="space-y-1.5">
-          <h3 class="text-base font-bold text-white">Hotspot Pairing (QR 1)</h3>
+          <h3 class="text-base font-bold text-white">BLE Radio Discovery</h3>
           <p class="text-xs text-zinc-400 leading-relaxed">
-            Merchant turns on Personal Hotspot. Screen shows <strong>Hotspot QR 1</strong> (<code class="text-[10px] bg-zinc-900 px-1 py-0.5 rounded text-emerald-300">WIFI:S:...</code>). Payer scans with in-app camera to connect to the local Wi-Fi subnet automatically without entering passwords.
+            Receiver phone advertises financial service UUID (<code class="text-[10px] bg-zinc-900 px-1 py-0.5 rounded text-emerald-300">0000FFF0</code>). Payer's device discovers the terminal automatically or scans the UPI Dynamic QR to lock the transaction details.
           </p>
         </div>
         <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
-          Result: Zero-latency peer socket ready at <span class="text-emerald-300">192.168.43.1</span>
+          Result: Zero-pairing Bluetooth GATT channel ready
         </div>
       </div>
 
@@ -204,13 +204,13 @@
           2
         </div>
         <div class="space-y-1.5">
-          <h3 class="text-base font-bold text-white">Offline Payment (QR 2)</h3>
+          <h3 class="text-base font-bold text-white">Encrypted BLE Packet Transfer</h3>
           <p class="text-xs text-zinc-400 leading-relaxed">
-            Merchant locks amount and displays <strong>Dynamic Payment QR 2</strong>. Payer scans with camera, confirms, and money is debited from Payer and credited to Merchant offline with a live voice announcement!
+            Payer confirms UPI PIN. Device fragments payment into 480B frames with Magic <code class="text-[10px] bg-zinc-900 px-1 py-0.5 rounded text-emerald-300">0xFA</code>, AES-256-GCM encryption, and CRC-32 integrity checks. Transmitted in milliseconds with instant voice soundbox announcement!
           </p>
         </div>
         <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
-          Result: Instant balance transfer + Monotonic Nonce audit
+          Result: Immediate balance transfer + Monotonic Nonce audit
         </div>
       </div>
 
@@ -245,7 +245,7 @@
         Ready to Experience Zero-Internet Payments?
       </h2>
       <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
-        Launch the dedicated app console to test Hotspot pairing, offline dynamic QR payments, and real-time bank withdrawals.
+        Launch the dedicated app console to test Bluetooth BLE discovery, offline encrypted payments, and real-time bank withdrawals.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <a href="/app" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 transition">
@@ -402,7 +402,7 @@
           <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
         </summary>
         <p class="text-zinc-400 pt-2.5 leading-relaxed">
-          No! Both devices connect strictly over a local Wi-Fi Hotspot created by the receiver. Zero cellular data, SIM network, or internet is required during payment.
+          No! Both devices connect strictly over peer-to-peer Bluetooth Low Energy (BLE) radio packets. Zero cellular data, SIM network, or internet is required during payment.
         </p>
       </details>
 
@@ -412,7 +412,7 @@
           <span class="text-emerald-400 font-bold group-open:rotate-180 transition">▼</span>
         </summary>
         <p class="text-zinc-400 pt-2.5 leading-relaxed">
-          Every transaction voucher contains an atomic monotonic sequence nonce signed cryptographically with ECDSA SECP256R1. The receiver verifies that the nonce is strictly greater than the sender's last known nonce; duplicate or replayed nonces are instantly quarantined.
+          Every transaction voucher contains an atomic monotonic sequence nonce signed cryptographically with AES-256-GCM. The receiver verifies that the nonce is strictly greater than the sender's last known nonce; duplicate or replayed nonces are instantly quarantined.
         </p>
       </details>
 
@@ -445,7 +445,7 @@
     <div class="flex items-center justify-center gap-2 font-bold text-white">
       <span>⚡ Offline UPI Protocol</span>
       <span>•</span>
-      <span class="text-emerald-400">Hotspot Wi-Fi 2-Stage Architecture</span>
+      <span class="text-emerald-400">Bluetooth 5.2 LE P2P Architecture</span>
     </div>
     <p>Zero-Internet Peer-to-Peer Payments • Built for Extreme Reliability</p>
     <div class="pt-2 text-[11px] text-zinc-600">

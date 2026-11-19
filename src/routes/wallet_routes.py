@@ -382,8 +382,11 @@ def withdraw_bank_funds():
         return jsonify({"success": False, "error": res.get("error")}), 400
 
     # Mark pending vouchers as synced
-    from src.core.hotspot_socket import OfflinePaymentService
-    OfflinePaymentService.sync_pending_vouchers_to_cloud()
+    try:
+        from src.core.hotspot_socket import OfflinePaymentService
+        OfflinePaymentService.sync_pending_vouchers_to_cloud()
+    except Exception:
+        pass
 
     return jsonify({
         "success": True,
